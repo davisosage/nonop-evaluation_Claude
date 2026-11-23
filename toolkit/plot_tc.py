@@ -149,7 +149,7 @@ def add_to_workbook(wb, deal_dir, oil_tc, gas_tc, fit_apis, title_prefix, low_co
     blue = Font(color="0000FF")
     op["B2"] = "Offset fit-set monthly production per 10,000 ft of lateral (gross 8/8)"; op["B2"].font = Font(bold=True, size=14)
     op["B3"] = ("Source: Enverus monthly production (deal_data.py). Month 1 = first producing month, scaled to a full month "
-                "from Enverus producing days where known (else dropped if partial); partial last month dropped. Each well is normalized to 10,000 ft: linear within +/- 2,500 ft; otherwise months 1-8 get the linear factor x 90% for a shorter well (/ 90% for a longer one; phased in from 2,500 to 5,000 ft away) and its decline is re-shaped so its EUR still scales linearly (a re-shaped well can show a few more or fewer months than it reported). Same basis as the type curve fit. Feeds the TypeCurve table (H20).")
+                "from Enverus producing days where known (else dropped if partial); partial last month dropped. Each well is normalized to 10,000 ft on the lateral rule (lateral.py): months 1-" + str(bt.LAT.EARLY_MONTHS) + " get the linear factor x f for a shorter well (/ f for a longer one; f = " + f"{bt.LAT.EARLY_PCT:.1%}" + " at " + f"{bt.LAT.FULL_AT:,.0f}" + " ft away, phased in from " + f"{bt.LAT.BAND:,.0f}" + " ft) and its decline is re-shaped so its EUR still scales linearly (a re-shaped well can show a few more or fewer months than it reported). Same basis as the type curve fit. Feeds the TypeCurve table (H20).")
     M = max(len(v) for v in oil.values())
     oc, gc = 3, 3 + n + 1            # oil block C.., gas block after one blank column
     op.cell(5, 2, "Month").font = hdr; op.cell(5, 2).fill = fill

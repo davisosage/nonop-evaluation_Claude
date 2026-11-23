@@ -1,18 +1,26 @@
-"""Lateral-length scaling of a monthly type curve (Davis's rule, Nov 2026).
+"""Lateral-length scaling of a monthly type curve (Davis's rule, Nov 2026; calibrated to Enverus 23 Nov 2026).
 
 A type curve built for one lateral length is moved to another like this:
-  * within +/- BAND ft (default 2,500) of the length it was built for: linear (volumes x L_to / L_from)
-  * further away: the EUR still scales linearly, but the shape does not
-      - months 1..EARLY_MONTHS (default 8, ramp included) get a factor f of the linear scaling when going to a longer
+  * within +/- BAND ft of the length it was built for: linear (volumes x L_to / L_from). BAND is 0 since the
+    calibration: per-foot output falls steadily with length, so there is no linear band.
+  * otherwise: the EUR still scales linearly, but the shape does not
+      - months 1..EARLY_MONTHS (3, ramp included) get a factor f of the linear scaling when going to a longer
         lateral, and linear / f when going to a shorter one (mirror image). f by distance from the curve's length:
-        100% at BAND ft (2,500), straight line to EARLY_PCT (92.5%) at FULL_AT (5,000 ft: 2 -> 3 miles), straight
-        line to EARLY_PCT2 (85%) at FULL_AT2 (10,000 ft: 2 -> 4 miles), EARLY_PCT2 beyond.
+        100% at BAND ft (0), straight line to EARLY_PCT (75%) at FULL_AT (5,000 ft: 2 -> 3 miles), straight
+        line to EARLY_PCT2 (67.5%) at FULL_AT2 (10,000 ft: 2 -> 4 miles), EARLY_PCT2 beyond. 67.5% is a placeholder (too
+        few 4-mile wells to calibrate): it keeps the old 7.5-point step from 3 to 4 miles, and Williston 3.5-mile wells
+        run 5-15 points below 3-mile wells through month 12.
+  * calibration (Enverus lateral_stats, first production 2020-2024, matched by operator x year x interval x county, 3 mi
+    vs 2 mi per foot): Williston Middle Bakken oil 0.69 / 0.70 / 0.74 / 0.79 / 0.88 at 3 / 6 / 9 / 12 / 36 months, DJ
+    Niobrara A-C + Codell oil 0.62 / 0.68 / 0.77 / 0.78 / 0.90. 70% for 3 months with linear EUR reproduces that; 75%
+    allows for lighter completions on DJ 3-mile wells and where longer laterals get drilled. No EUR test was possible
+    (Enverus EUR blank). Previous rule: 2,500 ft band, 8 months, 92.5% at 5,000 ft, 85% at 10,000 ft.
       - from month EARLY_MONTHS + 1 the decline is re-solved so the 360-month EUR lands exactly on the linear EUR:
-        the tail keeps its b and starts from the scaled month-9 rate (no jump), and the hyperbolic decline is
+        the tail keeps its b and starts from the scaled rate of the first month after the hold (no jump), and the hyperbolic decline is
         made shallower (longer lateral) or steeper (shorter lateral). The 7% terminal decline is kept.
         In practice the decline segment is stretched in time by a factor s:
-            q_new(t) = r * e * q(9 + (t - 9) * s)                       while 9 + (t - 9) * s <= Tsw
-            q_new(t) = r * e * q(Tsw) * g ** ((9 + (t - 9) * s - Tsw) / s)  after (terminal, g = monthly ratio)
+            q_new(t) = r * e * q(m1 + (t - m1) * s)                   while m1 + (t - m1) * s <= Tsw  (m1 = EARLY_MONTHS + 1)
+            q_new(t) = r * e * q(Tsw) * g ** ((m1 + (t - m1) * s - Tsw) / s)  after (terminal, g = monthly ratio)
         (for a hyperbolic, a time stretch is exactly "same b, Di x s"), with s solved so sum(q_new) = r * sum(q).
 
 Used by build_tc.py (offsets -> the deal's lateral -> the 10,000 ft basis), engine.py (10,000 ft basis -> each
@@ -22,11 +30,11 @@ values written by write_model.py.
 import numpy as np
 
 BASIS = 10000.0          # type curves are kept per 10,000 ft
-BAND = 2500.0            # +/- ft within which scaling is linear
-EARLY_MONTHS = 8         # months held to EARLY_PCT of linear
-EARLY_PCT = 0.925        # early-month factor at FULL_AT ft away (3 miles vs 2)
+BAND = 0.0               # +/- ft within which scaling is linear (was 2,500)
+EARLY_MONTHS = 3         # months held to the early factor (was 8)
+EARLY_PCT = 0.75         # early-month factor at FULL_AT ft away (3 miles vs 2; was 92.5%)
 FULL_AT = 5000.0
-EARLY_PCT2 = 0.85        # at FULL_AT2 ft away (4 miles vs 2) and beyond
+EARLY_PCT2 = 0.675       # at FULL_AT2 ft away (4 miles vs 2) and beyond (placeholder; was 85%)
 FULL_AT2 = 10000.0
 N = 360
 F_TERM = 0.93 ** (1 / 12)      # 7% effective terminal decline, monthly ratio

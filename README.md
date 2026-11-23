@@ -21,14 +21,21 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 5. `python3 deal_log.py ../deals "../Deal Log.xlsx"`, commit.
 
 ## Lateral length rule (`toolkit/lateral.py`)
-Type curves are kept per 10,000 ft, but a curve moved more than 2,500 ft (Inputs C24) is not scaled linearly: months 1-8
-(C25) get a factor of linear: 100% within 2,500 ft, straight lines to 92.5% (C26) at 5,000 ft away (C27, 3 miles vs 2) and
-85% (C28) at 10,000 ft away (C29, 4 miles vs 2), 85% beyond; going to a longer lateral (linear / factor going shorter), and from month 9 the hyperbolic decline
-is re-solved (same b, a time stretch s; 7% terminal kept) so the 360-month EUR is exactly linear. Within the band it is linear.
-- Offsets: each is normalized straight to 10,000 ft. Within 2,500 ft of 10,000 it is linear (8,000 ft x 1.25 every month);
-  further away months 1-8 get linear x the factor for a shorter offset (5,000 ft: x 2 x 0.925) and linear / factor for a longer
-  one (20,000 ft: x 0.5 / 0.85), and its decline from month 9 is re-shaped so its EUR is
-  still linear. The fit is made on that basis; the charts and Offset Production tab show the same normalized offsets.
+Type curves are kept per 10,000 ft. A curve moved to another lateral keeps a linear EUR, but its early months are not
+linear: months 1-3 (Inputs C25) get a factor of linear that falls from 100% at 10,000 ft (linear band C24 = 0 ft) in a
+straight line to 75% (C26) at 5,000 ft away (C27, 3 miles vs 2), then to 67.5% (C28) at 10,000 ft away (C29, 4 miles vs 2),
+67.5% beyond. The 4-mile factor is a placeholder (too few 4-mile wells to calibrate) that keeps the old 7.5-point step
+from 3 to 4 miles; without it a curve built on 3-mile offsets would carry no penalty onto 4-mile wells. Going to a longer lateral it is linear x factor, going shorter linear / factor. From month 4
+the hyperbolic decline is re-solved (same b, a time stretch s; 7% terminal kept) so the 360-month EUR is exactly linear.
+- Calibration (Nov 23, 2026, Enverus `lateral_stats`, first production 2020-2024, 3-mile vs 2-mile per foot, matched by
+  operator x year x interval x county): Williston Middle Bakken oil 0.69 / 0.70 / 0.74 / 0.79 / 0.88 and DJ Niobrara A-C +
+  Codell oil 0.62 / 0.68 / 0.77 / 0.78 / 0.90 at 3 / 6 / 9 / 12 / 36 months. 70% for 3 months with a linear EUR
+  reproduces that; 75% allows for lighter completions on DJ 3-mile wells and for where long laterals get drilled. EUR
+  itself could not be tested (Enverus EUR blank). Previous rule: 2,500 ft band, months 1-8, 92.5% at 3 miles, 85% at 4.
+- Offsets: each is normalized straight to 10,000 ft on the same rule: months 1-3 get linear x the factor for a shorter
+  offset (5,000 ft: x 2 x 0.75) and linear / factor for a longer one (20,000 ft: x 0.5 / 0.75), and its decline from
+  month 4 is re-shaped so its EUR is still linear. The fit is made on that basis; the charts and Offset Production tab
+  show the same normalized offsets.
 - Wells: the 'Lateral Curves' tab moves each well's curve from 10,000 ft to its lateral (s, Tsw, g solved by `write_model.py`);
   the CF tabs read it. Summary row 76 flags a well whose EUR no longer ties to linear: re-run `write_model.py`.
 - Deals modeled before Nov 2026 were linear; `lookback.py` keeps them linear unless the deal is rebuilt.

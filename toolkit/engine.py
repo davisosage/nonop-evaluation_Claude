@@ -8,7 +8,7 @@ Per-well overrides: run(m, oil, gas, wells=[...]) with dicts like the ones load_
 Multi-zone: m["zones"] = {zone: (oil, gas)} from the 'Zone Curves' tab; a well with w["zone"] set uses that curve,
 any other well uses the oil / gas curves passed to run (the TypeCurve tab = zone 1). run(..., zones={...}) overrides.
 Lateral length: curves are per 10,000 ft; each well's curve is moved to its lateral with lateral.scale_curve (linear
-within +/- the band, Inputs C24; otherwise months 1..C25 at a factor phased from 100% at C24 ft to C26 at C27 ft and C28 at C29 ft and the decline re-solved to the linear EUR),
+within +/- the band, Inputs C24, 0 since Nov 2026; otherwise months 1..C25 at a factor phased from 100% at C24 ft to C26 at C27 ft and C28 at C29 ft and the decline re-solved to the linear EUR),
 the same arithmetic as the workbook's 'Lateral Curves' tab.
 """
 import datetime as dt

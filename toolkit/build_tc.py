@@ -10,10 +10,10 @@ Every zone gets its own curve from its own offsets with the same method (b fitte
 curve when its fit set has fewer than 15 wells. Writes tc_zones.json, tc_zone_curves.csv and tc_zone_curves_10mi.csv.
 
 Lateral length (lateral.py, Davis's rule Nov 2026):
-  * each offset is normalized straight to the 10,000 ft basis. Within +/- 2,500 ft of 10,000: linear (an 8,000 ft
-    offset x 1.25 every month). Further away: months 1-8 get the linear factor x f (f phased from 100% at 2,500 ft away
-    to 92.5% at 5,000 ft away and 85% at 10,000 ft away and beyond) when the offset is shorter than 10,000 ft, and the linear factor / f when it is
-    longer (mirror: a 5,000 ft offset x 2 x 0.9, a 20,000 ft offset x 0.5 / 0.9); from month 9 the offset's decline is
+  * each offset is normalized straight to the 10,000 ft basis (rule constants in lateral.py; calibrated Nov 2026: no
+    linear band, months 1-3 at a factor f falling from 100% at 10,000 ft to 75% at 5,000 ft away, 75% beyond). A
+    shorter offset gets the linear factor x f in months 1-3, a longer one the linear factor / f (mirror: a 5,000 ft
+    offset x 2 x 0.75, a 20,000 ft offset x 0.5 / 0.75); from month 4 the offset's decline is
     re-shaped (time-stretched, same b) so its EUR still scales linearly. The stretch is solved on the fitted curve
     itself, so the fit is iterated a few times.
   * the engine / workbook move the 10,000 ft curve to each well's lateral on the same rule ('Lateral Curves').
