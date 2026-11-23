@@ -75,9 +75,9 @@
  "enverus_eurs_supplied": false,
  "oil": {
   "qi": 584.0550241545209,
-  "De": 0.6032750749113519,
-  "b": 1.1303919382446963,
-  "b_fitted": 1.1303919382446963,
+  "De": 0.5889321468701444,
+  "b": 0.2878129784339437,
+  "b_fitted": 0.2878129784339437,
   "b_pinned": false,
   "b_windows": {
    "18": 1.153435871800163,
@@ -90,13 +90,13 @@
    1.0051294574035572
   ],
   "peak_month": 5,
-  "ramp_start": 0.7537075406970786,
+  "ramp_start": 0.7537075426699094,
   "b_fit_peak_month_long": 5,
   "b_fixed_sensitivity": null,
-  "eur": 638222.4196994425,
-  "eur_unguarded": 638222.4196994425,
+  "eur": 363310.55234339705,
+  "eur_unguarded": 363310.55234339705,
   "eur_before_adjustment": 425760.48117068544,
-  "adjustment": "peak pinned to the offsets' mean month-5 rate; De / b / ramp refitted (log RMS 0.103 -> 0.085)"
+  "adjustment": "peak pinned to the offsets' mean month-5 rate; De / b / ramp refitted on months 1-41 (8+ wells reporting), weighted by wells reporting; log RMS months 1-41: 0.244 -> 0.169"
  },
  "gas": {
   "qi": 667.2448186837872,
@@ -125,12 +125,12 @@
   "adjustment": "De floor relaxed 0.20 -> 0.05 and refitted (log RMS 0.113 -> 0.104)"
  },
  "enverus": {
-  "oil_median": 638222.4196994425,
+  "oil_median": 363310.55234339705,
   "gas_median": 2834801.3886075886,
   "oil_p90_p50_p10": [
-   638.2224196994424,
-   638.2224196994424,
-   638.2224196994424
+   363.31055234339703,
+   363.31055234339703,
+   363.31055234339703
   ],
   "gas_p90_p50_p10": [
    2.8348013886075885,
