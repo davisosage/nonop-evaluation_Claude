@@ -54,7 +54,7 @@ def main(deal_dir):
         k = (1 - w["haircut"]) * mult * w["tc_factor"]
         Cw = ZC.get(w.get("zone"), C)
         lr = rec.get("lateral_rule") or {"band_ft": 1e9}      # deals modeled before the rule (Nov 2026) were linear
-        sc = lambda c: LAT.scale_curve(c, LAT.BASIS, w["lat_ft"], lr.get("band_ft"), lr.get("early_months"), lr.get("early_pct"))[0]
+        sc = lambda c: LAT.scale_curve(c, LAT.BASIS, w["lat_ft"], lr.get("band_ft"), lr.get("early_months"), lr.get("early_pct"), lr.get("full_ft", lr.get("band_ft")))[0]   # no full_ft = built on the earlier step rule
         po, pg = sc(Cw[:, 1])[:n] * k, sc(Cw[:, 2])[:n] * k
         model_first = month_add(v0, w["first_sales_month_index"])
         gap = (int(first[:4]) - int(model_first[:4])) * 12 + int(first[5:7]) - int(model_first[5:7])

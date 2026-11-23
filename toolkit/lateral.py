@@ -3,8 +3,9 @@
 A type curve built for one lateral length is moved to another like this:
   * within +/- BAND ft (default 2,500) of the length it was built for: linear (volumes x L_to / L_from)
   * further away: the EUR still scales linearly, but the shape does not
-      - months 1..EARLY_MONTHS (default 8, ramp included) get EARLY_PCT (default 90%) of the linear scaling
-        when going to a longer lateral, and linear / EARLY_PCT when going to a shorter one (mirror image)
+      - months 1..EARLY_MONTHS (default 8, ramp included) get a factor f of the linear scaling when going to a longer
+        lateral, and linear / f when going to a shorter one (mirror image). f is phased in: 100% at BAND ft away,
+        falling in a straight line to EARLY_PCT (default 90%) at FULL_AT ft away (default 5,000), EARLY_PCT beyond.
       - from month EARLY_MONTHS + 1 the decline is re-solved so the 360-month EUR lands exactly on the linear EUR:
         the tail keeps its b and starts from the scaled month-9 rate (no jump), and the hyperbolic decline is
         made shallower (longer lateral) or steeper (shorter lateral). The 7% terminal decline is kept.
@@ -23,13 +24,24 @@ BASIS = 10000.0          # type curves are kept per 10,000 ft
 BAND = 2500.0            # +/- ft within which scaling is linear
 EARLY_MONTHS = 8         # months held to EARLY_PCT of linear
 EARLY_PCT = 0.90
+FULL_AT = 5000.0         # ft away at which the full EARLY_PCT applies (phased in from BAND)
 N = 360
 F_TERM = 0.93 ** (1 / 12)      # 7% effective terminal decline, monthly ratio
 
 
-def params(band=None, months=None, pct=None):
+def params(band=None, months=None, pct=None, full=None):
     return dict(band=BAND if band is None else float(band), months=EARLY_MONTHS if months is None else int(months),
-                pct=EARLY_PCT if pct is None else float(pct))
+                pct=EARLY_PCT if pct is None else float(pct), full=FULL_AT if full is None else float(full))
+
+
+def early_pct(l_from, l_to, band=None, pct=None, full=None):
+    """Phased early-month factor f (<= 1) for a move of |l_to - l_from| ft: 1 inside the band, EARLY_PCT at FULL_AT."""
+    P = params(band, None, pct, full)
+    d = abs(l_to - l_from)
+    if d <= P["band"]:
+        return 1.0
+    frac = min(1.0, (d - P["band"]) / max(1.0, P["full"] - P["band"]))
+    return 1.0 - (1.0 - P["pct"]) * frac
 
 
 def terminal(c):
@@ -65,19 +77,20 @@ def _tail(c, s, m1, tsw, g, n):
     return v
 
 
-def scale_curve(c, l_from, l_to, band=None, months=None, pct=None):
+def scale_curve(c, l_from, l_to, band=None, months=None, pct=None, full=None):
     """Move a monthly curve from lateral l_from to l_to. Returns (curve, info) where info has
     mode ('linear' / 'shaped'), r, e (early factor relative to r), s (decline stretch), tsw, g."""
-    P = params(band, months, pct)
+    P = params(band, months, pct, full)
     c = np.asarray(c, float)
     n = len(c)
     if not l_from or not l_to or l_from <= 0 or l_to <= 0:
         return np.zeros(n), dict(mode="linear", r=0.0, e=1.0, s=1.0, tsw=n, g=F_TERM)
     r = l_to / l_from
-    if abs(l_to - l_from) <= P["band"] + 1e-9 or c.sum() <= 0 or n <= P["months"] + 1:
+    f = early_pct(l_from, l_to, P["band"], P["pct"], P["full"])
+    if f >= 1.0 - 1e-12 or c.sum() <= 0 or n <= P["months"] + 1:
         return c * r, dict(mode="linear", r=r, e=1.0, s=1.0, tsw=n, g=F_TERM)
     M, m1 = P["months"], P["months"] + 1
-    e = P["pct"] if r > 1 else 1 / P["pct"]
+    e = f if r > 1 else 1 / f
     tsw, g = terminal(c)
     tsw = max(tsw, m1)
     need = c.sum() / e - c[:M].sum()                         # tail volume (in source units) that hits the linear EUR

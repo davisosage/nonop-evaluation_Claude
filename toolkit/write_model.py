@@ -254,17 +254,18 @@ if "Lateral Curves" in wb.sheetnames:
                 lc.cell(r, col).value = None
             if lat <= 0:
                 continue
-            _, inf = LAT.scale_curve(c, LAT.BASIS, lat, gl["lat_band"], gl["lat_months"], gl["lat_pct"])
+            _, inf = LAT.scale_curve(c, LAT.BASIS, lat, gl["lat_band"], gl["lat_months"], gl["lat_pct"], gl["lat_full"])
             if inf["mode"] == "shaped":
                 lc.cell(11, col).value, lc.cell(12, col).value, lc.cell(13, col).value = inf["s"], inf["tsw"], inf["g"]
             if k == 2 and Wf[f"C{wr}"].value:
-                LAT_INFO.append(dict(well=Wf[f"C{wr}"].value, lat_ft=lat, mode=inf["mode"], oil_s=inf["s"]))
+                LAT_INFO.append(dict(well=Wf[f"C{wr}"].value, lat_ft=lat, mode=inf["mode"], early_x_linear=inf["e"], oil_s=inf["s"]))
     _lt = S.get("lateral") or {}
     _sh = [w for w in LAT_INFO if w["mode"] == "shaped"]
     _txt = (f" Lateral rule: offsets moved to the modeled {_lt.get('model_lateral', 10000):,.0f} ft lateral "
             f"({_lt.get('offsets_linear', S['wells'])} linear within +/- {gl['lat_band']:,.0f} ft, {len(_lt.get('offsets_shaped', []))} shaped), "
             f"fitted there and moved to this 10,000 ft basis; each well's curve at its lateral is on 'Lateral Curves' "
-            f"({len(_sh)} of {len(LAT_INFO)} wells shaped: months 1-{gl['lat_months']} at {gl['lat_pct']:.0%} of linear, decline re-solved to the linear EUR).")
+            f"({len(_sh)} of {len(LAT_INFO)} wells shaped: months 1-{gl['lat_months']} at 100% of linear {gl['lat_band']:,.0f} ft from 10,000 ft "
+            f"phasing to {gl['lat_pct']:.0%} at {gl['lat_full']:,.0f} ft, decline re-solved to the linear EUR).")
     tc["B3"] = _re.sub(r" Lateral rule: .*?\)\.", "", tc["B3"].value or "") + _txt
 # TC vs offsets charts (TypeCurve N2 / N42), monthly table (TypeCurve H18) and the Offset Production tab
 plot_tc.add_to_workbook(wb, deal, oil, gas, S["fit_set"], (wb["Summary"]["B2"].value or "Deal").split(":")[0], S["wells"] < 15,
@@ -358,7 +359,7 @@ rec = {
                "first_sales_month_index": w["first_m"], "haircut": w["haircut"], "tc_factor": w["tc_factor"],
                "zone": w.get("zone") or Z1} for w in M["wells"]],
     "valuation_month": str(wb["Inputs"]["C37"].value)[:10],
-    "lateral_rule": {"band_ft": g0["lat_band"], "early_months": g0["lat_months"], "early_pct": g0["lat_pct"],
+    "lateral_rule": {"band_ft": g0["lat_band"], "early_months": g0["lat_months"], "early_pct": g0["lat_pct"], "full_ft": g0["lat_full"],
                      "model_lateral": (S.get("lateral") or {}).get("model_lateral"),
                      "offsets_shaped": len((S.get("lateral") or {}).get("offsets_shaped", [])), "wells": LAT_INFO},
     "net_capex": 0 if MINERALS else sum(w["wi"] * (w["drill"] + w["compl"] + w["fac"]) for w in M["wells"]),

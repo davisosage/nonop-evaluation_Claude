@@ -13,7 +13,8 @@ Lateral length (lateral.py, Davis's rule Nov 2026):
   * deal_data.py sets MODEL_LATERAL (ft) = the lateral of the deal wells being modeled (multi-zone: ZONES[z]["lateral"]
     overrides it per zone). Missing = the median offset lateral, with a warning.
   * each offset is first moved to MODEL_LATERAL: within +/- 2,500 ft linear; further away the shaped rule
-    (months 1-8 at 90% of linear going longer, linear / 90% going shorter; decline re-solved so the EUR is linear).
+    (months 1-8 at a factor of linear phased from 100% at 2,500 ft away to 90% at 5,000 ft away, linear / factor going
+    shorter; decline re-solved so the EUR is linear).
     The shaped moves are taken from the fitted curve itself, so the fit is iterated a few times.
   * the curve is fitted at MODEL_LATERAL, then moved to the 10,000 ft basis with the same rule (the TypeCurve tab);
     the engine / workbook move it back to each well's lateral, so wells at the modeled length get the fit back.
@@ -294,7 +295,7 @@ def build_set(apis, lref=None):
         "lateral": {"model_lateral": lref, "offsets_linear": len(apis) - len(shaped), "offsets_shaped": shaped,
                     "offset_laterals": [float(WELLS[a][1]) for a in apis],
                     "to_basis": {k: {kk: v for kk, v in c[1].items()} for k, c in (("oil", conv_o), ("gas", conv_g))},
-                    "rule": {"band_ft": LAT.BAND, "early_months": LAT.EARLY_MONTHS, "early_pct": LAT.EARLY_PCT}},
+                    "rule": {"band_ft": LAT.BAND, "early_months": LAT.EARLY_MONTHS, "early_pct": LAT.EARLY_PCT, "full_ft": LAT.FULL_AT}},
         "wells_by_month": cnt,
         "fit_set": apis, "enverus_eurs_supplied": have_env,
         "oil": {**PO, "qi": PO["qi"] * guard_o, "b_fixed_sensitivity": OIL_B_FIXED,

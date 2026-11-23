@@ -22,7 +22,8 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 
 ## Lateral length rule (`toolkit/lateral.py`)
 Type curves are kept per 10,000 ft, but a curve moved more than 2,500 ft (Inputs C24) is not scaled linearly: months 1-8
-(C25) get 90% (C26) of linear going to a longer lateral (linear / 90% going shorter), and from month 9 the hyperbolic decline
+(C25) get a factor of linear phased from 100% at 2,500 ft away to 90% (C26) at 5,000 ft away (C27) and beyond, going to a
+longer lateral (linear / factor going shorter), and from month 9 the hyperbolic decline
 is re-solved (same b, a time stretch s; 7% terminal kept) so the 360-month EUR is exactly linear. Within the band it is linear.
 - Offsets: each is moved to `MODEL_LATERAL` (linear if within 2,500 ft of it, else shaped), the curve is fitted there and then moved
   to the 10,000 ft basis on the same rule; the charts and the Offset Production tab show the offsets on that basis.
