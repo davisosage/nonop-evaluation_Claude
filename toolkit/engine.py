@@ -5,6 +5,8 @@ Usage:
     m = load_model("model.xlsx")            # reads Wells, Inputs, Prices, TypeCurve (values)
     r = run(m, m["oil"], m["gas"], premium=0.2, deck="Strip")
 Per-well overrides: run(m, oil, gas, wells=[...]) with dicts like the ones load_model returns.
+Multi-zone: m["zones"] = {zone: (oil, gas)} from the 'Zone Curves' tab; a well with w["zone"] set uses that curve,
+any other well uses the oil / gas curves passed to run (the TypeCurve tab = zone 1). run(..., zones={...}) overrides.
 """
 import datetime as dt
 import numpy as np
@@ -34,6 +36,17 @@ def load_model(path):
                 minerals=(g("C18") == "Minerals"), basin=g("C19"), price=float(g("C20") or 0), price_mult=1.0)
     close = g("C21") if isinstance(g("C21"), dt.datetime) else None
     glob["close_m"] = max(0, _mi(close, v0)) if close else 0
+    zones, zone1 = {}, None
+    if "Zone Curves" in wb.sheetnames:
+        zc = wb["Zone Curves"]
+        for k in range(6):
+            name = zc.cell(4, 3 + 2 * k).value
+            if name in (None, ""):
+                continue
+            name = str(name).strip()
+            zone1 = zone1 or (name if k == 0 else None)
+            zones[name] = (np.array([zc.cell(r, 3 + 2 * k).value or 0 for r in range(6, 366)], float),
+                           np.array([zc.cell(r, 4 + 2 * k).value or 0 for r in range(6, 366)], float))
     wells = []
     for r in range(7, 17):
         wi = W[f"F{r}"].value or 0
@@ -46,7 +59,8 @@ def load_model(path):
         wells.append(dict(name=W[f"C{r}"].value, api=str(W[f"D{r}"].value or "").replace("-", ""), lat=float(W[f"E{r}"].value), wi=float(wi), lease_nri=float(W[f"G{r}"].value),
                           drill=float(W[f"I{r}"].value or 0), compl=float(W[f"J{r}"].value or 0), fac=float(W[f"K{r}"].value or 0),
                           drill_m=_mi(W[f"N{r}"].value, v0), compl_m=_mi(W[f"O{r}"].value, v0), first_m=_mi(W[f"P{r}"].value, v0),
-                          haircut=float(hc), tc_factor=float(W[f"R{r}"].value or 1.0), mnri=float(mnri)))
+                          haircut=float(hc), tc_factor=float(W[f"R{r}"].value or 1.0), mnri=float(mnri),
+                          zone=_zone(W[f"X{r}"].value, zone1)))
     if glob["minerals"]:                 # purchase price split by mineral NRI x lateral (Wells column W)
         tot = sum(w["mnri"] * w["lat"] for w in wells) or 1.0
         for w in wells:
@@ -56,11 +70,21 @@ def load_model(path):
     gas = np.array([tc.cell(r, 4).value for r in range(6, 366)], float)
     env_oil = np.array([tc.cell(r, 5).value for r in range(6, 366)], float)
     env_gas = np.array([tc.cell(r, 6).value for r in range(6, 366)], float)
-    return dict(glob=glob, wells=wells, strip=strip, oil=oil, gas=gas, env_oil=env_oil, env_gas=env_gas)
+    return dict(glob=glob, wells=wells, strip=strip, oil=oil, gas=gas, env_oil=env_oil, env_gas=env_gas, zones=zones, zone1=zone1)
 
 
-def well_cf(oil_tc, gas_tc, w, p, strip):
+def _zone(v, zone1):
+    """Wells column X: blank or zone 1 = the TypeCurve curve (None); anything else = a 'Zone Curves' name."""
+    if v in (None, ""):
+        return None
+    v = str(v).strip()
+    return None if v == zone1 else v
+
+
+def well_cf(oil_tc, gas_tc, w, p, strip, zones=None):
     n = p["months"]
+    if w.get("zone"):
+        oil_tc, gas_tc = (zones or {})[w["zone"]]        # KeyError = a zone with no curve (Summary check D73)
     if p["deck"] == "Strip":
         wti, hh = strip[0][:n], strip[1][:n]
     else:
@@ -114,10 +138,11 @@ def irr_m(cf):
     return (1 + (lo + hi) / 2) ** 12 - 1
 
 
-def run(model, oil_tc, gas_tc, wells=None, **over):
+def run(model, oil_tc, gas_tc, wells=None, zones=None, **over):
     p = dict(model["glob"], **over)
     wells = wells if wells is not None else model["wells"]
-    cfs = [well_cf(oil_tc, gas_tc, w, p, model["strip"]) for w in wells]
+    zones = zones if zones is not None else model.get("zones", {})
+    cfs = [well_cf(oil_tc, gas_tc, w, p, model["strip"], zones) for w in wells]
     pkg = sum(cfs)
     t = np.arange(p["months"])
     df = 1 / (1 + p["disc"]) ** ((t + 0.5) / 12); df20 = 1 / 1.2 ** ((t + 0.5) / 12)

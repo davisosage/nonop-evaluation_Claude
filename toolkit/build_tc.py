@@ -3,6 +3,12 @@
 Usage: python build_tc.py <deal_dir> [--oil-b X] [--gas-b X]   (fixed b: sensitivities only)
 Reads <deal_dir>/deal_data.py; writes <deal_dir>/tc_summary.json and tc_curves.csv.
 
+Multi-zone deals (wells landed in different formations): deal_data.py defines
+    ZONES = {"Wolfcamp B": dict(fit=[apis], fit_10mi=[apis], radius="5 mi", note=""), "Jo Mill": dict(...), ...}
+(insertion order; up to 6 zones; the first zone is zone 1 = the TypeCurve tab and also supplies FIT_SET / FIT_SET_10MI).
+Every zone gets its own curve from its own offsets with the same method (b fitted per zone), plus a 10-mile comparison
+curve when its fit set has fewer than 15 wells. Writes tc_zones.json, tc_zone_curves.csv and tc_zone_curves_10mi.csv.
+
 Method (reverse-engineered from the model and its notes):
   * volumes per 10,000 ft of lateral; month 1 = first producing month
   * a partial first month (oil < 50% of month 2) is dropped for both streams; a partial last reported month
@@ -25,16 +31,23 @@ from scipy.optimize import least_squares
 # deal data: <deal_dir>/deal_data.py defining WELLS {api: (name, lateral_ft, first_month, oil[], gas[])},
 # FIT_SET [apis], optional ENV_EUR {api: (oil MBO/10k, gas Bcf/10k)}
 WELLS, FIT_SET, ENV_EUR, DEAL_DIR, OIL_B_FIXED, GAS_B_FIXED = {}, [], {}, ".", None, None
+ZONES = {}                       # optional: multi-zone fit sets (see above)
 DAYS, FIT_SET_10MI = {}, []      # optional: producing days by month {api: [days]}; 10-mile fit set [apis]
 MIN_FIT_WELLS = 15               # below this the 5-mile curve is low confidence and the 10-mile curve is built too
 
 
 def load_deal(deal_dir):
-    global WELLS, FIT_SET, ENV_EUR, DEAL_DIR, DAYS, FIT_SET_10MI
+    global WELLS, FIT_SET, ENV_EUR, DEAL_DIR, DAYS, FIT_SET_10MI, ZONES
     spec = importlib.util.spec_from_file_location("deal_data", os.path.join(deal_dir, "deal_data.py"))
     dd = importlib.util.module_from_spec(spec); spec.loader.exec_module(dd)
-    WELLS, FIT_SET, ENV_EUR, DEAL_DIR = dd.WELLS, dd.FIT_SET, getattr(dd, "ENV_EUR", {}), deal_dir
-    DAYS, FIT_SET_10MI = getattr(dd, "DAYS", {}), list(getattr(dd, "FIT_SET_10MI", []))
+    ZONES = dict(getattr(dd, "ZONES", {}) or {})
+    z1 = next(iter(ZONES.values()), {})
+    WELLS, ENV_EUR, DEAL_DIR = dd.WELLS, getattr(dd, "ENV_EUR", {}), deal_dir
+    FIT_SET = list(getattr(dd, "FIT_SET", None) or z1.get("fit", []))
+    DAYS = getattr(dd, "DAYS", {})
+    FIT_SET_10MI = list(getattr(dd, "FIT_SET_10MI", None) or z1.get("fit_10mi", []))
+    if len(ZONES) > 6:
+        raise SystemExit("ZONES: the template holds 6 zone curves at most")
 
 
 DMIN = 0.07
@@ -223,7 +236,39 @@ def build_set(apis):
     return base_o, base_g, env_oil_c, env_gas_c, out
 
 
+ZONE_KEYS = ("wells", "long_wells", "months_in_mean", "oil", "gas", "enverus", "guardrail", "fit_vs_median", "mean_oil", "mean_gas", "fit_set")
+
+
+def build_zones():
+    """One curve per zone (same method as the base), 10-mile comparison where the fit set is under 15 wells."""
+    zs, cols, cols10 = [], [np.arange(1, N + 1)], [np.arange(1, N + 1)]
+    hdr, hdr10 = ["month"], ["month"]
+    for k, (name, z) in enumerate(ZONES.items()):
+        fit = list(z["fit"])
+        o, g, _, _, s = build_set(fit)
+        rec = dict(name=name, zone=k + 1, radius=z.get("radius", "5 mi"), note=z.get("note", ""),
+                   low_confidence=len(fit) < MIN_FIT_WELLS, **{kk: s[kk] for kk in ZONE_KEYS})
+        t_o = t_g = np.zeros(N)
+        if len(fit) < MIN_FIT_WELLS and z.get("fit_10mi"):
+            t_o, t_g, _, _, t = build_set(list(z["fit_10mi"]))
+            rec["ten_mile"] = {kk: t[kk] for kk in ZONE_KEYS}
+        zs.append(rec)
+        cols += [o, g]; cols10 += [t_o, t_g]; hdr += [f"z{k + 1}_oil", f"z{k + 1}_gas"]; hdr10 += [f"z{k + 1}_oil", f"z{k + 1}_gas"]
+        print(f"zone {k + 1} {name}: {len(fit)} wells ({rec['radius']}){', LOW CONFIDENCE' if rec['low_confidence'] else ''}; "
+              f"oil {o.sum()/1000:.0f} MBO (b {s['oil']['b']:.2f}{', at cap' if s['oil']['b_pinned'] else ''}), "
+              f"gas {g.sum()/1e6:.2f} Bcf (b {s['gas']['b']:.2f}{', at cap' if s['gas']['b_pinned'] else ''}) per 10,000 ft"
+              + (f"; 10-mile {rec['ten_mile']['wells']} wells: {t_o.sum()/1000:.0f} MBO, {t_g.sum()/1e6:.2f} Bcf" if "ten_mile" in rec else ""))
+    json.dump(dict(zones=zs), open(os.path.join(DEAL_DIR, "tc_zones.json"), "w"), indent=1)
+    np.savetxt(os.path.join(DEAL_DIR, "tc_zone_curves.csv"), np.column_stack(cols), delimiter=",", header=",".join(hdr), comments="", fmt="%.6f")
+    np.savetxt(os.path.join(DEAL_DIR, "tc_zone_curves_10mi.csv"), np.column_stack(cols10), delimiter=",", header=",".join(hdr10), comments="", fmt="%.6f")
+
+
 def main():
+    for f in ("tc_zones.json", "tc_zone_curves.csv", "tc_zone_curves_10mi.csv"):
+        if not ZONES and os.path.exists(os.path.join(DEAL_DIR, f)):
+            os.remove(os.path.join(DEAL_DIR, f))
+    if ZONES:
+        build_zones()
     base_o, base_g, env_oil_c, env_gas_c, out = build_set(FIT_SET)
     out["days_used"] = sorted(a for a in FIT_SET if DAYS.get(a))
     if len(FIT_SET) < MIN_FIT_WELLS and FIT_SET_10MI:

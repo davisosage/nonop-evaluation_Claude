@@ -14,7 +14,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 4,
    "haircut": 0.15,
-   "tc_factor": 1.0
+   "tc_factor": 1.0,
+   "zone": null
   },
   {
    "name": "SUN 5899 11-28 3BHP",
@@ -25,7 +26,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 4,
    "haircut": 0.15,
-   "tc_factor": 1.0
+   "tc_factor": 1.0,
+   "zone": null
   }
  ],
  "valuation_month": "2026-11-01",
@@ -42,6 +44,7 @@
   "fit_wells": 8,
   "low_confidence": true,
   "tc_multiplier": 1,
+  "zones": [],
   "oil_eur_per_10k": 314544.50865,
   "gas_eur_per_10k": 783261.948149,
   "oil_b": 0.964064137218844,

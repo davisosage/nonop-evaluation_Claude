@@ -225,6 +225,28 @@ def add_to_workbook(wb, deal_dir, oil_tc, gas_tc, fit_apis, title_prefix, low_co
     return so, sg
 
 
+ZONE_ROW0, ZONE_ROWS = 14, 80          # 'Zone Curves': zone 2 oil chart at P14, gas at P54, zone 3 at P94 ...
+
+
+def add_zone_charts(wb, deal_dir, zones, curves, curves10, title_prefix):
+    """Oil and gas charts (same layout as the TypeCurve charts) for zones 2-6 on the 'Zone Curves' tab.
+    zones: tc_zones.json list; curves / curves10: {name: (oil, gas)} (10-mile entry None when not built)."""
+    zc = wb["Zone Curves"]
+    zc._images = []
+    for k, z in enumerate(zones[1:]):
+        name = z["name"]; n = len(z["fit_set"])
+        oil, gas = offsets(z["fit_set"])
+        tag = f"{n} fit wells, {z.get('radius', '5 mi')}{', LOW CONFIDENCE' if z.get('low_confidence') else ''}"
+        t10 = curves10.get(name)
+        n10 = z.get("ten_mile", {}).get("wells")
+        slug = "".join(ch if ch.isalnum() else "_" for ch in name.lower()).strip("_")
+        for j, (ser, tc, unit, lab) in enumerate(((oil, curves[name][0], "bbl", "Oil"), (gas, curves[name][1], "Mcf", "Gas"))):
+            fname = os.path.join(deal_dir, f"tc_zone_{slug}_{lab.lower()}.png")
+            chart(ser, tc, n, f"{title_prefix} - {name} {lab.lower()}: offsets vs zone type curve ({tag})", unit, fname,
+                  None if t10 is None else t10[j], n10)
+            zc.add_image(XLImage(fname), f"P{ZONE_ROW0 + k * ZONE_ROWS + j * 40}")
+
+
 if __name__ == "__main__":
     import json, openpyxl
     src, deal, out = sys.argv[1:4]

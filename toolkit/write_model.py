@@ -5,6 +5,9 @@ Usage: python write_model.py <model_in.xlsx> <deal_dir> <model_out.xlsx> [--op-r
   * <deal_dir>: holds deal_data.py, tc_summary.json, tc_curves.csv (from build_tc.py)
 Writes TypeCurve values and fit block, the TC vs offsets charts and monthly table (plot_tc.py), the Summary scenario grid (rows 25-54), the max-premium rows
 (56-65) and the engine tie (Summary E75). Recalculate the output (LibreOffice / Excel) before use.
+Multi-zone deals (tc_zones.json from build_tc.py): every zone curve goes on the 'Zone Curves' tab (zone 1 = TypeCurve), with
+a fit summary and charts for zones 2-6; each well uses the zone named in Wells column X. Curve sensitivities (b, fixed b,
+Enverus P10/P50/P90, 10-mile) are applied to every zone at once, each zone with its own fit.
 The workbook must have been recalculated once (cached values) so the engine can read Wells and Inputs.
 """
 import json, math, os, sys
@@ -25,6 +28,47 @@ C = np.loadtxt(os.path.join(deal, "tc_curves.csv"), delimiter=",", skiprows=1)
 oil, gas, eo, eg = C[:, 1], C[:, 2], C[:, 3], C[:, 4]
 M = E.load_model(src)
 o, g = S["oil"], S["gas"]
+
+# ---- zones (multi-zone deals): zone 1 = the TypeCurve curve; the others come from tc_zones.json
+_zp = os.path.join(deal, "tc_zones.json")
+ZL = json.load(open(_zp))["zones"] if os.path.exists(_zp) else []
+ZC, Z10 = {}, {}
+if ZL:
+    _A = np.loadtxt(os.path.join(deal, "tc_zone_curves.csv"), delimiter=",", skiprows=1, ndmin=2)
+    _A10 = np.loadtxt(os.path.join(deal, "tc_zone_curves_10mi.csv"), delimiter=",", skiprows=1, ndmin=2)
+    for _k, _z in enumerate(ZL):
+        ZC[_z["name"]] = (_A[:, 1 + 2 * _k], _A[:, 2 + 2 * _k])
+        Z10[_z["name"]] = (_A10[:, 1 + 2 * _k], _A10[:, 2 + 2 * _k]) if "ten_mile" in _z else None
+Z1 = ZL[0]["name"] if ZL else None
+M["zones"], M["zone1"] = {n: c for n, c in ZC.items() if n != Z1}, Z1
+for _w in M["wells"]:
+    if _w.get("zone") == Z1:
+        _w["zone"] = None
+_missing = sorted({_w["zone"] for _w in M["wells"] if _w.get("zone") and _w["zone"] not in M["zones"]})
+if _missing:
+    raise SystemExit(f"Wells column X names zones with no curve: {_missing}; zones built: {list(ZC) or 'none (no ZONES in deal_data.py)'}")
+ZOTHER = [z for z in ZL if z["name"] != Z1]
+
+
+def zvar(fn):
+    """A sensitivity applied to every non-primary zone: fn(zone record, (oil, gas)) -> (oil, gas)."""
+    return {z["name"]: fn(z, ZC[z["name"]]) for z in ZOTHER}
+
+
+def _zb(z, mean, b):
+    return bt.fit_tc(np.array(mean), b=b)[0]
+
+
+def _cap(c, med):
+    return c * min(1, med / c.sum()) if c.sum() else c
+
+
+Z_BM = zvar(lambda z, c: (_zb(z, z["mean_oil"], max(z["oil"]["b"] - 0.3, 0.05)), _zb(z, z["mean_gas"], max(z["gas"]["b"] - 0.3, 0.05))))
+Z_BP = zvar(lambda z, c: (_zb(z, z["mean_oil"], min(z["oil"]["b"] + 0.2, 2.0)), _zb(z, z["mean_gas"], min(z["gas"]["b"] + 0.2, 2.0))))
+Z_B1 = zvar(lambda z, c: (_cap(_zb(z, z["mean_oil"], 1.0), z["enverus"]["oil_median"]), _cap(_zb(z, z["mean_gas"], 1.0), z["enverus"]["gas_median"])))
+Z_P = {i: zvar(lambda z, c, i=i: (c[0] * z["enverus"]["oil_p90_p50_p10"][i] * 1000 / c[0].sum(),
+                                  c[1] * z["enverus"]["gas_p90_p50_p10"][i] * 1e6 / c[1].sum())) for i in (0, 1, 2)}
+Z_10 = zvar(lambda z, c: Z10[z["name"]] if Z10[z["name"]] is not None else c)
 
 # ---- sensitivities on the curve
 mo, mg = np.array(S["mean_oil"]), np.array(S["mean_gas"])
@@ -63,12 +107,12 @@ rows = [
     ("$65/$3.00, TC 80%, premium 20%", dict(deck="$65/$3.00", tc_mult=0.8, premium=0.2)),
     ("$65/$3.00, Cost +10%, premium 20%", dict(deck="$65/$3.00", overrun=0.1, premium=0.2)),
     ("$65/$3.00, TC 80% + cost +10%, premium 20%", dict(deck="$65/$3.00", tc_mult=0.8, overrun=0.1, premium=0.2)),
-    (f"Strip, Enverus P50 (oil {eo.sum()/oil.sum():.2f}x, gas {eg.sum()/gas.sum():.2f}x of base), premium 20%", dict(o=eo, g=eg, premium=0.2)),
-    (f"Strip, Enverus P10 (oil {hi_o:.2f}x, gas {hi_g:.2f}x), premium 20%", dict(o=oil * hi_o, g=gas * hi_g, premium=0.2)),
-    (f"Strip, Enverus P90 (oil {lo_o:.2f}x, gas {lo_g:.2f}x), premium 20%", dict(o=oil * lo_o, g=gas * lo_g, premium=0.2)),
-    ("Strip, Williston default b 1.0 both streams (capped at Enverus median), premium 20%", dict(o=o_b1, g=g_b1, premium=0.2)),
-    (f"Strip, b -0.3 (oil {max(b0-0.3,0.05):.2f} / gas {max(gb0-0.3,0.05):.2f}), premium 20%", dict(o=o_bm, g=g_bm, premium=0.2)),
-    (f"Strip, b +0.2 (oil {min(b0+0.2,2):.2f} / gas {min(gb0+0.2,2):.2f}), premium 20%", dict(o=o_bp, g=g_bp, premium=0.2)),
+    (f"Strip, Enverus P50 (oil {eo.sum()/oil.sum():.2f}x, gas {eg.sum()/gas.sum():.2f}x of base), premium 20%", dict(o=eo, g=eg, zones=Z_P[1], premium=0.2)),
+    (f"Strip, Enverus P10 (oil {hi_o:.2f}x, gas {hi_g:.2f}x), premium 20%", dict(o=oil * hi_o, g=gas * hi_g, zones=Z_P[0], premium=0.2)),
+    (f"Strip, Enverus P90 (oil {lo_o:.2f}x, gas {lo_g:.2f}x), premium 20%", dict(o=oil * lo_o, g=gas * lo_g, zones=Z_P[2], premium=0.2)),
+    ("Strip, fixed b 1.0 both streams (capped at Enverus median), premium 20%", dict(o=o_b1, g=g_b1, zones=Z_B1, premium=0.2)),
+    (f"Strip, b -0.3 (oil {max(b0-0.3,0.05):.2f} / gas {max(gb0-0.3,0.05):.2f}), premium 20%", dict(o=o_bm, g=g_bm, zones=Z_BM, premium=0.2)),
+    (f"Strip, b +0.2 (oil {min(b0+0.2,2):.2f} / gas {min(gb0+0.2,2):.2f}), premium 20%", dict(o=o_bp, g=g_bp, zones=Z_BP, premium=0.2)),
     ("Strip, No child haircut (0%), premium 20%", dict(haircut=0.0, premium=0.2)),
     ("Strip, +3 mo completion delay, premium 20%", dict(delay=3, premium=0.2)),
 ]
@@ -78,21 +122,21 @@ T10 = None
 if "ten_mile" in S and os.path.exists(os.path.join(deal, "tc_curves_10mi.csv")):
     C10 = np.loadtxt(os.path.join(deal, "tc_curves_10mi.csv"), delimiter=",", skiprows=1)
     T10 = (C10[:, 1], C10[:, 2], S["ten_mile"])
-    rows.insert(23, (f"Strip, 10-mile curve ({T10[2]['wells']} wells; oil {C10[:,1].sum()/1000:.0f} MBO, gas {C10[:,2].sum()/1e6:.2f} Bcf), premium 20%",
-                     dict(o=T10[0], g=T10[1], premium=0.2)))
+    rows.insert(23, (f"Strip, 10-mile curve{'s (all zones' if ZOTHER else ' ('}{'; zone 1 ' if ZOTHER else ''}{T10[2]['wells']} wells; oil {C10[:,1].sum()/1000:.0f} MBO, gas {C10[:,2].sum()/1e6:.2f} Bcf), premium 20%",
+                     dict(o=T10[0], g=T10[1], zones=Z_10, premium=0.2)))
 rows = rows[:30]
 MP = [("Max premium for 20% IRR, strip", 0.20, {}), ("Max premium for 10% IRR, $65/$3.00", 0.10, dict(deck="$65/$3.00")),
       ("Max premium for 20% IRR, $65/$3.00", 0.20, dict(deck="$65/$3.00")),
-      ("Max premium for 20% IRR, strip, Enverus P90 curve", 0.20, dict(o=oil * lo_o, g=gas * lo_g)),
-      ("Max premium for 20% IRR, strip, Williston default b", 0.20, dict(o=o_b1, g=g_b1)),
-      ("Max premium for 20% IRR, strip, b -0.3", 0.20, dict(o=o_bm, g=g_bm)),
+      ("Max premium for 20% IRR, strip, Enverus P90 curve", 0.20, dict(o=oil * lo_o, g=gas * lo_g, zones=Z_P[2])),
+      ("Max premium for 20% IRR, strip, fixed b 1.0", 0.20, dict(o=o_b1, g=g_b1, zones=Z_B1)),
+      ("Max premium for 20% IRR, strip, b -0.3", 0.20, dict(o=o_bm, g=g_bm, zones=Z_BM)),
       ("Max premium for 20% IRR, strip, +3 mo delay", 0.20, dict(delay=3)),
       ("Max premium for 20% IRR, strip, type curve 80%", 0.20, dict(tc_mult=0.8)),
       ("Max premium for 20% IRR, strip, no child haircut", 0.20, dict(haircut=0.0))]
 if op:
     MP.append(("Max premium for 20% IRR, strip, operator early rates", 0.20, dict(o=oil * op[0], g=gas * op[1])))
 if T10 is not None:
-    MP.insert(1, ("Max premium for 20% IRR, strip, 10-mile curve", 0.20, dict(o=T10[0], g=T10[1])))
+    MP.insert(1, ("Max premium for 20% IRR, strip, 10-mile curve" + ("s (all zones)" if ZOTHER else ""), 0.20, dict(o=T10[0], g=T10[1], zones=Z_10)))
 MP = MP[:10]
 
 wb = openpyxl.load_workbook(src)
@@ -151,6 +195,37 @@ for j in range(4):
         tc.cell(r, 9 + j).font = tc.cell(16, 9 + j).font.copy(); tc.cell(r, 9 + j).alignment = tc.cell(12, 9 + j).alignment.copy()
 wb["Inputs"]["D13"].value = (f"Base = 1 (oil {oil.sum()/1000:.0f} MBO, gas {gas.sum()/1e6:.2f} Bcf per 10,000 ft; {S['wells']} fit wells"
                              f"{', LOW CONFIDENCE' if S['wells'] < 15 else ''}). 2 = Enverus P50 ({eo.sum()/1000:.0f} MBO, {eg.sum()/1e6:.2f} Bcf)")
+if ZOTHER:
+    wb["Inputs"]["D13"].value += (f". Multi-zone: {len(ZL)} zone curves on 'Zone Curves' (zone 1 = {Z1}); each well uses its zone "
+                                  f"(Wells column X); the switch applies to zone 1 only")
+    if "Zone Curves" not in tc["B3"].value:
+        tc["B3"] = tc["B3"].value + f" Zone 1 of {len(ZL)} ({Z1}); the other zones are on 'Zone Curves'."
+if "Zone Curves" in wb.sheetnames:
+    zc = wb["Zone Curves"]
+    for k in range(6):
+        zc.cell(4, 3 + 2 * k).value = None
+        for r in range(6, 366):
+            zc.cell(r, 3 + 2 * k).value = zc.cell(r, 4 + 2 * k).value = None
+        for j in range(1, 13):
+            zc.cell(5 + k, 16 + j).value = None
+    for k, z in enumerate(ZL if len(ZL) > 1 else []):
+        zo, zg = (oil, gas) if k == 0 else ZC[z["name"]]
+        zc.cell(4, 3 + 2 * k).value = z["name"]
+        for i in range(360):
+            zc.cell(6 + i, 3 + 2 * k).value, zc.cell(6 + i, 4 + 2 * k).value = float(zo[i]), float(zg[i])
+            zc.cell(6 + i, 3 + 2 * k).number_format = zc.cell(6 + i, 4 + 2 * k).number_format = "#,##0"
+        t = z.get("ten_mile")
+        flags = [f"{s_} b at the 2.0 cap" for s_ in ("oil", "gas") if z[s_].get("b_pinned")]
+        vals = [z.get("radius", "5 mi"), z["wells"], z["long_wells"], "Yes" if z.get("low_confidence") else "No",
+                round(z["oil"]["b"], 2), round(z["gas"]["b"], 2), round(float(zo.sum()) / 1000), round(float(zg.sum()) / 1e6, 2),
+                t["wells"] if t else None, round(t["oil"]["eur"] / 1000) if t else None, round(t["gas"]["eur"] / 1e6, 2) if t else None,
+                "; ".join([x for x in [z.get("note", "")] + flags if x])]
+        for j, v in enumerate(vals):
+            zc.cell(5 + k, 17 + j).value = v
+    if len(ZL) > 1:
+        plot_tc.add_zone_charts(wb, deal, ZL, ZC, Z10, (wb["Summary"]["B2"].value or "Deal").split(":")[0])
+    else:
+        zc._images = []
 # TC vs offsets charts (TypeCurve N2 / N42), monthly table (TypeCurve H18) and the Offset Production tab
 plot_tc.add_to_workbook(wb, deal, oil, gas, S["fit_set"], (wb["Summary"]["B2"].value or "Deal").split(":")[0], S["wells"] < 15,
                         ten_mile=T10)
@@ -218,14 +293,20 @@ rec = {
     "model_file": os.path.basename(out), "evaluated": _dt.date.today().isoformat(),
     "type": "Minerals" if MINERALS else "Working interest", "basin": g0.get("basin"),
     "wells": [{"name": w["name"], "api": w.get("api", ""), "lat_ft": w["lat"], "wi": w["wi"], "lease_nri": w["lease_nri"], "mineral_nri": w.get("mnri", 0),
-               "first_sales_month_index": w["first_m"], "haircut": w["haircut"], "tc_factor": w["tc_factor"]} for w in M["wells"]],
+               "first_sales_month_index": w["first_m"], "haircut": w["haircut"], "tc_factor": w["tc_factor"],
+               "zone": w.get("zone") or Z1} for w in M["wells"]],
     "valuation_month": str(wb["Inputs"]["C37"].value)[:10],
     "net_capex": 0 if MINERALS else sum(w["wi"] * (w["drill"] + w["compl"] + w["fac"]) for w in M["wells"]),
     "asking_price": g0.get("price") if MINERALS else None,
     "base_case": "strip, asking price" if MINERALS else "strip, 20% premium",
     "irr": rb["irr"], "moic": rb["moic"], "npv10": rb["npv10"], "payout_months": rb["payout"],
     "max_for_20pct_irr": mp0, "max_for_20pct_irr_units": "$" if MINERALS else "premium, % of net capex",
-    "type_curve": {"fit_wells": S["wells"], "low_confidence": S["wells"] < 15, "tc_multiplier": g0["tc_mult"],
+    "type_curve": {"fit_wells": S["wells"], "low_confidence": S["wells"] < 15 or any(z.get("low_confidence") for z in ZL),
+                   "tc_multiplier": g0["tc_mult"],
+                   "zones": [{"name": z["name"], "radius": z.get("radius"), "fit_wells": z["wells"], "low_confidence": z.get("low_confidence"),
+                              "oil_eur_per_10k": float(ZC[z["name"]][0].sum()), "gas_eur_per_10k": float(ZC[z["name"]][1].sum()),
+                              "oil_b": z["oil"]["b"], "gas_b": z["gas"]["b"],
+                              "wells": sum(1 for w in M["wells"] if (w.get("zone") or Z1) == z["name"])} for z in ZL] if len(ZL) > 1 else [],
                    "oil_eur_per_10k": float(oil.sum()), "gas_eur_per_10k": float(gas.sum()),
                    "oil_b": o["b"], "gas_b": g["b"], "ten_mile_wells": S.get("ten_mile", {}).get("wells")},
     "decision": old.get("decision", "Pending"), "price_paid": old.get("price_paid"), "closed": old.get("closed"),

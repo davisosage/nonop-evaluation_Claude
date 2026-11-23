@@ -14,7 +14,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 0.768
+   "tc_factor": 1.0,
+   "zone": "Jo Mill"
   },
   {
    "name": "LOKI A 171DN",
@@ -25,7 +26,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 0.605
+   "tc_factor": 1.0,
+   "zone": "Dean"
   },
   {
    "name": "LOKI A 221WB",
@@ -36,7 +38,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 1.0
+   "tc_factor": 1.0,
+   "zone": "Wolfcamp B"
   },
   {
    "name": "LOKI A 241WC",
@@ -47,7 +50,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 0.669
+   "tc_factor": 1.0,
+   "zone": "Wolfcamp C"
   },
   {
    "name": "LOKI B 131US",
@@ -58,7 +62,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 0.771
+   "tc_factor": 1.0,
+   "zone": "Middle Spraberry"
   },
   {
    "name": "LOKI B 152JM",
@@ -69,7 +74,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 0.768
+   "tc_factor": 1.0,
+   "zone": "Jo Mill"
   },
   {
    "name": "LOKI B 222WB",
@@ -80,7 +86,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
    "haircut": 0.15,
-   "tc_factor": 1.0
+   "tc_factor": 1.0,
+   "zone": "Wolfcamp B"
   },
   {
    "name": "LOKI C 132US",
@@ -91,7 +98,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 10,
    "haircut": 0.15,
-   "tc_factor": 0.771
+   "tc_factor": 1.0,
+   "zone": "Middle Spraberry"
   },
   {
    "name": "LOKI C 172DN",
@@ -102,7 +110,8 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 10,
    "haircut": 0.15,
-   "tc_factor": 0.605
+   "tc_factor": 1.0,
+   "zone": "Dean"
   },
   {
    "name": "LOKI C 242WC",
@@ -113,23 +122,81 @@
    "mineral_nri": 0.0,
    "first_sales_month_index": 10,
    "haircut": 0.15,
-   "tc_factor": 0.669
+   "tc_factor": 1.0,
+   "zone": "Wolfcamp C"
   }
  ],
  "valuation_month": "2026-11-01",
  "net_capex": 99716.06504106,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.32038563946818055,
- "moic": 2.2078195851862983,
- "npv10": 50584.9800013394,
- "payout_months": 22,
- "max_for_20pct_irr": 0.40330022135758975,
+ "irr": 0.4622608748333872,
+ "moic": 2.4483923533887233,
+ "npv10": 73348.18538361642,
+ "payout_months": 16,
+ "max_for_20pct_irr": 0.6012543913039765,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 12,
   "low_confidence": true,
   "tc_multiplier": 1,
+  "zones": [
+   {
+    "name": "Wolfcamp B",
+    "radius": "5 mi",
+    "fit_wells": 12,
+    "low_confidence": true,
+    "oil_eur_per_10k": 385931.96092399996,
+    "gas_eur_per_10k": 3053742.091426,
+    "oil_b": 1.1213231354202968,
+    "gas_b": 1.90658139832705,
+    "wells": 2
+   },
+   {
+    "name": "Middle Spraberry",
+    "radius": "10 mi",
+    "fit_wells": 16,
+    "low_confidence": false,
+    "oil_eur_per_10k": 489254.59082000004,
+    "gas_eur_per_10k": 1302699.1924359999,
+    "oil_b": 1.418784511890016,
+    "gas_b": 1.9999999999999998,
+    "wells": 2
+   },
+   {
+    "name": "Jo Mill",
+    "radius": "10 mi",
+    "fit_wells": 21,
+    "low_confidence": false,
+    "oil_eur_per_10k": 394406.529902,
+    "gas_eur_per_10k": 1401803.78169,
+    "oil_b": 0.9080520931663858,
+    "gas_b": 1.9999999999999987,
+    "wells": 2
+   },
+   {
+    "name": "Dean",
+    "radius": "20 mi",
+    "fit_wells": 13,
+    "low_confidence": true,
+    "oil_eur_per_10k": 252217.983414,
+    "gas_eur_per_10k": 1458017.4774950002,
+    "oil_b": 0.6805016922560324,
+    "gas_b": 1.999999999999999,
+    "wells": 2
+   },
+   {
+    "name": "Wolfcamp C",
+    "radius": "10 mi",
+    "fit_wells": 13,
+    "low_confidence": true,
+    "oil_eur_per_10k": 319255.538798,
+    "gas_eur_per_10k": 1683804.985123,
+    "oil_b": 0.9701542032637265,
+    "gas_b": 1.9999999999999998,
+    "wells": 2
+   }
+  ],
   "oil_eur_per_10k": 385931.96092399996,
   "gas_eur_per_10k": 3053742.091426,
   "oil_b": 1.1213231354202968,
@@ -139,5 +206,5 @@
  "decision": "Pending",
  "price_paid": null,
  "closed": null,
- "notes": "Seller: Legacy Income Fund I, LLC. No asking premium given (20% assumed). One template curve (5-mi Wolfcamp B, 12 wells, low confidence); other zones scaled by value-based TC factors from 10-mi zone curves (Dean 20-mi), see zone_factors.py. Strip = Nov 3, 2026 deck."
+ "notes": "Seller: Legacy Income Fund I, LLC. No asking premium given (20% assumed). Multi-zone: 5 zone curves (Wolfcamp B 5 mi, 12 wells; Middle Spraberry / Jo Mill / Wolfcamp C 10 mi; Dean 20 mi). Strip = Nov 3, 2026 deck. First run (Nov 22) used value-based TC factors: 32% IRR."
 }

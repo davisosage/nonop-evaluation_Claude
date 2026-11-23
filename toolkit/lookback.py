@@ -3,7 +3,8 @@
 Usage: python lookback.py <deal_dir>
 Needs in <deal_dir>:
   * deal.json        written by write_model.py when the deal was evaluated (wells, laterals, haircuts, valuation month)
-  * tc_curves.csv    the type curve the deal was priced on (month, base_oil, base_gas, ...)
+  * tc_curves.csv    the type curve the deal was priced on (month, base_oil, base_gas, ...); multi-zone deals also
+                     tc_zones.json / tc_zone_curves.csv, and each well is compared with its own zone's curve
   * actuals.py       ACTUALS = {api: (first_month "YYYY-MM", [oil bbl], [gas Mcf], [producing days] or None)}
                      pulled from Enverus (production dataset) for the deal's own wells
 Writes <deal_dir>/lookback.json and lookback.png. deal_log.py reads lookback.json.
@@ -29,6 +30,11 @@ def month_add(ym, k):
 def main(deal_dir):
     rec = json.load(open(os.path.join(deal_dir, "deal.json")))
     C = np.loadtxt(os.path.join(deal_dir, "tc_curves.csv"), delimiter=",", skiprows=1)
+    ZC = {}
+    if os.path.exists(os.path.join(deal_dir, "tc_zones.json")):
+        A = np.loadtxt(os.path.join(deal_dir, "tc_zone_curves.csv"), delimiter=",", skiprows=1, ndmin=2)
+        for k, z in enumerate(json.load(open(os.path.join(deal_dir, "tc_zones.json")))["zones"]):
+            ZC[z["name"]] = A[:, [0, 1 + 2 * k, 2 + 2 * k]]
     spec = importlib.util.spec_from_file_location("actuals", os.path.join(deal_dir, "actuals.py"))
     A = importlib.util.module_from_spec(spec); spec.loader.exec_module(A)
     mult = rec["type_curve"].get("tc_multiplier", 1.0) or 1.0
@@ -45,10 +51,11 @@ def main(deal_dir):
             f = bt._cal_days(first, 0) / max(days[0], 1); o[0] *= f; g[0] *= f
         n = len(o)
         k = w["lat_ft"] / 10000 * (1 - w["haircut"]) * mult * w["tc_factor"]
-        po, pg = C[:n, 1] * k, C[:n, 2] * k
+        Cw = ZC.get(w.get("zone"), C)
+        po, pg = Cw[:n, 1] * k, Cw[:n, 2] * k
         model_first = month_add(v0, w["first_sales_month_index"])
         gap = (int(first[:4]) - int(model_first[:4])) * 12 + int(first[5:7]) - int(model_first[5:7])
-        r = dict(name=w["name"], api=api, months=n, actual_first=first, model_first_sales=model_first, timing_gap_months=gap,
+        r = dict(name=w["name"], api=api, zone=w.get("zone"), months=n, actual_first=first, model_first_sales=model_first, timing_gap_months=gap,
                  cum_oil=float(o.sum()), pred_oil=float(po.sum()), oil_vs_curve=float(o.sum() / po.sum() - 1),
                  cum_gas=float(g.sum()), pred_gas=float(pg.sum()), gas_vs_curve=float(g.sum() / pg.sum() - 1) if pg.sum() else None)
         wells.append(r)
