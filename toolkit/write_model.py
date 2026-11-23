@@ -3,7 +3,7 @@
 Usage: python write_model.py <model_in.xlsx> <deal_dir> <model_out.xlsx> [--op-ratio OIL GAS]
   * <model_in.xlsx>: the template with the deal's Wells / Inputs / Prices already filled in
   * <deal_dir>: holds deal_data.py, tc_summary.json, tc_curves.csv (from build_tc.py)
-Writes TypeCurve values and fit block, the TC vs offsets charts and monthly table (plot_tc.py), the Summary scenario grid (rows 25-54), the max-premium rows
+Solves Summary C7 (premium) so the live-case IRR (C12) is 20%. Writes TypeCurve values and fit block, the TC vs offsets charts and monthly table (plot_tc.py), the Summary scenario grid (rows 25-54), the max-premium rows
 (56-65) and the engine tie (Summary E75). Recalculate the output (LibreOffice / Excel) before use.
 Multi-zone deals (tc_zones.json from build_tc.py): every zone curve goes on the 'Zone Curves' tab (zone 1 = TypeCurve), with
 a fit summary and charts for zones 2-6; each well uses the zone named in Wells column X. Curve sensitivities (b, fixed b,
@@ -11,6 +11,7 @@ Enverus P10/P50/P90, 10-mile) are applied to every zone at once, each zone with 
 The workbook must have been recalculated once (cached values) so the engine can read Wells and Inputs.
 """
 import json, math, os, sys
+from copy import copy as _copy
 import numpy as np
 import openpyxl
 import engine as E
@@ -277,6 +278,28 @@ for i, (name, tgt, kw) in enumerate(MP):
             sm.cell(56 + i, c).number_format = '$#,##0'
         elif sm.cell(56 + i, c).number_format == '$#,##0':
             sm.cell(56 + i, c).number_format = '0.0%'
+# ---- live case: solve Summary C7 (premium, % of net capex) so the base-case IRR (Summary C12) is 20%.
+# Solved at the live deck (C6) and type-curve switch (Inputs C13) with the live Inputs (TC multiplier, haircut, overrun).
+# The solved value is also kept in E7 so the engine tie (D75) knows C7 has not been typed over. Minerals: C7 is not used.
+P_STAR = None
+if not MINERALS:
+    _deck = sm["C6"].value if (sm["C6"].value == "Strip" or sm["C6"].value in E.FLAT) else "Strip"
+    _co, _cg = (eo, eg) if wb["Inputs"]["C13"].value == 2 else (oil, gas)
+    P_STAR = E.max_premium(M, _co, _cg, target=0.20, deck=_deck)
+    _pinned = P_STAR <= E.PREM_LO + 1e-6 or P_STAR >= E.PREM_HI - 1e-6
+    sm["C7"].value, sm["E7"].value = P_STAR, P_STAR
+    sm["E7"].number_format = sm["C7"].number_format = "0.0%"
+    sm["E7"].font = _copy(sm["C10"].font)
+    sm["B7"].value = "Premium, % of net capex (solved for a 20% IRR in C12; bid input)"
+    sm["F7"].value = ("Solved by write_model.py so the live-case IRR (C12) = 20% (solve kept in E7). Type over C7 to test a bid. "
+                      + ("20% IRR NOT REACHABLE within the solve range; C7 is at the limit. " if _pinned else "")
+                      + ("Negative = misses 20% even paying capex only (needs a carry / discount). " if P_STAR < 0 and not _pinned else "")
+                      + "Not used for Minerals (price on Inputs C20)")
+    base_cash = R(premium=P_STAR)["cash"]
+    sm["B75"].value = ("Package undiscounted cash ties to the Python engine (strip; the solved premium in C7, or the purchase price for "
+                       "Minerals; base inputs); engine value in E75")
+    sm["D75"].value = ('=IF(OR(C6<>"Strip",AND(NOT(Inputs!$C$18="Minerals"),ABS(C7-$E$7)>0.000001),Inputs!$C$13<>1,'
+                       'Inputs!$C$11<>1,Inputs!$C$59<>0),"OK",IF(ABS(C75-$E$75)<500,"OK","CHECK"))')
 sm["E75"].value = base_cash
 wb.save(out)
 
@@ -300,7 +323,7 @@ rec = {
     "asking_price": g0.get("price") if MINERALS else None,
     "base_case": "strip, asking price" if MINERALS else "strip, 20% premium",
     "irr": rb["irr"], "moic": rb["moic"], "npv10": rb["npv10"], "payout_months": rb["payout"],
-    "max_for_20pct_irr": mp0, "max_for_20pct_irr_units": "$" if MINERALS else "premium, % of net capex",
+    "max_for_20pct_irr": mp0, "summary_c7_solved_premium": P_STAR, "max_for_20pct_irr_units": "$" if MINERALS else "premium, % of net capex",
     "type_curve": {"fit_wells": S["wells"], "low_confidence": S["wells"] < 15 or any(z.get("low_confidence") for z in ZL),
                    "tc_multiplier": g0["tc_mult"],
                    "zones": [{"name": z["name"], "radius": z.get("radius"), "fit_wells": z["wells"], "low_confidence": z.get("low_confidence"),
@@ -313,5 +336,5 @@ rec = {
     "notes": old.get("notes", ""),
 }
 json.dump(rec, open(rec_path, "w"), indent=1, default=str)
-print("wrote", out, "| mode", "Minerals" if MINERALS else "WI", "| base IRR",
+print("wrote", out, "| mode", "Minerals" if MINERALS else "WI", "| C7 solved premium", P_STAR, "| IRR at 20% premium",
       R(**({"price_mult": 1.0} if MINERALS else {"premium": 0.2}))["irr"], "| cash", base_cash)

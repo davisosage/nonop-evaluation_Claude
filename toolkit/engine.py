@@ -172,8 +172,11 @@ def max_price(model, oil_tc, gas_tc, target=0.20, wells=None, **over):
     return lo
 
 
+PREM_LO, PREM_HI = -1.0, 5.0             # premium solve range (-100% to +500% of net capex)
+
+
 def max_premium(model, oil_tc, gas_tc, target=0.20, wells=None, **over):
-    lo, hi = -0.5, 2.0
+    lo, hi = PREM_LO, PREM_HI
     for _ in range(60):
         mid = (lo + hi) / 2
         r = run(model, oil_tc, gas_tc, wells=wells, **dict(over, premium=mid))["irr"]

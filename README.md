@@ -17,7 +17,7 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
      `note`; a 5-mile fit under 15 wells also lists `fit_10mi` for the comparison curve. Up to 6 zones.
 2. `cd toolkit && python3 build_tc.py ../deals/<deal-slug>` (multi-zone: also writes `tc_zones.json` and `tc_zone_curves*.csv`)
 3. Copy the template, fill Wells (multi-zone: the zone name in column X, exactly as in `ZONES`; leave the TC factor at 1), Inputs (deal type, basin, overrides in column E) and the Prices strip; recalculate (LibreOffice headless or Excel).
-4. `python3 write_model.py <filled.xlsx> ../deals/<deal-slug> "../deals/<deal-slug>/<Deal> <Basin> Non-Op Model.xlsx"`, then recalculate the output and confirm Summary shows "All checks OK".
+4. `python3 write_model.py <filled.xlsx> ../deals/<deal-slug> "../deals/<deal-slug>/<Deal> <Basin> Non-Op Model.xlsx"`, then recalculate the output and confirm Summary shows "All checks OK". `write_model.py` solves Summary C7 (premium, % of net capex) so the live-case IRR (C12) is 20%; the solve is kept in E7, and you can type over C7 to test a bid.
 5. `python3 deal_log.py ../deals "../Deal Log.xlsx"`, commit.
 
 ## Record the decision and look back

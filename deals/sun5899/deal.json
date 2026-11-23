@@ -1,6 +1,6 @@
 {
  "deal": "Sun 5899 11-28 2BHP + 3BHP (Chord, Middle Bakken DUCs, Williams Co ND)",
- "model_file": "tpl_new.xlsx",
+ "model_file": "out.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
  "basin": "Williston (ND)",
@@ -39,6 +39,7 @@
  "npv10": 1631419.4656240193,
  "payout_months": 14,
  "max_for_20pct_irr": 0.5368756543288702,
+ "summary_c7_solved_premium": 0.5368756543288702,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 8,
