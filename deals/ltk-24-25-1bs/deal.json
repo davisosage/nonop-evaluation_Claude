@@ -1,0 +1,58 @@
+{
+ "deal": "LTK 24-25 Fed Com 101H + 103H (PBEX, First Bone Spring Sand, Lea Co NM)",
+ "model_file": "LTK 24-25 Permian Non-Op Model.xlsx",
+ "evaluated": "2026-11-23",
+ "type": "Working interest",
+ "basin": "Permian (TX)",
+ "wells": [
+  {
+   "name": "LTK 24-25 FED COM 101H",
+   "api": "",
+   "lat_ft": 10000.0,
+   "wi": 0.015625,
+   "lease_nri": 0.75,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 1.0,
+   "zone": null
+  },
+  {
+   "name": "LTK 24-25 FED COM 103H",
+   "api": "",
+   "lat_ft": 10000.0,
+   "wi": 0.015625,
+   "lease_nri": 0.75,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 1.0,
+   "zone": null
+  }
+ ],
+ "valuation_month": "2026-11-01",
+ "net_capex": 281205.734375,
+ "asking_price": null,
+ "base_case": "strip, 20% premium",
+ "irr": null,
+ "moic": 0.6396931922724066,
+ "npv10": -155248.12808035477,
+ "payout_months": null,
+ "max_for_20pct_irr": -0.4459472506826954,
+ "max_for_20pct_irr_units": "premium, % of net capex",
+ "type_curve": {
+  "fit_wells": 8,
+  "low_confidence": true,
+  "tc_multiplier": 1,
+  "zones": [],
+  "oil_eur_per_10k": 217263.15605000002,
+  "gas_eur_per_10k": 1469758.27262,
+  "oil_b": 0.1894919553056327,
+  "gas_b": 1.9999999999999998,
+  "ten_mile_wells": 35
+ },
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": "PBEX well proposal under Order R-23524 / R-23524-A to EOG Resources (1.5625% WI, 1.1718% NRI per well). Election due ~Nov 25, 2026; non-consent = 200% risk charge. No price given. 5-mi 1BS curve (8 wells, low confidence) never pays out at 0%; 10-mi curve 18% IRR at 0%."
+}

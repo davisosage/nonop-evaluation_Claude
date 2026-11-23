@@ -153,13 +153,15 @@ def fit_tc(vol, b=None, p=None, b_bounds=(0.05, 2.0)):
     when b is None, b are fitted together on log monthly volumes over all months (ramp and decline),
     with the peak month p taken from the data. Returns (360-month curve, dict(qi, De, b, peak, r1))."""
     p = find_peak(vol) if p is None else p
-    y = np.log(vol); n = len(vol); q0 = vol[p] / 30.4
+    vol = np.asarray(vol, float); n = len(vol); q0 = vol[p] / 30.4
+    ok = vol > 0                     # months averaging to zero (shut-ins) are left out of the log fit
+    y = np.log(np.where(ok, vol, 1.0))
     if b is None:
-        f = lambda q: np.log(multiphase(q[0], q[1], q[3], p, q[2], n=n)) - y
+        f = lambda q: (np.log(multiphase(q[0], q[1], q[3], p, q[2], n=n)) - y)[ok]
         r = least_squares(f, [q0, 0.65, 0.7, 0.8], bounds=([q0 * 0.3, 0.2, 0.05, b_bounds[0]], [q0 * 3, 0.95, 1.0, b_bounds[1]]))
         qi, De, r1, bb = r.x
     else:
-        f = lambda q: np.log(multiphase(q[0], q[1], b, p, q[2], n=n)) - y
+        f = lambda q: (np.log(multiphase(q[0], q[1], b, p, q[2], n=n)) - y)[ok]
         r = least_squares(f, [q0, 0.65, 0.7], bounds=([q0 * 0.3, 0.2, 0.05], [q0 * 3, 0.95, 1.0]))
         (qi, De, r1), bb = r.x, b
     r1 = r1 if p else 1.0
