@@ -1,5 +1,5 @@
 {
- "deal": "Friendly Skies / 747 3-65 pad: 16 Niobrara A/B/C wells (Bison IV; Adams Co CO), 3.783899% unit NRI, minerals",
+ "deal": "Friendly Skies / 747 3-65 pad: 16 Niobrara A/B/C wells (Bison IV; Adams Co CO), 3.783899% NRI per well, minerals",
  "model_file": "Friendly Skies DJ Non-Op Model.xlsx",
  "evaluated": "2026-11-23",
  "type": "Minerals",
@@ -11,10 +11,10 @@
    "lat_ft": 17769.0,
    "wi": 0.0,
    "lease_nri": 0.8,
-   "mineral_nri": 0.26487293,
+   "mineral_nri": 0.03783899,
    "first_sales_month_index": 8,
    "haircut": 0.0,
-   "tc_factor": 1.0,
+   "tc_factor": 7.0,
    "zone": "Niobrara B"
   },
   {
@@ -59,10 +59,10 @@
    "lat_ft": 17776.0,
    "wi": 0.0,
    "lease_nri": 0.8,
-   "mineral_nri": 0.15135596,
+   "mineral_nri": 0.03783899,
    "first_sales_month_index": 8,
    "haircut": 0.0,
-   "tc_factor": 1.0,
+   "tc_factor": 4.0,
    "zone": "Niobrara A"
   },
   {
@@ -156,10 +156,10 @@
  "asking_price": 14372574.0,
  "base_case": "strip, asking price",
  "irr": 0.19999999741815122,
- "moic": 2.0863451078518453,
- "npv10": 4181383.5108679733,
+ "moic": 2.086345107851845,
+ "npv10": 4181383.5108679696,
  "payout_months": 32,
- "max_for_20pct_irr": 14372573.923119469,
+ "max_for_20pct_irr": 14372573.923119467,
  "summary_c7_solved_premium": null,
  "max_for_20pct_irr_units": "$",
  "type_curve": {

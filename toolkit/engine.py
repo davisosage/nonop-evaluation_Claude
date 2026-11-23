@@ -70,10 +70,10 @@ def load_model(path):
                           drill_m=_mi(W[f"N{r}"].value, v0), compl_m=_mi(W[f"O{r}"].value, v0), first_m=_mi(W[f"P{r}"].value, v0),
                           haircut=float(hc), tc_factor=float(W[f"R{r}"].value or 1.0), mnri=float(mnri),
                           zone=_zone(W[f"X{r}"].value, zone1)))
-    if glob["minerals"]:                 # purchase price split by mineral NRI x lateral (Wells column W)
-        tot = sum(w["mnri"] * w["lat"] for w in wells) or 1.0
+    if glob["minerals"]:                 # purchase price split by mineral NRI x lateral x well TC factor (Wells column W)
+        tot = sum(w["mnri"] * w["lat"] * w["tc_factor"] for w in wells) or 1.0
         for w in wells:
-            w["share"] = w["mnri"] * w["lat"] / tot
+            w["share"] = w["mnri"] * w["lat"] * w["tc_factor"] / tot
     strip = (np.array([pr.cell(r, 4).value for r in range(6, 406)], float), np.array([pr.cell(r, 5).value for r in range(6, 406)], float))
     oil = np.array([tc.cell(r, 3).value for r in range(6, 366)], float)
     gas = np.array([tc.cell(r, 4).value for r in range(6, 366)], float)

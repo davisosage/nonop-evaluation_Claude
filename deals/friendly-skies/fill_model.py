@@ -3,8 +3,9 @@
     python3 fill_model.py post <model.xlsx>                             # comps sheet, after write_model.py
 Run from toolkit/. Recalculate after each step.
 
-16 wells (permitted 8-5-1 excluded), template holds 10 rows: wells that share a bench and lateral direction are grouped into one row with the
-mineral NRI multiplied by the well count (minerals revenue is linear in NRI; laterals inside a group differ by <= 411 ft)."""
+16 wells (permitted 8-5-1 excluded), template holds 10 rows: wells that share a bench and lateral direction are grouped into
+one row. Each row carries the per-well NRI (3.783899%) and the well count in the Well TC factor (Wells R), so volumes and the
+price split scale with the count (laterals inside a group differ by <= 86 ft)."""
 import datetime as dt
 import os
 import sys
@@ -61,9 +62,9 @@ if mode == "pre":
         lat = round(sum(w[2] for w in wells) / n)
         apis = ", ".join(f"{w[1]} {w[0]}" for w in wells)
         note = (f"{n} well{'s' if n > 1 else ''} ({apis}); {zone} per Enverus ENVInterval; {desc}. Lateral {lat:,} ft "
-                f"(Enverus{', average' if n > 1 else ''}). Mineral NRI = unit NRI 3.783899% x {n}. {TIMING}")
+                f"(Enverus{', average' if n > 1 else ''}). Mineral NRI 3.783899% per well; Well TC factor = {n} (well count). {TIMING}")
         vals = dict(C=nm, D=wells[0][0], E=lat, F=0, G=0.8, I=0, J=0, K=0, N=D(2026, 12, 1), O=D(2027, 6, 1),
-                    P=D(2027, 7, 1), S=st, T=note, U=UNIT_NRI * n, X=zone)
+                    P=D(2027, 7, 1), R=n, S=st, T=note, U=UNIT_NRI, X=zone)
         for col, v in vals.items():
             W[f"{col}{r}"] = v
         for col in "NOP":
@@ -80,7 +81,7 @@ if mode == "pre":
     I["C19"] = "DJ (CO)"
     I["C20"] = price
     I["D20"] = ("No asking price given. Set to the most we could pay for a 20% IRR at the strip (solved by write_model.py / "
-                "engine.max_price); split across the rows by mineral NRI x lateral")
+                "engine.max_price); split across the rows by mineral NRI x lateral x well count")
     I["C21"] = D(2026, 12, 1)
     I["D21"] = "ASSUMPTION: closing Dec-26"
     I["B11"] = "Type curve multiplier (100% = 5-mile zone curves, modern completions)"
