@@ -13,7 +13,7 @@
    "lease_nri": 0.75,
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
-   "haircut": 0.15,
+   "haircut": 0.0,
    "tc_factor": 1.0,
    "zone": null
   },
@@ -25,7 +25,7 @@
    "lease_nri": 0.75,
    "mineral_nri": 0.0,
    "first_sales_month_index": 7,
-   "haircut": 0.15,
+   "haircut": 0.0,
    "tc_factor": 1.0,
    "zone": null
   }
@@ -35,10 +35,10 @@
  "asking_price": null,
  "base_case": "strip, 20% premium",
  "irr": null,
- "moic": 0.6396931922724066,
- "npv10": -155248.12808035477,
+ "moic": 0.7702999916284972,
+ "npv10": -120151.17556257965,
  "payout_months": null,
- "max_for_20pct_irr": -0.4459472506826954,
+ "max_for_20pct_irr": -0.3400232607342018,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 8,
@@ -54,5 +54,5 @@
  "decision": "Pending",
  "price_paid": null,
  "closed": null,
- "notes": "PBEX well proposal under Order R-23524 / R-23524-A to EOG Resources (1.5625% WI, 1.1718% NRI per well). Election due ~Nov 25, 2026; non-consent = 200% risk charge. No price given. 5-mi 1BS curve (8 wells, low confidence) never pays out at 0%; 10-mi curve 18% IRR at 0%."
+ "notes": "PBEX well proposal under Order R-23524 / R-23524-A to EOG Resources (1.5625% WI, 1.1718% NRI per well). Election due ~Nov 25, 2026; non-consent = 200% risk charge. No price given. Re-run with no child haircut (Davis): 5-mi 1BS curve (8 wells, low confidence) never pays out at 0%; 10-mi curve 29% IRR at 0%, max premium 15%."
 }
