@@ -10,14 +10,13 @@ Every zone gets its own curve from its own offsets with the same method (b fitte
 curve when its fit set has fewer than 15 wells. Writes tc_zones.json, tc_zone_curves.csv and tc_zone_curves_10mi.csv.
 
 Lateral length (lateral.py, Davis's rule Nov 2026):
-  * deal_data.py sets MODEL_LATERAL (ft) = the lateral of the deal wells being modeled (multi-zone: ZONES[z]["lateral"]
-    overrides it per zone). Missing = the median offset lateral, with a warning.
-  * each offset is first moved to MODEL_LATERAL: within +/- 2,500 ft linear; further away the shaped rule
-    (months 1-8 at a factor of linear phased from 100% at 2,500 ft away to 90% at 5,000 ft away, linear / factor going
-    shorter; decline re-solved so the EUR is linear).
-    The shaped moves are taken from the fitted curve itself, so the fit is iterated a few times.
-  * the curve is fitted at MODEL_LATERAL, then moved to the 10,000 ft basis with the same rule (the TypeCurve tab);
-    the engine / workbook move it back to each well's lateral, so wells at the modeled length get the fit back.
+  * each offset is normalized straight to the 10,000 ft basis. Within +/- 2,500 ft of 10,000: linear (an 8,000 ft
+    offset x 1.25 every month). Further away: months 1-8 get the linear factor x f (f phased from 100% at 2,500 ft away
+    to 90% at 5,000 ft away and beyond) when the offset is shorter than 10,000 ft, and the linear factor / f when it is
+    longer (mirror: a 5,000 ft offset x 2 x 0.9, a 20,000 ft offset x 0.5 / 0.9); from month 9 the offset's decline is
+    re-shaped (time-stretched, same b) so its EUR still scales linearly. The stretch is solved on the fitted curve
+    itself, so the fit is iterated a few times.
+  * the engine / workbook move the 10,000 ft curve to each well's lateral on the same rule ('Lateral Curves').
 
 Method (reverse-engineered from the model and its notes):
   * volumes per 10,000 ft of lateral (via the lateral rule above); month 1 = first producing month
@@ -44,13 +43,12 @@ import lateral as LAT
 WELLS, FIT_SET, ENV_EUR, DEAL_DIR, OIL_B_FIXED, GAS_B_FIXED = {}, [], {}, ".", None, None
 ZONES = {}                       # optional: multi-zone fit sets (see above)
 DAYS, FIT_SET_10MI = {}, []      # optional: producing days by month {api: [days]}; 10-mile fit set [apis]
-MODEL_LATERAL = None             # ft, the deal wells' lateral (offsets are moved to it before the fit)
-SERIES, ORIG_LEN = {}, {}        # offsets at the modeled lateral for the set being built; cleaned months reported
+SERIES, ORIG_LEN = {}, {}        # offsets normalized to the 10,000 ft basis for the set being built; cleaned months reported
 MIN_FIT_WELLS = 15               # below this the 5-mile curve is low confidence and the 10-mile curve is built too
 
 
 def load_deal(deal_dir):
-    global WELLS, FIT_SET, ENV_EUR, DEAL_DIR, DAYS, FIT_SET_10MI, ZONES, MODEL_LATERAL
+    global WELLS, FIT_SET, ENV_EUR, DEAL_DIR, DAYS, FIT_SET_10MI, ZONES
     spec = importlib.util.spec_from_file_location("deal_data", os.path.join(deal_dir, "deal_data.py"))
     dd = importlib.util.module_from_spec(spec); spec.loader.exec_module(dd)
     ZONES = dict(getattr(dd, "ZONES", {}) or {})
@@ -58,7 +56,6 @@ def load_deal(deal_dir):
     WELLS, ENV_EUR, DEAL_DIR = dd.WELLS, getattr(dd, "ENV_EUR", {}), deal_dir
     FIT_SET = list(getattr(dd, "FIT_SET", None) or z1.get("fit", []))
     DAYS = getattr(dd, "DAYS", {})
-    MODEL_LATERAL = getattr(dd, "MODEL_LATERAL", None)
     FIT_SET_10MI = list(getattr(dd, "FIT_SET_10MI", None) or z1.get("fit_10mi", []))
     if len(ZONES) > 6:
         raise SystemExit("ZONES: the template holds 6 zone curves at most")
@@ -135,29 +132,10 @@ def prepare_series(apis, lref, ref=None):
     return shaped
 
 
-def model_lateral(apis, lref=None):
-    lref = lref or MODEL_LATERAL
-    if not lref:
-        lref = float(np.median([WELLS[a][1] for a in apis]))
-        print(f"WARNING: MODEL_LATERAL not set in deal_data.py; using the median offset lateral {lref:,.0f} ft")
-    return float(lref)
-
-
-def to_basis(c, lref):
-    """A curve fitted at the modeled lateral, moved to the 10,000 ft basis (TypeCurve tab)."""
+def to_basis(c, lref=LAT.BASIS):
+    """A curve fitted at lref moved to the 10,000 ft basis (curves are now fitted on the basis, so lref = 10,000 and
+    this returns the curve unchanged; kept for tc_summary files from the short-lived fit-at-deal-lateral version)."""
     return LAT.scale_curve(c, lref, LAT.BASIS)[0]
-
-
-def basis_series(apis, lref, ref):
-    """Offsets (already at lref in SERIES) moved to the 10,000 ft basis the same way the curve is, for charts."""
-    io, ig = LAT.scale_curve(ref[0], lref, LAT.BASIS)[1], LAT.scale_curve(ref[1], lref, LAT.BASIS)[1]
-    out = {}
-    for a in apis:
-        o, g = SERIES[a]
-        o2, g2 = LAT.scale_data(o, io), LAT.scale_data(g, ig)
-        n = min(len(o2), len(g2))
-        out[a] = (o2[:n], g2[:n])
-    return out
 
 
 def mean_curve(apis):
@@ -255,9 +233,9 @@ def stream_fit(k, apis, series, long_wells, mean_all, b_fixed=None):
 OFFSETS_BASIS = {}                 # api -> (oil, gas) per 10,000 ft on the lateral rule, for plot_tc (saved to tc_offsets.json)
 
 
-def build_set(apis, lref=None):
+def build_set(apis):
     """Full type-curve build for one fit set. Returns (base_o, base_g, env_o_curve, env_g_curve, summary)."""
-    lref = model_lateral(apis, lref)
+    lref = LAT.BASIS
     shaped = prepare_series(apis, lref)
     far = [a for a in apis if abs(WELLS[a][1] - lref) > LAT.BAND]
     if far:                            # shaped moves depend on the curve: fit, re-move the far offsets, refit
@@ -268,10 +246,8 @@ def build_set(apis, lref=None):
     long_wells = [a for a in apis if ORIG_LEN[a] >= 24]
     oil_r, PO = stream_fit(0, apis, series, long_wells, oil, OIL_B_FIXED)
     gas_r, PG = stream_fit(1, apis, series, long_wells, gas, GAS_B_FIXED)
-    OFFSETS_BASIS.update(basis_series(apis, lref, (oil_r, gas_r)))
-    conv_o, conv_g = LAT.scale_curve(oil_r, lref, LAT.BASIS), LAT.scale_curve(gas_r, lref, LAT.BASIS)
-    oil_c, gas_c = conv_o[0], conv_g[0]
-    PO["qi"] = float(oil_c[PO["peak_month"] - 1] / 30.4); PG["qi"] = float(gas_c[PG["peak_month"] - 1] / 30.4)
+    OFFSETS_BASIS.update({a: SERIES[a] for a in apis})
+    oil_c, gas_c = oil_r, gas_r
     eur_o = oil_c.sum()
 
     have_env = all(a in ENV_EUR for a in apis)
@@ -294,7 +270,6 @@ def build_set(apis, lref=None):
         "wells": len(apis), "long_wells": len(long_wells), "months_in_mean": len(oil),
         "lateral": {"model_lateral": lref, "offsets_linear": len(apis) - len(shaped), "offsets_shaped": shaped,
                     "offset_laterals": [float(WELLS[a][1]) for a in apis],
-                    "to_basis": {k: {kk: v for kk, v in c[1].items()} for k, c in (("oil", conv_o), ("gas", conv_g))},
                     "rule": {"band_ft": LAT.BAND, "early_months": LAT.EARLY_MONTHS, "early_pct": LAT.EARLY_PCT, "full_ft": LAT.FULL_AT}},
         "wells_by_month": cnt,
         "fit_set": apis, "enverus_eurs_supplied": have_env,
@@ -321,12 +296,12 @@ def build_zones():
     hdr, hdr10 = ["month"], ["month"]
     for k, (name, z) in enumerate(ZONES.items()):
         fit = list(z["fit"])
-        o, g, _, _, s = build_set(fit, z.get("lateral"))
+        o, g, _, _, s = build_set(fit)
         rec = dict(name=name, zone=k + 1, radius=z.get("radius", "5 mi"), note=z.get("note", ""),
                    low_confidence=len(fit) < MIN_FIT_WELLS, **{kk: s[kk] for kk in ZONE_KEYS})
         t_o = t_g = np.zeros(N)
         if len(fit) < MIN_FIT_WELLS and z.get("fit_10mi"):
-            t_o, t_g, _, _, t = build_set(list(z["fit_10mi"]), z.get("lateral"))
+            t_o, t_g, _, _, t = build_set(list(z["fit_10mi"]))
             rec["ten_mile"] = {kk: t[kk] for kk in ZONE_KEYS}
         zs.append(rec)
         cols += [o, g]; cols10 += [t_o, t_g]; hdr += [f"z{k + 1}_oil", f"z{k + 1}_gas"]; hdr10 += [f"z{k + 1}_oil", f"z{k + 1}_gas"]
@@ -345,11 +320,11 @@ def main():
             os.remove(os.path.join(DEAL_DIR, f))
     if ZONES:
         build_zones()
-    base_o, base_g, env_oil_c, env_gas_c, out = build_set(FIT_SET, next(iter(ZONES.values()), {}).get("lateral"))
+    base_o, base_g, env_oil_c, env_gas_c, out = build_set(FIT_SET)
     _b5 = {a: OFFSETS_BASIS[a] for a in FIT_SET}
     out["days_used"] = sorted(a for a in FIT_SET if DAYS.get(a))
     if len(FIT_SET) < MIN_FIT_WELLS and FIT_SET_10MI:
-        t_o, t_g, _, _, t = build_set(FIT_SET_10MI, next(iter(ZONES.values()), {}).get("lateral"))
+        t_o, t_g, _, _, t = build_set(FIT_SET_10MI)
         OFFSETS_BASIS.update(_b5)                  # the 5-mile wells keep their 5-mile-fit view on the charts
         out["ten_mile"] = {k: t[k] for k in ("wells", "lateral", "long_wells", "months_in_mean", "oil", "gas", "enverus", "guardrail",
                                              "fit_vs_median", "mean_oil", "mean_gas", "fit_set")}
@@ -367,8 +342,8 @@ def main():
     print(json.dumps(s, indent=1))
     print("wells by month:", out["wells_by_month"])
     lt = out["lateral"]
-    print(f"lateral: fitted at {lt['model_lateral']:,.0f} ft; {lt['offsets_linear']} offsets linear, {len(lt['offsets_shaped'])} shaped "
-          f"(+/- {LAT.BAND:,.0f} ft band); to the 10,000 ft basis: {lt['to_basis']['oil']['mode']}")
+    print(f"lateral: offsets normalized to 10,000 ft; {lt['offsets_linear']} linear (within +/- {LAT.BAND:,.0f} ft), "
+          f"{len(lt['offsets_shaped'])} shaped")
     if "ten_mile" in out:
         t = out["ten_mile"]
         print(f"10-mile curve: {t['wells']} wells, oil {t['oil']['eur']/1000:.0f} MBO, gas {t['gas']['eur']/1e6:.2f} Bcf per 10,000 ft")

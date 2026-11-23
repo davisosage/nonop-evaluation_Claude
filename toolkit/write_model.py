@@ -8,8 +8,7 @@ Solves Summary C7 (premium) so the live-case IRR (C12) is 20%. Writes TypeCurve 
 Multi-zone deals (tc_zones.json from build_tc.py): every zone curve goes on the 'Zone Curves' tab (zone 1 = TypeCurve), with
 a fit summary and charts for zones 2-6; each well uses the zone named in Wells column X. Curve sensitivities (b, fixed b,
 Enverus P10/P50/P90, 10-mile) are applied to every zone at once, each zone with its own fit.
-Lateral length: refits for the sensitivities are made at the modeled lateral (tc_summary.json "lateral") and moved to the
-10,000 ft basis like the base curve; each well's s / Tsw / g go on 'Lateral Curves' rows 11-13 (lateral.py).
+Lateral length: offsets are normalized to 10,000 ft on the lateral rule before the fit (build_tc.py); each well's s / Tsw / g go on 'Lateral Curves' rows 11-13 (lateral.py).
 The workbook must have been recalculated once (cached values) so the engine can read Wells and Inputs.
 """
 import json, math, os, sys
@@ -261,9 +260,9 @@ if "Lateral Curves" in wb.sheetnames:
                 LAT_INFO.append(dict(well=Wf[f"C{wr}"].value, lat_ft=lat, mode=inf["mode"], early_x_linear=inf["e"], oil_s=inf["s"]))
     _lt = S.get("lateral") or {}
     _sh = [w for w in LAT_INFO if w["mode"] == "shaped"]
-    _txt = (f" Lateral rule: offsets moved to the modeled {_lt.get('model_lateral', 10000):,.0f} ft lateral "
-            f"({_lt.get('offsets_linear', S['wells'])} linear within +/- {gl['lat_band']:,.0f} ft, {len(_lt.get('offsets_shaped', []))} shaped), "
-            f"fitted there and moved to this 10,000 ft basis; each well's curve at its lateral is on 'Lateral Curves' "
+    _txt = (f" Lateral rule: offsets normalized to this 10,000 ft basis "
+            f"({_lt.get('offsets_linear', S['wells'])} linear within +/- {gl['lat_band']:,.0f} ft, {len(_lt.get('offsets_shaped', []))} shaped); "
+            f"each well's curve at its lateral is on 'Lateral Curves' "
             f"({len(_sh)} of {len(LAT_INFO)} wells shaped: months 1-{gl['lat_months']} at 100% of linear {gl['lat_band']:,.0f} ft from 10,000 ft "
             f"phasing to {gl['lat_pct']:.0%} at {gl['lat_full']:,.0f} ft, decline re-solved to the linear EUR).")
     tc["B3"] = _re.sub(r" Lateral rule: .*?\)\.", "", tc["B3"].value or "") + _txt

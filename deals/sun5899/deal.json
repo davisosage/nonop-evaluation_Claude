@@ -1,6 +1,6 @@
 {
  "deal": "Sun 5899 11-28 2BHP + 3BHP (Chord, Middle Bakken DUCs, Williams Co ND)",
- "model_file": "p3.xlsx",
+ "model_file": "q2.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
  "basin": "Williston (ND)",
@@ -36,7 +36,7 @@
   "early_months": 8,
   "early_pct": 0.9,
   "full_ft": 5000.0,
-  "model_lateral": 21186.0,
+  "model_lateral": 10000.0,
   "offsets_shaped": 8,
   "wells": [
    {
@@ -44,36 +44,36 @@
     "lat_ft": 20713.0,
     "mode": "shaped",
     "early_x_linear": 0.9,
-    "oil_s": 0.7956029117823133
+    "oil_s": 0.8141092130725214
    },
    {
     "well": "SUN 5899 11-28 3BHP",
     "lat_ft": 21658.0,
     "mode": "shaped",
     "early_x_linear": 0.9,
-    "oil_s": 0.7956029117823133
+    "oil_s": 0.8141092130725214
    }
   ]
  },
  "net_capex": 2843096.0,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.37307087414325624,
- "moic": 1.8824525877627616,
- "npv10": 1387419.346391221,
- "payout_months": 19,
- "max_for_20pct_irr": 0.4359525326025548,
- "summary_c7_solved_premium": 0.4359525326025548,
+ "irr": 0.4949307193595964,
+ "moic": 1.8491492900436903,
+ "npv10": 1595494.2297203601,
+ "payout_months": 14,
+ "max_for_20pct_irr": 0.5343645245546381,
+ "summary_c7_solved_premium": 0.5343645245546381,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 8,
   "low_confidence": true,
   "tc_multiplier": 1,
   "zones": [],
-  "oil_eur_per_10k": 320080.99999200006,
-  "gas_eur_per_10k": 756520.6591640001,
-  "oil_b": 1.0855775999485946,
-  "gas_b": 1.9999999999999998,
+  "oil_eur_per_10k": 302375.206237,
+  "gas_eur_per_10k": 822882.625907,
+  "oil_b": 0.830652851995482,
+  "gas_b": 1.9999999999999993,
   "ten_mile_wells": null
  },
  "decision": "Pending",
