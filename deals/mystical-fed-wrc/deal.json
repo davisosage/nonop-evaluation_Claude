@@ -39,6 +39,7 @@
  "npv10": 740125.466235524,
  "payout_months": 11,
  "max_for_20pct_irr": 0.7336905666064865,
+ "summary_c7_solved_premium": 0.7336905666064865,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 6,

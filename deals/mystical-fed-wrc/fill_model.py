@@ -91,8 +91,8 @@ if mode == "pre":
     S["B2"] = TITLE + ": Buy the Citation WI or Not"
     S["B3"] = ("Pure non-op economics at WRC's AFEs (10/22/2026) for Citation's (CILP-VI) 4.4525% WI in the two Sussex wells: "
                "1SXH ($11,362,411) and 2SXH ($11,312,038), net $1.01MM, plus the premium. The 1MH / 2NH / 3NH wells in WRC's "
-               "proposal are left out. No asking premium given; 20% is the base. Live case follows Inputs, the deck selector (C6) "
-               "and the premium (C7).")
+               "proposal are left out. No asking premium given: C7 is solved for a 20% IRR (the most we could pay); the grid "
+               "below shows 0-30% premiums. Live case follows Inputs, the deck selector (C6) and the premium (C7).")
     S["D6"] = '=IF(C6="Strip","' + DECK + '","Flat "&C6&" (oil / gas)")'
     S["C7"] = 0.2
     S["B78"] = "Confirm with the seller (Citation / CILP-VI) and WRC Energy"
