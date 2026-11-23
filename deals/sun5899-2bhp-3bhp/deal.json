@@ -1,0 +1,58 @@
+{
+ "deal": "Sun 5899 11-28 2BHP + 3BHP (Chord, Middle Bakken DUCs, Williams Co ND)",
+ "model_file": "Sun 5899 11-28 Williston Non-Op Model.xlsx",
+ "evaluated": "2026-11-23",
+ "type": "Working interest",
+ "basin": "Williston (ND)",
+ "wells": [
+  {
+   "name": "SUN 5899 11-28 2BHP",
+   "api": "3310506838",
+   "lat_ft": 20713.0,
+   "wi": 0.125,
+   "lease_nri": 0.8125,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 4,
+   "haircut": 0.15,
+   "tc_factor": 1.0,
+   "zone": null
+  },
+  {
+   "name": "SUN 5899 11-28 3BHP",
+   "api": "3310506840",
+   "lat_ft": 21658.0,
+   "wi": 0.125,
+   "lease_nri": 0.8125,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 4,
+   "haircut": 0.15,
+   "tc_factor": 1.0,
+   "zone": null
+  }
+ ],
+ "valuation_month": "2026-11-01",
+ "net_capex": 2843096.0,
+ "asking_price": null,
+ "base_case": "strip, 20% premium",
+ "irr": 0.27325160515776914,
+ "moic": 1.5846903871326057,
+ "npv10": 850066.4752520606,
+ "payout_months": 23,
+ "max_for_20pct_irr": 0.2988116022485047,
+ "max_for_20pct_irr_units": "premium, % of net capex",
+ "type_curve": {
+  "fit_wells": 8,
+  "low_confidence": true,
+  "tc_multiplier": 1,
+  "zones": [],
+  "oil_eur_per_10k": 314544.50865,
+  "gas_eur_per_10k": 783261.948149,
+  "oil_b": 0.964064137218844,
+  "gas_b": 1.9999999999999998,
+  "ten_mile_wells": 44
+ },
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": "Evaluated from Chord's executed election packet (Kraken elected to participate 9/9/2026; AFEs confirmed). Same wells as the deals/sun5899 template example, re-run with a 44-well 10-mile comparison and the Nov 20 WTI strip."
+}
