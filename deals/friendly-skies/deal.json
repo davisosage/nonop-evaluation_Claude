@@ -1,0 +1,214 @@
+{
+ "deal": "Friendly Skies / 747 3-65 pad: 17 Niobrara A/B/C wells (Bison IV; Adams Co CO), 3.783899% unit NRI, minerals",
+ "model_file": "Friendly Skies DJ Non-Op Model.xlsx",
+ "evaluated": "2026-11-23",
+ "type": "Minerals",
+ "basin": "DJ (CO)",
+ "wells": [
+  {
+   "name": "747 3-65 Niobrara B west (7 wells)",
+   "api": "0500110674",
+   "lat_ft": 17769.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.26487293,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara B"
+  },
+  {
+   "name": "747 3-65 8-5-4 (Niobrara B, north U-turn)",
+   "api": "0500110673",
+   "lat_ft": 15439.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.03783899,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara B"
+  },
+  {
+   "name": "747 3-65 8-8-13 (Niobrara B, south U-turn)",
+   "api": "0500110683",
+   "lat_ft": 18045.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.03783899,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara B"
+  },
+  {
+   "name": "747 3-65 8-9-9 (Niobrara B, east)",
+   "api": "0500110679",
+   "lat_ft": 8753.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.03783899,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara B"
+  },
+  {
+   "name": "747 3-65 Niobrara A west (4 wells)",
+   "api": "0500110678",
+   "lat_ft": 17776.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.15135596,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara A"
+  },
+  {
+   "name": "747 3-65 Niobrara C north U-turns (2 wells)",
+   "api": "0500110676",
+   "lat_ft": 15550.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.07567798,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara C"
+  },
+  {
+   "name": "747 3-65 8-8-11 (Niobrara C, south U-turn)",
+   "api": "0500110680",
+   "lat_ft": 18009.0,
+   "wi": 0.0,
+   "lease_nri": 0.8,
+   "mineral_nri": 0.03783899,
+   "first_sales_month_index": 8,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Niobrara C"
+  }
+ ],
+ "valuation_month": "2026-11-01",
+ "lateral_rule": {
+  "band_ft": 0.0,
+  "early_months": 3,
+  "early_pct": 0.75,
+  "full_ft": 5000.0,
+  "early_pct2": 0.675,
+  "full2_ft": 10000.0,
+  "model_lateral": 10000.0,
+  "offsets_shaped": 9,
+  "wells": [
+   {
+    "well": "747 3-65 Niobrara B west (7 wells)",
+    "lat_ft": 17769.0,
+    "mode": "shaped",
+    "early_x_linear": 0.708465,
+    "oil_s": 0.592783008458518
+   },
+   {
+    "well": "747 3-65 8-5-4 (Niobrara B, north U-turn)",
+    "lat_ft": 15439.0,
+    "mode": "shaped",
+    "early_x_linear": 0.743415,
+    "oil_s": 0.6363779981958103
+   },
+   {
+    "well": "747 3-65 8-8-13 (Niobrara B, south U-turn)",
+    "lat_ft": 18045.0,
+    "mode": "shaped",
+    "early_x_linear": 0.704325,
+    "oil_s": 0.5876914030764231
+   },
+   {
+    "well": "747 3-65 8-9-9 (Niobrara B, east)",
+    "lat_ft": 8753.0,
+    "mode": "shaped",
+    "early_x_linear": 1.0664960273022983,
+    "oil_s": 1.1122264932394128
+   },
+   {
+    "well": "747 3-65 Niobrara A west (4 wells)",
+    "lat_ft": 17776.0,
+    "mode": "shaped",
+    "early_x_linear": 0.70836,
+    "oil_s": 0.5810774326701936
+   },
+   {
+    "well": "747 3-65 Niobrara C north U-turns (2 wells)",
+    "lat_ft": 15550.0,
+    "mode": "shaped",
+    "early_x_linear": 0.74175,
+    "oil_s": 0.6506908810525334
+   },
+   {
+    "well": "747 3-65 8-8-11 (Niobrara C, south U-turn)",
+    "lat_ft": 18009.0,
+    "mode": "shaped",
+    "early_x_linear": 0.7048650000000001,
+    "oil_s": 0.6056249775072879
+   }
+  ]
+ },
+ "net_capex": 0,
+ "asking_price": 15082221.0,
+ "base_case": "strip, asking price",
+ "irr": 0.20000000383976668,
+ "moic": 2.0689227198294913,
+ "npv10": 4340071.196281353,
+ "payout_months": 32,
+ "max_for_20pct_irr": 15082221.119029505,
+ "summary_c7_solved_premium": null,
+ "max_for_20pct_irr_units": "$",
+ "type_curve": {
+  "fit_wells": 9,
+  "low_confidence": true,
+  "tc_multiplier": 1,
+  "zones": [
+   {
+    "name": "Niobrara B",
+    "radius": "5 mi",
+    "fit_wells": 9,
+    "low_confidence": true,
+    "oil_eur_per_10k": 379451.251841,
+    "gas_eur_per_10k": 2420557.857764,
+    "oil_b": 0.9925457340567483,
+    "gas_b": 1.9999999999999998,
+    "wells": 4
+   },
+   {
+    "name": "Niobrara A",
+    "radius": "5 mi",
+    "fit_wells": 12,
+    "low_confidence": true,
+    "oil_eur_per_10k": 403463.666044,
+    "gas_eur_per_10k": 1696080.6677199998,
+    "oil_b": 1.0169338442926836,
+    "gas_b": 1.651512285485856,
+    "wells": 1
+   },
+   {
+    "name": "Niobrara C",
+    "radius": "5 mi",
+    "fit_wells": 12,
+    "low_confidence": true,
+    "oil_eur_per_10k": 305086.301577,
+    "gas_eur_per_10k": 735770.7590989999,
+    "oil_b": 0.8166858914806508,
+    "gas_b": 0.21187633923707763,
+    "wells": 2
+   }
+  ],
+  "oil_eur_per_10k": 379451.251841,
+  "gas_eur_per_10k": 2420557.857764,
+  "oil_b": 0.9925457340567483,
+  "gas_b": 1.9999999999999998,
+  "ten_mile_wells": 51
+ },
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": ""
+}

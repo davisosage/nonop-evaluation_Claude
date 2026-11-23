@@ -205,6 +205,11 @@ def fit_tc(vol, b=None, p=None, b_bounds=(0.05, 2.0)):
 def stream_fit(k, apis, series, long_wells, mean_all, b_fixed=None):
     """Multi-phase fit for one stream (k = 0 oil, 1 gas). b from the 24+ month wells' mean (from its
     peak), checked across windows and by bootstrap; then ramp / qi / De on the full mean with b fixed."""
+    if not long_wells:                 # no 24+ month well in this set: b must come from b_fixed (borrowed b)
+        c, P = fit_tc(mean_all, b=b_fixed)
+        return c, dict(qi=P["qi"], De=P["De"], b=float(b_fixed), b_fitted=float("nan"), b_pinned=False, b_windows={},
+                       b_boot_p10_p90=[float("nan"), float("nan")], peak_month=P["peak"] + 1, ramp_start=P["r1"],
+                       b_fit_peak_month_long=None)
     long_mean = mean_curve(long_wells)[k]
     p_l = find_peak(long_mean)
     b_fitted = fit_tc(long_mean, p=p_l)[1]["b"]
@@ -212,7 +217,7 @@ def stream_fit(k, apis, series, long_wells, mean_all, b_fixed=None):
     windows = {w: fit_tc(long_mean[:w], p=p_l)[1]["b"] for w in (18, 24, 30, len(long_mean)) if w <= len(long_mean)}
     rng = np.random.default_rng(7)
     boots = []
-    for _ in range(300):
+    for _ in range(300 if len(long_wells) >= 3 else 0):
         pick = list(rng.choice(long_wells, size=len(long_wells), replace=True))
         if len(set(pick)) < 3:
             continue
@@ -226,15 +231,25 @@ def stream_fit(k, apis, series, long_wells, mean_all, b_fixed=None):
     c, P = fit_tc(mean_all, b=b_use)
     return c, dict(qi=P["qi"], De=P["De"], b=float(b_use), b_fitted=float(b_fitted),
                    b_pinned=bool(b_fitted <= 0.051 or b_fitted >= 1.999), b_windows=windows,
-                   b_boot_p10_p90=[float(x) for x in np.percentile(boots, [10, 90])],
+                   b_boot_p10_p90=[float(x) for x in np.percentile(boots, [10, 90])] if boots else [float("nan")] * 2,
                    peak_month=P["peak"] + 1, ramp_start=P["r1"], b_fit_peak_month_long=p_l + 1)
 
 
 OFFSETS_BASIS = {}                 # api -> (oil, gas) per 10,000 ft on the lateral rule, for plot_tc (saved to tc_offsets.json)
 
 
-def build_set(apis):
-    """Full type-curve build for one fit set. Returns (base_o, base_g, env_o_curve, env_g_curve, summary)."""
+MIN_LONG_WELLS = 3                 # fewer 24+ month wells than this: b is fitted on the 10-mile set's 24+ month wells
+
+
+def long_count(apis):
+    """Wells in a set with 24+ cleaned months (the wells b is fitted on)."""
+    return sum(1 for a in apis if len(clean(*WELLS[a][3:5], DAYS.get(a), WELLS[a][2])[0]) >= 24)
+
+
+def build_set(apis, b_borrow=None):
+    """Full type-curve build for one fit set. Returns (base_o, base_g, env_o_curve, env_g_curve, summary).
+    b_borrow = (oil b, gas b, note): b fitted on another set's 24+ month wells (the same zone's 10-mile set), used when
+    this set has fewer than MIN_LONG_WELLS wells with 24+ months. Still fitted from production, never hard-coded."""
     lref = LAT.BASIS
     shaped = prepare_series(apis, lref)
     far = [a for a in apis if abs(WELLS[a][1] - lref) > LAT.BAND]
@@ -244,8 +259,16 @@ def build_set(apis):
             shaped = prepare_series(apis, lref, (fit_tc(m_o)[0], fit_tc(m_g)[0]))
     oil, gas, cnt, series = mean_curve(apis)
     long_wells = [a for a in apis if ORIG_LEN[a] >= 24]
-    oil_r, PO = stream_fit(0, apis, series, long_wells, oil, OIL_B_FIXED)
-    gas_r, PG = stream_fit(1, apis, series, long_wells, gas, GAS_B_FIXED)
+    bo = OIL_B_FIXED if OIL_B_FIXED is not None else (b_borrow[0] if b_borrow else None)
+    bg = GAS_B_FIXED if GAS_B_FIXED is not None else (b_borrow[1] if b_borrow else None)
+    oil_r, PO = stream_fit(0, apis, series, long_wells, oil, bo)
+    gas_r, PG = stream_fit(1, apis, series, long_wells, gas, bg)
+    if b_borrow and OIL_B_FIXED is None:
+        PO["b_source"] = PG["b_source"] = b_borrow[2]
+        PO["b_pinned"], PG["b_pinned"] = (bool(b_borrow[0] <= 0.051 or b_borrow[0] >= 1.999),
+                                          bool(b_borrow[1] <= 0.051 or b_borrow[1] >= 1.999))
+        PO["b_fitted_own_set"], PG["b_fitted_own_set"] = PO["b_fitted"], PG["b_fitted"]
+        PO["b_fitted"], PG["b_fitted"] = b_borrow[0], b_borrow[1]
     OFFSETS_BASIS.update({a: SERIES[a] for a in apis})
     oil_c, gas_c = oil_r, gas_r
     eur_o = oil_c.sum()
@@ -267,7 +290,7 @@ def build_set(apis):
     env_gas_c = base_g * (env_g / base_g.sum())
 
     out = {
-        "wells": len(apis), "long_wells": len(long_wells), "months_in_mean": len(oil),
+        "wells": len(apis), "long_wells": len(long_wells), "months_in_mean": len(oil), "b_borrowed": bool(b_borrow),
         "lateral": {"model_lateral": lref, "offsets_linear": len(apis) - len(shaped), "offsets_shaped": shaped,
                     "offset_laterals": [float(WELLS[a][1]) for a in apis],
                     "rule": {"band_ft": LAT.BAND, "early_months": LAT.EARLY_MONTHS, "early_pct": LAT.EARLY_PCT, "full_ft": LAT.FULL_AT,
@@ -297,7 +320,12 @@ def build_zones():
     hdr, hdr10 = ["month"], ["month"]
     for k, (name, z) in enumerate(ZONES.items()):
         fit = list(z["fit"])
-        o, g, _, _, s = build_set(fit)
+        borrow = None
+        if long_count(fit) < MIN_LONG_WELLS and z.get("fit_10mi"):
+            _, _, _, _, t0 = build_set(list(z["fit_10mi"]))
+            borrow = (t0["oil"]["b"], t0["gas"]["b"], f"b fitted on the {t0['long_wells']} 24+ month wells of the 10-mile set "
+                      f"({long_count(fit)} in the {len(fit)}-well fit set)")
+        o, g, _, _, s = build_set(fit, borrow)
         rec = dict(name=name, zone=k + 1, radius=z.get("radius", "5 mi"), note=z.get("note", ""),
                    low_confidence=len(fit) < MIN_FIT_WELLS, **{kk: s[kk] for kk in ZONE_KEYS})
         t_o = t_g = np.zeros(N)
@@ -309,6 +337,7 @@ def build_zones():
         print(f"zone {k + 1} {name}: {len(fit)} wells ({rec['radius']}){', LOW CONFIDENCE' if rec['low_confidence'] else ''}; "
               f"oil {o.sum()/1000:.0f} MBO (b {s['oil']['b']:.2f}{', at cap' if s['oil']['b_pinned'] else ''}), "
               f"gas {g.sum()/1e6:.2f} Bcf (b {s['gas']['b']:.2f}{', at cap' if s['gas']['b_pinned'] else ''}) per 10,000 ft"
+              + (f" [{s['oil']['b_source']}]" if s.get('b_borrowed') else "")
               + (f"; 10-mile {rec['ten_mile']['wells']} wells: {t_o.sum()/1000:.0f} MBO, {t_g.sum()/1e6:.2f} Bcf" if "ten_mile" in rec else ""))
     json.dump(dict(zones=zs), open(os.path.join(DEAL_DIR, "tc_zones.json"), "w"), indent=1)
     np.savetxt(os.path.join(DEAL_DIR, "tc_zone_curves.csv"), np.column_stack(cols), delimiter=",", header=",".join(hdr), comments="", fmt="%.6f")
@@ -321,7 +350,13 @@ def main():
             os.remove(os.path.join(DEAL_DIR, f))
     if ZONES:
         build_zones()
-    base_o, base_g, env_oil_c, env_gas_c, out = build_set(FIT_SET)
+    borrow = None
+    if long_count(FIT_SET) < MIN_LONG_WELLS and FIT_SET_10MI:
+        _, _, _, _, t0 = build_set(FIT_SET_10MI)
+        borrow = (t0["oil"]["b"], t0["gas"]["b"], f"b fitted on the {t0['long_wells']} 24+ month wells of the 10-mile set "
+                  f"({long_count(FIT_SET)} in the {len(FIT_SET)}-well fit set)")
+        OFFSETS_BASIS.clear()
+    base_o, base_g, env_oil_c, env_gas_c, out = build_set(FIT_SET, borrow)
     _b5 = {a: OFFSETS_BASIS[a] for a in FIT_SET}
     out["days_used"] = sorted(a for a in FIT_SET if DAYS.get(a))
     if len(FIT_SET) < MIN_FIT_WELLS and FIT_SET_10MI:

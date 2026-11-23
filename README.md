@@ -15,7 +15,9 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
      (see `deals/loki-upton`), one entry per zone with its own fit set, in Enverus interval terms. Zone 1 (first) is the TypeCurve tab.
      Radius rule per zone: 5 mi; if fewer than 6 screened wells, widen to 10 / 15 / 20 mi until there are 6+ and record `radius` and a
      `note`; a 5-mile fit under 15 wells also lists `fit_10mi` for the comparison curve. Up to 6 zones.
-2. `cd toolkit && python3 build_tc.py ../deals/<deal-slug>` (multi-zone: also writes `tc_zones.json` and `tc_zone_curves*.csv`)
+2. `cd toolkit && python3 build_tc.py ../deals/<deal-slug>`
+   - If a fit set has fewer than 3 wells with 24+ months (young offsets), `build_tc.py` fits b on the 24+ month wells of the same
+     zone's 10-mile set (`fit_10mi` / `FIT_SET_10MI`) and applies it to the 5-mile mean; the summary records `b_borrowed` and `b_source`. (multi-zone: also writes `tc_zones.json` and `tc_zone_curves*.csv`)
 3. Copy the template, fill Wells (multi-zone: the zone name in column X, exactly as in `ZONES`; leave the TC factor at 1), Inputs (deal type, basin, overrides in column E) and the Prices strip; recalculate (LibreOffice headless or Excel).
 4. `python3 write_model.py <filled.xlsx> ../deals/<deal-slug> "../deals/<deal-slug>/<Deal> <Basin> Non-Op Model.xlsx"`, then recalculate the output and confirm Summary shows "All checks OK". `write_model.py` solves Summary C7 (premium, % of net capex) so the live-case IRR (C12) is 20%; the solve is kept in E7, and you can type over C7 to test a bid.
 5. `python3 deal_log.py ../deals "../Deal Log.xlsx"`, commit.
