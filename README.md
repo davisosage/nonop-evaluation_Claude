@@ -6,11 +6,11 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 |---|---|
 | `Non-Op Evaluation Template.xlsx` | The model. Up to 10 wells; Working interest or Minerals (Inputs C18); basin defaults (Inputs C19, Basins tab); up to 6 zone type curves ('Zone Curves' tab, Wells column X). Carries the Sun 5899 example. |
 | `Deal Log.xlsx` | One row per deal evaluated, plus lookbacks of actual production vs the type curve. Rebuilt by `toolkit/deal_log.py`. |
-| `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `upgrade_template.py` / `upgrade_template_zones.py` (one-time template upgrades, kept for the record). |
+| `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `lateral.py` (lateral length rule), `upgrade_template.py` / `upgrade_template_zones.py` / `upgrade_template_lateral.py` (one-time template upgrades, kept for the record). |
 | `deals/<deal>/` | Per deal: `deal_data.py` (Enverus production and fit sets), `tc_summary.json`, `tc_curves.csv`, `deal.json` (terms, results, decision), charts, the finished model, and later `actuals.py` / `lookback.json`. |
 
 ## Evaluate a deal
-1. New folder `deals/<deal-slug>/`. Pull offsets and monthly production from Enverus (5-mile radius, lateral midpoint to DSU centroid, comp screen) and write `deal_data.py` in the format of `deals/sun5899/deal_data.py`, including `DAYS` (Enverus `ProducingDays`, production dataset). If fewer than 15 wells pass the 5-mile screen, also pull the 10-mile set and list it in `FIT_SET_10MI`.
+1. New folder `deals/<deal-slug>/`. Set `MODEL_LATERAL` (ft) in `deal_data.py` to the lateral of the deal wells (average if they differ; multi-zone: `ZONES[z]["lateral"]` per zone). Pull offsets and monthly production from Enverus (5-mile radius, lateral midpoint to DSU centroid, comp screen) and write `deal_data.py` in the format of `deals/sun5899/deal_data.py`, including `DAYS` (Enverus `ProducingDays`, production dataset). If fewer than 15 wells pass the 5-mile screen, also pull the 10-mile set and list it in `FIT_SET_10MI`.
    - **Multi-zone deals** (wells landed in different formations, e.g. a Midland wine-rack DSU): define `ZONES` in `deal_data.py`
      (see `deals/loki-upton`), one entry per zone with its own fit set, in Enverus interval terms. Zone 1 (first) is the TypeCurve tab.
      Radius rule per zone: 5 mi; if fewer than 6 screened wells, widen to 10 / 15 / 20 mi until there are 6+ and record `radius` and a
@@ -19,6 +19,16 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 3. Copy the template, fill Wells (multi-zone: the zone name in column X, exactly as in `ZONES`; leave the TC factor at 1), Inputs (deal type, basin, overrides in column E) and the Prices strip; recalculate (LibreOffice headless or Excel).
 4. `python3 write_model.py <filled.xlsx> ../deals/<deal-slug> "../deals/<deal-slug>/<Deal> <Basin> Non-Op Model.xlsx"`, then recalculate the output and confirm Summary shows "All checks OK". `write_model.py` solves Summary C7 (premium, % of net capex) so the live-case IRR (C12) is 20%; the solve is kept in E7, and you can type over C7 to test a bid.
 5. `python3 deal_log.py ../deals "../Deal Log.xlsx"`, commit.
+
+## Lateral length rule (`toolkit/lateral.py`)
+Type curves are kept per 10,000 ft, but a curve moved more than 2,500 ft (Inputs C24) is not scaled linearly: months 1-8
+(C25) get 90% (C26) of linear going to a longer lateral (linear / 90% going shorter), and from month 9 the hyperbolic decline
+is re-solved (same b, a time stretch s; 7% terminal kept) so the 360-month EUR is exactly linear. Within the band it is linear.
+- Offsets: each is moved to `MODEL_LATERAL` (linear if within 2,500 ft of it, else shaped), the curve is fitted there and then moved
+  to the 10,000 ft basis on the same rule; the charts and the Offset Production tab show the offsets on that basis.
+- Wells: the 'Lateral Curves' tab moves each well's curve from 10,000 ft to its lateral (s, Tsw, g solved by `write_model.py`);
+  the CF tabs read it. Summary row 76 flags a well whose EUR no longer ties to linear: re-run `write_model.py`.
+- Deals modeled before Nov 2026 were linear; `lookback.py` keeps them linear unless the deal is rebuilt.
 
 ## Record the decision and look back
 - Edit `deals/<deal>/deal.json`: `decision` (Bought / Passed / Lost / Pending), `price_paid`, `closed`, `notes`. Rebuild the deal log.

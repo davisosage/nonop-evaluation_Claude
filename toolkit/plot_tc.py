@@ -39,9 +39,16 @@ SHIFT = 82                                   # rows the template's older picture
 
 
 def offsets(apis):
-    """Per-well cleaned, lateral-normalized monthly oil and gas (lists of arrays)."""
+    """Per-well cleaned monthly oil and gas per 10,000 ft on the lateral rule, as build_tc.py fitted them
+    (tc_offsets.json); falls back to linear normalization for an older deal folder."""
+    import json
+    path = os.path.join(bt.DEAL_DIR, "tc_offsets.json")
+    saved = json.load(open(path)) if os.path.exists(path) else {}
     oil, gas = {}, {}
     for a in apis:
+        if a in saved:
+            oil[a], gas[a] = np.array(saved[a][0]), np.array(saved[a][1])
+            continue
         name, lat, first, o, g = bt.WELLS[a][:5]
         o, g = bt.clean(o, g, bt.DAYS.get(a), first)
         oil[a], gas[a] = o * 10000 / lat, g * 10000 / lat
@@ -142,7 +149,7 @@ def add_to_workbook(wb, deal_dir, oil_tc, gas_tc, fit_apis, title_prefix, low_co
     blue = Font(color="0000FF")
     op["B2"] = "Offset fit-set monthly production per 10,000 ft of lateral (gross 8/8)"; op["B2"].font = Font(bold=True, size=14)
     op["B3"] = ("Source: Enverus monthly production (deal_data.py). Month 1 = first producing month, scaled to a full month "
-                "from Enverus producing days where known (else dropped if partial); partial last month dropped; volume x 10,000 / lateral ft. Same basis as the type curve fit. Feeds the TypeCurve table (H20).")
+                "from Enverus producing days where known (else dropped if partial); partial last month dropped. Each well is moved to the modeled lateral (linear within +/- 2,500 ft, otherwise months 1-8 at 90% of linear and the decline re-solved to the linear EUR) and then to the 10,000 ft basis the same way as the type curve, so it is on the curve's basis (a time-stretched well can show a few more or fewer months than it reported). Feeds the TypeCurve table (H20).")
     M = max(len(v) for v in oil.values())
     oc, gc = 3, 3 + n + 1            # oil block C.., gas block after one blank column
     op.cell(5, 2, "Month").font = hdr; op.cell(5, 2).fill = fill

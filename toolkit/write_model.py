@@ -8,6 +8,8 @@ Solves Summary C7 (premium) so the live-case IRR (C12) is 20%. Writes TypeCurve 
 Multi-zone deals (tc_zones.json from build_tc.py): every zone curve goes on the 'Zone Curves' tab (zone 1 = TypeCurve), with
 a fit summary and charts for zones 2-6; each well uses the zone named in Wells column X. Curve sensitivities (b, fixed b,
 Enverus P10/P50/P90, 10-mile) are applied to every zone at once, each zone with its own fit.
+Lateral length: refits for the sensitivities are made at the modeled lateral (tc_summary.json "lateral") and moved to the
+10,000 ft basis like the base curve; each well's s / Tsw / g go on 'Lateral Curves' rows 11-13 (lateral.py).
 The workbook must have been recalculated once (cached values) so the engine can read Wells and Inputs.
 """
 import json, math, os, sys
@@ -16,6 +18,7 @@ import numpy as np
 import openpyxl
 import engine as E
 import build_tc as bt
+import lateral as LAT
 import plot_tc
 
 src, deal, out = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -56,8 +59,12 @@ def zvar(fn):
     return {z["name"]: fn(z, ZC[z["name"]]) for z in ZOTHER}
 
 
+def _lref(rec):
+    return float((rec.get("lateral") or {}).get("model_lateral") or LAT.BASIS)
+
+
 def _zb(z, mean, b):
-    return bt.fit_tc(np.array(mean), b=b)[0]
+    return bt.to_basis(bt.fit_tc(np.array(mean), b=b)[0], _lref(z))
 
 
 def _cap(c, med):
@@ -75,12 +82,15 @@ Z_10 = zvar(lambda z, c: Z10[z["name"]] if Z10[z["name"]] is not None else c)
 mo, mg = np.array(S["mean_oil"]), np.array(S["mean_gas"])
 
 
-def oil_b(b):                       # multi-phase refit (ramp + decline) with b fixed
-    return bt.fit_tc(mo, b=b)[0]
+LREF = _lref(S)
+
+
+def oil_b(b):                       # multi-phase refit (ramp + decline) with b fixed, at the modeled lateral -> 10,000 ft
+    return bt.to_basis(bt.fit_tc(mo, b=b)[0], LREF)
 
 
 def gas_b(b):
-    return bt.fit_tc(mg, b=b)[0]
+    return bt.to_basis(bt.fit_tc(mg, b=b)[0], LREF)
 
 
 b0 = o["b"]
@@ -88,7 +98,7 @@ o_bm, o_bp = oil_b(max(b0 - 0.3, 0.05)), oil_b(min(b0 + 0.2, 2.0))
 gb0 = g["b"]
 g_bm, g_bp = gas_b(max(gb0 - 0.3, 0.05)), gas_b(min(gb0 + 0.2, 2.0))
 o_b1 = oil_b(1.0); o_b1 = o_b1 * min(1, S["enverus"]["oil_median"] / o_b1.sum())
-g_b1 = bt.fit_tc(mg, b=1.0)[0]; g_b1 = g_b1 * min(1, S["enverus"]["gas_median"] / g_b1.sum())
+g_b1 = gas_b(1.0); g_b1 = g_b1 * min(1, S["enverus"]["gas_median"] / g_b1.sum())
 ep_o, ep_g = S["enverus"]["oil_p90_p50_p10"], S["enverus"]["gas_p90_p50_p10"]
 hi_o, hi_g = ep_o[0] * 1000 / oil.sum(), ep_g[0] * 1e6 / gas.sum()      # P10 (high)
 lo_o, lo_g = ep_o[2] * 1000 / oil.sum(), ep_g[2] * 1e6 / gas.sum()      # P90 (low)
@@ -227,6 +237,35 @@ if "Zone Curves" in wb.sheetnames:
         plot_tc.add_zone_charts(wb, deal, ZL, ZC, Z10, (wb["Summary"]["B2"].value or "Deal").split(":")[0])
     else:
         zc._images = []
+# ---- Lateral Curves: s / Tsw / g per well slot (the workbook does the rest with formulas)
+LAT_INFO = []
+if "Lateral Curves" in wb.sheetnames:
+    lc, Wf = wb["Lateral Curves"], wb["Wells"]
+    gl = M["glob"]
+    for j in range(10):
+        wr = 7 + j
+        lat = Wf[f"E{wr}"].value
+        lat = float(lat) if isinstance(lat, (int, float)) else 0.0
+        zn = str(Wf[f"X{wr}"].value or "").strip()
+        co, cg = (oil, gas) if (not zn or zn == Z1) else ZC.get(zn, (oil, gas))
+        for k, c in ((2, co), (3, cg)):
+            col = 3 + 4 * j + k
+            for r in (11, 12, 13):
+                lc.cell(r, col).value = None
+            if lat <= 0:
+                continue
+            _, inf = LAT.scale_curve(c, LAT.BASIS, lat, gl["lat_band"], gl["lat_months"], gl["lat_pct"])
+            if inf["mode"] == "shaped":
+                lc.cell(11, col).value, lc.cell(12, col).value, lc.cell(13, col).value = inf["s"], inf["tsw"], inf["g"]
+            if k == 2 and Wf[f"C{wr}"].value:
+                LAT_INFO.append(dict(well=Wf[f"C{wr}"].value, lat_ft=lat, mode=inf["mode"], oil_s=inf["s"]))
+    _lt = S.get("lateral") or {}
+    _sh = [w for w in LAT_INFO if w["mode"] == "shaped"]
+    _txt = (f" Lateral rule: offsets moved to the modeled {_lt.get('model_lateral', 10000):,.0f} ft lateral "
+            f"({_lt.get('offsets_linear', S['wells'])} linear within +/- {gl['lat_band']:,.0f} ft, {len(_lt.get('offsets_shaped', []))} shaped), "
+            f"fitted there and moved to this 10,000 ft basis; each well's curve at its lateral is on 'Lateral Curves' "
+            f"({len(_sh)} of {len(LAT_INFO)} wells shaped: months 1-{gl['lat_months']} at {gl['lat_pct']:.0%} of linear, decline re-solved to the linear EUR).")
+    tc["B3"] = _re.sub(r" Lateral rule: .*?\)\.", "", tc["B3"].value or "") + _txt
 # TC vs offsets charts (TypeCurve N2 / N42), monthly table (TypeCurve H18) and the Offset Production tab
 plot_tc.add_to_workbook(wb, deal, oil, gas, S["fit_set"], (wb["Summary"]["B2"].value or "Deal").split(":")[0], S["wells"] < 15,
                         ten_mile=T10)
@@ -319,6 +358,9 @@ rec = {
                "first_sales_month_index": w["first_m"], "haircut": w["haircut"], "tc_factor": w["tc_factor"],
                "zone": w.get("zone") or Z1} for w in M["wells"]],
     "valuation_month": str(wb["Inputs"]["C37"].value)[:10],
+    "lateral_rule": {"band_ft": g0["lat_band"], "early_months": g0["lat_months"], "early_pct": g0["lat_pct"],
+                     "model_lateral": (S.get("lateral") or {}).get("model_lateral"),
+                     "offsets_shaped": len((S.get("lateral") or {}).get("offsets_shaped", [])), "wells": LAT_INFO},
     "net_capex": 0 if MINERALS else sum(w["wi"] * (w["drill"] + w["compl"] + w["fac"]) for w in M["wells"]),
     "asking_price": g0.get("price") if MINERALS else None,
     "base_case": "strip, asking price" if MINERALS else "strip, 20% premium",

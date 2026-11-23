@@ -7,10 +7,15 @@ Usage:
 Per-well overrides: run(m, oil, gas, wells=[...]) with dicts like the ones load_model returns.
 Multi-zone: m["zones"] = {zone: (oil, gas)} from the 'Zone Curves' tab; a well with w["zone"] set uses that curve,
 any other well uses the oil / gas curves passed to run (the TypeCurve tab = zone 1). run(..., zones={...}) overrides.
+Lateral length: curves are per 10,000 ft; each well's curve is moved to its lateral with lateral.scale_curve (linear
+within +/- the band, Inputs C24; otherwise months 1..C25 at C26 of linear and the decline re-solved to the linear EUR),
+the same arithmetic as the workbook's 'Lateral Curves' tab.
 """
 import datetime as dt
+import hashlib
 import numpy as np
 import openpyxl
+import lateral as LAT
 
 FLAT = {"$65/$3.00": (65, 3.0), "$75/$3.50": (75, 3.5), "$85/$4.00": (85, 4.0)}
 
@@ -34,6 +39,8 @@ def load_model(path):
                 loe_mcf=g("C53"), loe_bbl=g("C54"), wor=g("C55"), swd=g("C56"), pa=g("C57"), roy_deducts=g("C58"),
                 overrun=g("C59") or 0.0, disc=g("C60"), deck="Strip", months=400, life=360,
                 minerals=(g("C18") == "Minerals"), basin=g("C19"), price=float(g("C20") or 0), price_mult=1.0)
+    num = lambda a, d: g(a) if isinstance(g(a), (int, float)) and not isinstance(g(a), bool) else d
+    glob.update(lat_band=float(num("C24", LAT.BAND)), lat_months=int(num("C25", LAT.EARLY_MONTHS)), lat_pct=float(num("C26", LAT.EARLY_PCT)))
     close = g("C21") if isinstance(g("C21"), dt.datetime) else None
     glob["close_m"] = max(0, _mi(close, v0)) if close else 0
     zones, zone1 = {}, None
@@ -81,6 +88,20 @@ def _zone(v, zone1):
     return None if v == zone1 else v
 
 
+_SC = {}
+
+
+def scaled(c, lat, p):
+    """Curve c (per 10,000 ft) moved to lateral lat on the lateral rule (cached)."""
+    c = np.asarray(c, float)
+    key = (hashlib.md5(c.tobytes()).hexdigest(), float(lat), p.get("lat_band"), p.get("lat_months"), p.get("lat_pct"))
+    if key not in _SC:
+        if len(_SC) > 5000:
+            _SC.clear()
+        _SC[key] = LAT.scale_curve(c, LAT.BASIS, lat, p.get("lat_band"), p.get("lat_months"), p.get("lat_pct"))
+    return _SC[key]
+
+
 def well_cf(oil_tc, gas_tc, w, p, strip, zones=None):
     n = p["months"]
     if w.get("zone"):
@@ -90,6 +111,7 @@ def well_cf(oil_tc, gas_tc, w, p, strip, zones=None):
     else:
         o, g = FLAT[p["deck"]]
         wti, hh = np.full(n, float(o)), np.full(n, float(g))
+    oil_tc, gas_tc = scaled(oil_tc, w["lat"], p)[0], scaled(gas_tc, w["lat"], p)[0]
     M = p.get("minerals", False)
     nri = w["mnri"] if M else w["wi"] * w["lease_nri"]
     capex_net = w["wi"] * (w["drill"] + w["compl"] + w["fac"])
@@ -99,7 +121,7 @@ def well_cf(oil_tc, gas_tc, w, p, strip, zones=None):
     for m in range(n):
         D = m - first_m + 1 if m >= first_m else 0
         if 1 <= D <= p["life"]:
-            k = p["tc_mult"] * w["tc_factor"] * (1 - (w["haircut"] if p.get("haircut") is None else p["haircut"])) * w["lat"] / 10000
+            k = p["tc_mult"] * w["tc_factor"] * (1 - (w["haircut"] if p.get("haircut") is None else p["haircut"]))
             oil, gas = oil_tc[D - 1] * k, gas_tc[D - 1] * k
         else:
             oil = gas = 0.0

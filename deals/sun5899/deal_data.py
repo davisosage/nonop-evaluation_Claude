@@ -41,6 +41,8 @@ WELLS = {
 }
 LAST_MONTH = "2026-09"
 
+# Lateral of the deal wells being modeled (ft): offsets within +/- 2,500 ft of it scale linearly, others on the shaped rule.
+MODEL_LATERAL = 21186      # Sun 5899 2BHP 20,713 ft / 3BHP 21,658 ft (average)
 FIT_SET = ["3310505668", "3310506140", "3310506147", "3310506148", "3310506149",
            "3310505861", "3310505862", "3310505863"]   # lateral midpoint within 5 mi of the DSU centroid (48.47433, -103.50485)
 ENV_EUR = {  # example (Sun 5899): Enverus EUR per 10,000 ft (oil MBO, gas Bcf), from the model's Comps sheet

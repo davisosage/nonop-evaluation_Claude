@@ -20,6 +20,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import build_tc as bt
+import lateral as LAT
 
 
 def month_add(ym, k):
@@ -50,9 +51,11 @@ def main(deal_dir):
         if days and days[0] and days[0] < bt._cal_days(first, 0):       # partial first month -> full month
             f = bt._cal_days(first, 0) / max(days[0], 1); o[0] *= f; g[0] *= f
         n = len(o)
-        k = w["lat_ft"] / 10000 * (1 - w["haircut"]) * mult * w["tc_factor"]
+        k = (1 - w["haircut"]) * mult * w["tc_factor"]
         Cw = ZC.get(w.get("zone"), C)
-        po, pg = Cw[:n, 1] * k, Cw[:n, 2] * k
+        lr = rec.get("lateral_rule") or {"band_ft": 1e9}      # deals modeled before the rule (Nov 2026) were linear
+        sc = lambda c: LAT.scale_curve(c, LAT.BASIS, w["lat_ft"], lr.get("band_ft"), lr.get("early_months"), lr.get("early_pct"))[0]
+        po, pg = sc(Cw[:, 1])[:n] * k, sc(Cw[:, 2])[:n] * k
         model_first = month_add(v0, w["first_sales_month_index"])
         gap = (int(first[:4]) - int(model_first[:4])) * 12 + int(first[5:7]) - int(model_first[5:7])
         r = dict(name=w["name"], api=api, zone=w.get("zone"), months=n, actual_first=first, model_first_sales=model_first, timing_gap_months=gap,
