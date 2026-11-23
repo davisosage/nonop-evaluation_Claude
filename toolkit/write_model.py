@@ -113,7 +113,7 @@ rows = [
     ("Strip, fixed b 1.0 both streams (capped at Enverus median), premium 20%", dict(o=o_b1, g=g_b1, zones=Z_B1, premium=0.2)),
     (f"Strip, b -0.3 (oil {max(b0-0.3,0.05):.2f} / gas {max(gb0-0.3,0.05):.2f}), premium 20%", dict(o=o_bm, g=g_bm, zones=Z_BM, premium=0.2)),
     (f"Strip, b +0.2 (oil {min(b0+0.2,2):.2f} / gas {min(gb0+0.2,2):.2f}), premium 20%", dict(o=o_bp, g=g_bp, zones=Z_BP, premium=0.2)),
-    ("Strip, No child haircut (0%), premium 20%", dict(haircut=0.0, premium=0.2)),
+    ("Strip, 15% child haircut (all wells), premium 20%", dict(haircut=0.15, premium=0.2)),
     ("Strip, +3 mo completion delay, premium 20%", dict(delay=3, premium=0.2)),
 ]
 if op:
@@ -132,7 +132,7 @@ MP = [("Max premium for 20% IRR, strip", 0.20, {}), ("Max premium for 10% IRR, $
       ("Max premium for 20% IRR, strip, b -0.3", 0.20, dict(o=o_bm, g=g_bm, zones=Z_BM)),
       ("Max premium for 20% IRR, strip, +3 mo delay", 0.20, dict(delay=3)),
       ("Max premium for 20% IRR, strip, type curve 80%", 0.20, dict(tc_mult=0.8)),
-      ("Max premium for 20% IRR, strip, no child haircut", 0.20, dict(haircut=0.0))]
+      ("Max premium for 20% IRR, strip, 15% child haircut", 0.20, dict(haircut=0.15))]
 if op:
     MP.append(("Max premium for 20% IRR, strip, operator early rates", 0.20, dict(o=oil * op[0], g=gas * op[1])))
 if T10 is not None:

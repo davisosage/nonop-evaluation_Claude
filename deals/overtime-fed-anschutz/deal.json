@@ -13,7 +13,7 @@
    "lease_nri": 0.818367302641575,
    "mineral_nri": 0.0,
    "first_sales_month_index": 5,
-   "haircut": 0.15,
+   "haircut": 0.0,
    "tc_factor": 1.0,
    "zone": null
   }
@@ -22,11 +22,11 @@
  "net_capex": 1302021.0210636,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.2029660949544414,
- "moic": 1.5032774200632282,
- "npv10": 264201.10775429464,
- "payout_months": 32,
- "max_for_20pct_irr": 0.20449287460777968,
+ "irr": 0.36119443339604773,
+ "moic": 1.8000703067881783,
+ "npv10": 595703.3346488398,
+ "payout_months": 20,
+ "max_for_20pct_irr": 0.41847543086951833,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 10,
@@ -42,5 +42,5 @@
  "decision": "Pending",
  "price_paid": null,
  "closed": null,
- "notes": "Seller: Citation 2002 Investment LLC. Anschutz proposal 11/5/2026, respond within 30 days of receipt (~12/6/2026), WOGCC pooling 12/8/2026. AFE $14,130,540 gross. No asking premium given (20% assumed). Mowry curve from 10 wells at 15 mi (none inside 5 mi), low confidence. Clears the 20% screen at a 20% premium (20.3% IRR; max premium 20.4%). Strip = Nov 20, 2026 deck. Split from the combined Citation PRB run per Davis."
+ "notes": "Seller: Citation 2002 Investment LLC. Anschutz proposal 11/5/2026, respond within 30 days of receipt (~12/6/2026), WOGCC pooling 12/8/2026. AFE $14,130,540 gross. No asking premium given (20% assumed). Mowry curve from 10 wells at 15 mi (none inside 5 mi), low confidence. Clears the 20% screen: 36.1% IRR at a 20% premium, max premium 41.8%; 0% child haircut (fund standard from 11/23/2026; 15% case 20.3%, max 20.4%). Strip = Nov 20, 2026 deck. Split from the combined Citation PRB run per Davis."
 }

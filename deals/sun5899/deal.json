@@ -1,7 +1,7 @@
 {
  "deal": "Sun 5899 11-28 2BHP + 3BHP (Chord, Middle Bakken DUCs, Williams Co ND)",
- "model_file": "Non-Op Evaluation Template.xlsx",
- "evaluated": "2026-11-22",
+ "model_file": "tpl_new.xlsx",
+ "evaluated": "2026-11-23",
  "type": "Working interest",
  "basin": "Williston (ND)",
  "wells": [
@@ -13,7 +13,7 @@
    "lease_nri": 0.8125,
    "mineral_nri": 0.0,
    "first_sales_month_index": 4,
-   "haircut": 0.15,
+   "haircut": 0.0,
    "tc_factor": 1.0,
    "zone": null
   },
@@ -25,7 +25,7 @@
    "lease_nri": 0.8125,
    "mineral_nri": 0.0,
    "first_sales_month_index": 4,
-   "haircut": 0.15,
+   "haircut": 0.0,
    "tc_factor": 1.0,
    "zone": null
   }
@@ -34,11 +34,11 @@
  "net_capex": 2843096.0,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.27676094517761607,
- "moic": 1.580763541360304,
- "npv10": 848265.8961282381,
- "payout_months": 23,
- "max_for_20pct_irr": 0.30114531090072816,
+ "irr": 0.49189921844815454,
+ "moic": 1.896395714576838,
+ "npv10": 1631419.4656240193,
+ "payout_months": 14,
+ "max_for_20pct_irr": 0.5368756543288702,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 8,

@@ -24,8 +24,8 @@ TITLE = "Mystical Fed x5 (WRC Energy; Sussex / Mowry / Niobrara, Converse Co WY)
 MYS_NOTE = ("WRC proposal 10/29/2026 (AFEs dated 10/22/2026): drilling and completion columns as on the AFE; the completion "
             "column includes the tangible equipment and facilities (no separate facility AFE). Election due 5:00 pm MST 12/3/2026; "
             "prepay the AFE within 30 days of WRC's spud notice; WOGCC pooling hearing 12/8/2026. ASSUMPTION: no spud date given; "
-            "closing / drilling Mar-27, completion Jun-27, first sales Jul-27. 15% child haircut (fund default; WRC's Mystical Fed "
-            "1NH and 1SH have produced in these sections since Jun-24).")
+            "closing / drilling Mar-27, completion Jun-27, first sales Jul-27. No child haircut (fund standard 0%; WRC's Mystical "
+            "Fed 1NH and 1SH have produced in these sections since Jun-24, see the 15% haircut case on Summary).")
 # WRC AFE (drilling, completion) by API; laterals from the AFE descriptions
 WRC = {"49-009-50664": (3548351, 7814060, 15413), "49-009-50665": (3526408, 7785629, 15360),
        "49-009-38507": (4402099, 8733840, 10217), "49-009-49482": (3073362, 8860453, 10256),
@@ -87,8 +87,8 @@ if mode == "pre":
                 "the fund screen is 20%")
     I["B11"] = "Type curve multiplier (100% = zone comp curves)"
     I["B13"] = "Type curve (1 = zone comp curves, 2 = Enverus fit-set P50 on our shape)"
-    I["D12"] = ("Default child haircut (fund standard). WRC's Mystical Fed 1NH (Niobrara A) and 1SH (Shannon) already produce in "
-                "the Mystical sections")
+    I["D12"] = ("Default child haircut, 0% (fund standard). WRC's Mystical Fed 1NH (Niobrara A) and 1SH (Shannon) already "
+                "produce in the Mystical sections; the 15% haircut case is on Summary. Override here or per well (Wells column Q)")
     I["D13"] = ("Base = 1 (zone 1 Niobrara C: oil 523 MBO, gas 1.62 Bcf per 10,000 ft; 15 fit wells). Enverus EUR fields are blank "
                 "on this subscription, so 2 = base. Multi-zone: 4 zone curves on 'Zone Curves'; each well uses its zone "
                 "(Wells column X); the switch applies to zone 1 only")
@@ -109,7 +109,6 @@ if mode == "pre":
                "premium. No asking premium given; 20% is the base. Live case follows Inputs, the deck selector (C6) and the premium (C7).")
     S["D6"] = '=IF(C6="Strip","' + DECK + '","Flat "&C6&" (oil / gas)")'
     S["C7"] = 0.2
-    S["F18"] = "After the 15% child haircut"
     S["B78"] = "Confirm with the seller (Citation / CILP-VI) and WRC Energy"
     notes = [
         "- Asking price / premium: none given; the model uses 20% of net capex and shows the max premium for a 20% IRR",

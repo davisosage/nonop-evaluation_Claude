@@ -28,7 +28,7 @@ NOTE = ("Mowry, Anschutz well proposal 11/5/2026 (11,565.56 ac DSU, T45N-R76W Se
         "TMD 27,471 ft / TVD 11,622 ft; Enverus lateral 16,272 ft. AFE $14,130,540: drilling $4,579,734 + PDO/PDL $236,042; "
         "completion $7,709,441 + lift $310,111; facilities $1,295,212. Title WI 9.214234% (net AFE $1,302,021.02), subject to "
         "title examination; NRI 7.5406% (81.84% lease NRI) from the Citation well table. Spud ~12/4/2026. ASSUMPTION: "
-        "completion Mar-27, first sales Apr-27. 15% child haircut is the fund default (no producing Mowry within 6.9 mi).")
+        "completion Mar-27, first sales Apr-27. No child haircut (fund standard 0%; no producing Mowry within 6.9 mi).")
 
 if mode == "pre":
     W = wb["Wells"]
@@ -56,7 +56,8 @@ if mode == "pre":
                 "the fund screen is 20%")
     I["B11"] = "Type curve multiplier (100% = 15-mile Mowry comp base)"
     I["B13"] = "Type curve (1 = 15-mile Mowry comp base, 2 = Enverus fit-set P50 on our shape)"
-    I["D12"] = "Default child haircut (fund standard). No producing Mowry within 6.9 mi of the DSU; see the 0% row on Summary"
+    I["D12"] = ("Default child haircut, 0% (fund standard). No producing Mowry within 6.9 mi of the DSU; the 15% haircut case "
+                "is on Summary. Override here or per well (Wells column Q)")
     I["D13"] = ("Base = 1 (oil 508 MBO, gas 1.40 Bcf per 10,000 ft; 10 fit wells at 15 mi, LOW CONFIDENCE). Enverus EUR fields "
                 "are blank on this subscription, so 2 = base")
     I["D38"] = DECK
@@ -74,7 +75,6 @@ if mode == "pre":
                "No asking premium given; 20% is the base. Live case follows Inputs, the deck selector (C6) and the premium (C7).")
     S["D6"] = '=IF(C6="Strip","' + DECK + '","Flat "&C6&" (oil / gas)")'
     S["C7"] = 0.2
-    S["F18"] = "After the 15% child haircut"
     S["B78"] = "Confirm with the seller (Citation / CILP-VI) and Anschutz"
     notes = [
         "- Asking price / premium: none given; the model uses 20% of net capex and shows the max premium for a 20% IRR",
