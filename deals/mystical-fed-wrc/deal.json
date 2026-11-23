@@ -1,6 +1,6 @@
 {
- "deal": "Citation PRB package",
- "model_file": "Citation PRB Non-Op Model.xlsx",
+ "deal": "Mystical Fed x5 (WRC Energy; Sussex / Mowry / Niobrara, Converse Co WY)",
+ "model_file": "Mystical Fed Powder River Non-Op Model.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
  "basin": "Powder River (WY)",
@@ -8,7 +8,7 @@
   {
    "name": "MYSTICAL FED 4075-25-24-13-1SXH",
    "api": "4900950664",
-   "lat_ft": 15906.0,
+   "lat_ft": 15413.0,
    "wi": 0.044525,
    "lease_nri": 0.7487928130263897,
    "mineral_nri": 0.0,
@@ -20,7 +20,7 @@
   {
    "name": "MYSTICAL FED 4075-25-24-13-2SXH",
    "api": "4900950665",
-   "lat_ft": 15745.0,
+   "lat_ft": 15360.0,
    "wi": 0.044525,
    "lease_nri": 0.7487928130263897,
    "mineral_nri": 0.0,
@@ -32,7 +32,7 @@
   {
    "name": "MYSTICAL FED 4075-24-13-1MH",
    "api": "4900938507",
-   "lat_ft": 10607.0,
+   "lat_ft": 10217.0,
    "wi": 0.066787,
    "lease_nri": 0.7501459864943777,
    "mineral_nri": 0.0,
@@ -44,7 +44,7 @@
   {
    "name": "MYSTICAL FED 4075-24-13-2NH",
    "api": "4900949482",
-   "lat_ft": 10832.0,
+   "lat_ft": 10256.0,
    "wi": 0.066787,
    "lease_nri": 0.7501459864943777,
    "mineral_nri": 0.0,
@@ -56,7 +56,7 @@
   {
    "name": "MYSTICAL FED 4075-24-13-3NH",
    "api": "4900950896",
-   "lat_ft": 9921.0,
+   "lat_ft": 10188.0,
    "wi": 0.066787,
    "lease_nri": 0.7501459864943777,
    "mineral_nri": 0.0,
@@ -64,29 +64,17 @@
    "haircut": 0.15,
    "tc_factor": 1.0,
    "zone": "Niobrara B"
-  },
-  {
-   "name": "OVERTIME FED 4676-35-14-15 MH",
-   "api": "4900580253",
-   "lat_ft": 16272.0,
-   "wi": 0.09214234,
-   "lease_nri": 0.818367302641575,
-   "mineral_nri": 0.0,
-   "first_sales_month_index": 5,
-   "haircut": 0.15,
-   "tc_factor": 1.0,
-   "zone": "Mowry (Overtime)"
   }
  ],
  "valuation_month": "2026-11-01",
- "net_capex": 4753261.4528286,
+ "net_capex": 3451240.38724,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.09025472487181041,
- "moic": 1.2661319501234074,
- "npv10": -103178.01906862488,
- "payout_months": 66,
- "max_for_20pct_irr": 0.011565393558453839,
+ "irr": 0.04372092966216412,
+ "moic": 1.1349776675531889,
+ "npv10": -460756.95153142285,
+ "payout_months": 105,
+ "max_for_20pct_irr": -0.08645960859661071,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 15,
@@ -102,17 +90,6 @@
     "gas_eur_per_10k": 1620854.8476319998,
     "oil_b": 1.3075524531933085,
     "gas_b": 1.2271415457662318,
-    "wells": 1
-   },
-   {
-    "name": "Mowry (Overtime)",
-    "radius": "15 mi",
-    "fit_wells": 10,
-    "low_confidence": true,
-    "oil_eur_per_10k": 507593.7422499999,
-    "gas_eur_per_10k": 1396259.943321,
-    "oil_b": 0.9385225825592224,
-    "gas_b": 0.41806708808697157,
     "wells": 1
    },
    {
@@ -158,5 +135,5 @@
  "decision": "Pending",
  "price_paid": null,
  "closed": null,
- "notes": "Seller: Citation 2002 Investment LLC (CILP-VI). No asking premium given (20% assumed). 6 wells: Mystical Fed 1SXH/2SXH (Sussex), 1MH (Mowry), 2NH (Niobrara C, priced on blended Nio A+B), 3NH (Niobrara B) - WRC Energy, Converse Co; Overtime Fed 4676-35-14-15 MH (Mowry) - Anschutz, Campbell Co, election ~12/6/26, WOGCC pooling 12/8/26. Package fails the screen (9.0% IRR at 20%; max premium 1.2%); SXH x2 + Overtime subset 30.5% IRR at 20%, max premium 34%. Strip = Nov 20, 2026 deck."
+ "notes": "Seller: Citation 2002 Investment LP (CILP-VI). WRC proposal 10/29/2026, election by 5 pm MST 12/3/2026, WOGCC pooling 12/8/2026. WRC AFEs (10/22/2026) and AFE laterals used. No asking premium given (20% assumed). 4 zone curves: Niobrara C (blended Nio A+B, 15 wells, 5 mi), Niobrara B (8, 5 mi; 30-well 10 mi comparison), Mowry (7, 10 mi; oil b 1.73), Sussex (6, 10 mi). Fails the screen: 4.4% IRR at 20%, 13.5% at 0%; SXH x2 only clears it (MH/2NH/3NH never pay out). Strip = Nov 20, 2026 deck. Split from the combined Citation PRB run per Davis."
 }

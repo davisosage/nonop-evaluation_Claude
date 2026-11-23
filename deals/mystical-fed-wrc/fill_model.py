@@ -1,4 +1,4 @@
-"""Deal-specific workbook edits for the Citation (CILP-VI) PRB package: Mystical Fed x5 (WRC Energy) + Overtime Fed (Anschutz).
+"""Deal-specific workbook edits for Mystical Fed x5 (WRC Energy, Converse Co WY), Citation (CILP-VI) interest.
     python3 fill_model.py pre  <template copy.xlsx>   # wells, inputs, strip, text; before write_model.py
     python3 fill_model.py post <model.xlsx>           # comps sheet, after write_model.py
 Run from toolkit/. Recalculate after each step."""
@@ -19,55 +19,41 @@ wb = openpyxl.load_workbook(f)
 D = dt.datetime
 DECK = ("NYMEX WTI strip Nov 20, 2026 (Nov 3 curve rescaled through the Nov 20 settles; latest deck in the repo), "
         "HH Nov 3, 2026; flat after 2030")
-TITLE = ("Citation PRB package: Mystical Fed x5 (WRC Energy, Converse Co) + Overtime Fed 4676-35-14-15 MH (Anschutz, Campbell Co, WY)")
+TITLE = "Mystical Fed x5 (WRC Energy; Sussex / Mowry / Niobrara, Converse Co WY)"
 
-# Overtime AFE split (Anschutz AFE, 49-005-80253): drilling + PDO/PDL, completion + lift, facilities
-OT_D, OT_C, OT_F = 4579734 + 236042, 7709441 + 310111, 1295212
-OT_T = OT_D + OT_C + OT_F  # 14,130,540
-SPLIT = (OT_D / OT_T, OT_C / OT_T, OT_F / OT_T)
-
-
-def split(gross):
-    d = round(gross * SPLIT[0]); c = round(gross * SPLIT[1])
-    return d, c, gross - d - c
-
-
-MYS_NOTE = ("Gross AFE from the Citation well table (CILP-VI); no WRC AFE detail seen. ASSUMPTION: AFE split like the Anschutz "
-            "Overtime AFE (34% drilling / 57% completion + lift / 9% facilities). ASSUMPTION: no WRC dates given; closing / drilling "
-            "Mar-27, completion Jun-27, first sales Jul-27. 15% child haircut (fund default; WRC's Mystical Fed 1NH and 1SH have "
-            "produced in these sections since Jun-24).")
+MYS_NOTE = ("WRC proposal 10/29/2026 (AFEs dated 10/22/2026): drilling and completion columns as on the AFE; the completion "
+            "column includes the tangible equipment and facilities (no separate facility AFE). Election due 5:00 pm MST 12/3/2026; "
+            "prepay the AFE within 30 days of WRC's spud notice; WOGCC pooling hearing 12/8/2026. ASSUMPTION: no spud date given; "
+            "closing / drilling Mar-27, completion Jun-27, first sales Jul-27. 15% child haircut (fund default; WRC's Mystical Fed "
+            "1NH and 1SH have produced in these sections since Jun-24).")
+# WRC AFE (drilling, completion) by API; laterals from the AFE descriptions
+WRC = {"49-009-50664": (3548351, 7814060, 15413), "49-009-50665": (3526408, 7785629, 15360),
+       "49-009-38507": (4402099, 8733840, 10217), "49-009-49482": (3073362, 8860453, 10256),
+       "49-009-50896": (2757628, 8731538, 10188)}
 WELLS = [
     # name, api, lateral, WI, lease NRI, gross AFE, (drill, compl, fac month), status, zone, note
     ("MYSTICAL FED 4075-25-24-13-1SXH", "49-009-50664", 15906, 0.044525, 0.033340 / 0.044525, 11362411,
      (D(2027, 3, 1), D(2027, 6, 1), D(2027, 7, 1)), "Permitted", "Sussex",
-     "Sussex (seller SSX; Enverus permit SUSSEX, TVD 10,179 ft). Enverus permit lateral 15,906 ft (3 sections, 25-24-13). "
+     "Sussex (seller SSX; Enverus permit SUSSEX, TVD 10,179 ft). AFE: 15,413 ft Sussex lateral, 77 stages, 26,503 ft TMD (Enverus permit 15,906 ft); drilling $3,548,351, completion $7,814,060. "
      "Net AFE $505,911.35. Type curve: Sussex zone curve (6 offsets, 10 mi, low confidence). " + MYS_NOTE),
     ("MYSTICAL FED 4075-25-24-13-2SXH", "49-009-50665", 15745, 0.044525, 0.033340 / 0.044525, 11312038,
      (D(2027, 3, 1), D(2027, 6, 1), D(2027, 7, 1)), "Permitted", "Sussex",
-     "Sussex (seller SSX; Enverus permit SUSSEX, TVD 10,169 ft). Enverus permit lateral 15,745 ft. Net AFE $503,668.50. "
+     "Sussex (seller SSX; Enverus permit SUSSEX, TVD 10,169 ft). AFE: 15,360 ft lateral, 77 stages (Enverus permit 15,745 ft); drilling $3,526,408, completion $7,785,629. Net AFE $503,668.50. "
      "Type curve: Sussex zone curve. " + MYS_NOTE),
     ("MYSTICAL FED 4075-24-13-1MH", "49-009-38507", 10607, 0.066787, 0.050100 / 0.066787, 13135939,
      (D(2027, 3, 1), D(2027, 6, 1), D(2027, 7, 1)), "Permitted", "Mowry (Mystical)",
-     "Mowry (seller MWRY; Enverus permit MOWRY, TVD 13,225 ft). Enverus permit lateral 10,607 ft (2 sections, 24-13). "
+     "Mowry (seller MWRY; Enverus permit MOWRY, TVD 13,225 ft). AFE: 10,217 ft Mowry lateral, 51 stages, 24,016 ft TMD (Enverus permit 10,607 ft); drilling $4,402,099, completion $8,733,840. "
      "Net AFE $877,309.96. Type curve: Mowry (Mystical) zone curve (7 offsets, 10 mi, low confidence). " + MYS_NOTE),
     ("MYSTICAL FED 4075-24-13-2NH", "49-009-49482", 10832, 0.066787, 0.050100 / 0.066787, 11933815,
      (D(2027, 3, 1), D(2027, 6, 1), D(2027, 7, 1)), "Permitted", "Niobrara C",
      "Niobrara C per the seller table (NIO C; listed as 'MYSTICAL FE'); the Enverus permit says NIOBRARA A, TVD 11,818 ft. "
-     "Lateral 10,832 ft. Net AFE $797,023.70. Type curve: 'Niobrara C' = blended Niobrara A + B offsets inside 5 mi (15 wells; "
+     "AFE (target 'Niobrara'): 10,256 ft lateral, 51 stages (Enverus permit 10,832 ft); drilling $3,073,362, completion $8,860,453. Net AFE $797,023.70. Type curve: 'Niobrara C' = blended Niobrara A + B offsets inside 5 mi (15 wells; "
      "no Niobrara C well with 12+ months within 20 mi). " + MYS_NOTE),
     ("MYSTICAL FED 4075-24-13-3NH", "49-009-50896", 9921, 0.066787, 0.050100 / 0.066787, 11489166,
      (D(2027, 3, 1), D(2027, 6, 1), D(2027, 7, 1)), "Permit pending", "Niobrara B",
      "Niobrara B per the seller table (NIO B); the Enverus permit (pending approval) says NIOBRARA A, TVD 11,808 ft. "
-     "Lateral 9,921 ft. Net AFE $767,326.93. Type curve: Niobrara B zone curve (8 offsets, 5 mi, low confidence; 30-well "
+     "AFE (target 'Niobrara'): 10,188 ft lateral, 51 stages (Enverus permit 9,921 ft); drilling $2,757,628, completion $8,731,538. Net AFE $767,326.93. Type curve: Niobrara B zone curve (8 offsets, 5 mi, low confidence; 30-well "
      "10-mile comparison). " + MYS_NOTE),
-    ("OVERTIME FED 4676-35-14-15 MH", "49-005-80253", 16272, 0.092142, 0.075406 / 0.092142, OT_T,
-     (D(2026, 12, 1), D(2027, 3, 1), D(2027, 4, 1)), "Permitted", "Mowry (Overtime)",
-     "Mowry, Anschutz well proposal 11/5/2026 (11,565.56 ac DSU, T45N-R76W Secs 1-3, 10-15 and T46N-R76W Secs 22-27, 34-36). "
-     "TMD 27,471 ft / TVD 11,622 ft; Enverus lateral 16,272 ft. AFE $14,130,540: drilling $4,579,734 + PDO/PDL $236,042; "
-     "completion $7,709,441 + lift $310,111; facilities $1,295,212. Title WI 9.214234% (net AFE $1,302,021.02). Spud ~12/4/2026. "
-     "Election due 30 days from receipt (delivered 11/6); WOGCC pooling hearing 12/8/2026. ASSUMPTION: completion Mar-27, "
-     "first sales Apr-27. 15% child haircut is the fund default (no producing Mowry within 6.9 mi). Type curve: Mowry (Overtime) "
-     "zone curve (10 Anschutz / EOG offsets, 15 mi, low confidence)."),
 ]
 
 if mode == "pre":
@@ -80,34 +66,31 @@ if mode == "pre":
         W[f"Q{r}"] = "=Inputs!$C$12"
     for k, (nm, api, lat, wi, nri, gross, (dm, cm, fm), st, zone, note) in enumerate(WELLS):
         r = 7 + k
-        if nm.startswith("OVERTIME"):
-            d, c, fac = OT_D, OT_C, OT_F
-            wi = 0.09214234
-        else:
-            d, c, fac = split(gross)
+        d, c, lat = WRC[api]; fac = 0
+        assert abs(d + c - gross) <= 1, api  # 2SXH columns sum $1 under the AFE total (rounding)
         vals = dict(C=nm, D=api, E=lat, F=wi, G=nri, I=d, J=c, K=fac, N=dm, O=cm, P=fm, S=st, T=note, U=0, X=zone)
         for col, v in vals.items():
             W[f"{col}{r}"] = v
         for col in "NOP":
             W[f"{col}{r}"].number_format = "mmm-yy"
-    net = 505911.35 + 503668.50 + 877309.96 + 797023.70 + 767326.93 + 1302021.02
+    net = 505911.35 + 503668.50 + 877309.96 + 797023.70 + 767326.93
     W["F19"] = round(net, 2)
-    W["G19"] = ("Citation well table net AFEs: Mystical SXH x2 $1,009,579.85 (4.4525% WI), Mystical MH/NH x3 $2,441,660.59 "
-                "(6.6787% WI), Overtime $1,302,021.02 (9.2142% WI)")
+    W["G19"] = ("Citation well table net AFEs: SXH x2 $1,009,579.85 (4.4525% WI), MH/NH x3 $2,441,660.59 (6.6787% WI); "
+                "gross matches the WRC AFEs ($59,233,369)")
 
     I = wb["Inputs"]
     I["B2"] = TITLE + ": Non-Op Participation Model Inputs"
     I["B3"] = ("Blue = hard-coded input. Black = formula. Yellow = key assumption to confirm with the seller (Citation 2002 Investment "
-               "LLC / CILP-VI), WRC Energy or Anschutz. ASSUMPTION = added by Osage Manka, not from the seller, the AFE or Enverus.")
+               "LLC / CILP-VI) or WRC Energy. ASSUMPTION = added by Osage Manka, not from the seller, the AFE or Enverus.")
     I["C19"] = "Powder River (WY)"
     I["D10"] = ("Paid in each well's drilling (closing) month on top of the net capex; no asking premium given, 20% assumed; "
                 "the fund screen is 20%")
     I["B11"] = "Type curve multiplier (100% = zone comp curves)"
     I["B13"] = "Type curve (1 = zone comp curves, 2 = Enverus fit-set P50 on our shape)"
     I["D12"] = ("Default child haircut (fund standard). WRC's Mystical Fed 1NH (Niobrara A) and 1SH (Shannon) already produce in "
-                "the Mystical sections; the Overtime DSU has no producing Mowry within 6.9 mi")
+                "the Mystical sections")
     I["D13"] = ("Base = 1 (zone 1 Niobrara C: oil 523 MBO, gas 1.62 Bcf per 10,000 ft; 15 fit wells). Enverus EUR fields are blank "
-                "on this subscription, so 2 = base. Multi-zone: 5 zone curves on 'Zone Curves'; each well uses its zone "
+                "on this subscription, so 2 = base. Multi-zone: 4 zone curves on 'Zone Curves'; each well uses its zone "
                 "(Wells column X); the switch applies to zone 1 only")
     I["D38"] = DECK
 
@@ -121,25 +104,23 @@ if mode == "pre":
 
     S = wb["Summary"]
     S["B2"] = TITLE + ": Buy the Citation WI or Not"
-    S["B3"] = ("Pure non-op economics for the 6 wells in Citation's proposal table (CILP-VI): Mystical Fed 1SXH / 2SXH (Sussex, "
-               "4.4525% WI), 1MH (Mowry), 2NH (Niobrara C) and 3NH (Niobrara B) (6.6787% WI), all WRC Energy; and Anschutz's "
-               "Overtime Fed 4676-35-14-15 MH (Mowry, 9.2142% WI). Gross AFEs $73.4MM, net $4.75MM, plus the premium. No asking "
-               "premium given; 20% is the base. Live case follows Inputs, the deck selector (C6) and the premium (C7).")
+    S["B3"] = ("Pure non-op economics at WRC's AFEs (10/22/2026) for Citation's (CILP-VI) interest: 1SXH / 2SXH (Sussex, 4.4525% WI) "
+               "and 1MH (Mowry), 2NH (Niobrara C) and 3NH (Niobrara B) (6.6787% WI). Gross AFEs $59.2MM, net $3.45MM, plus the "
+               "premium. No asking premium given; 20% is the base. Live case follows Inputs, the deck selector (C6) and the premium (C7).")
     S["D6"] = '=IF(C6="Strip","' + DECK + '","Flat "&C6&" (oil / gas)")'
     S["C7"] = 0.2
     S["F18"] = "After the 15% child haircut"
-    S["B78"] = "Confirm with the seller (Citation / CILP-VI), WRC Energy and Anschutz"
+    S["B78"] = "Confirm with the seller (Citation / CILP-VI) and WRC Energy"
     notes = [
         "- Asking price / premium: none given; the model uses 20% of net capex and shows the max premium for a 20% IRR",
-        "- Overtime election: Anschutz proposal dated 11/5/2026, 30 days from receipt (~12/6/2026); WOGCC pooling hearing 12/8/2026. "
-        "Non-consent goes to statutory pooling with the max risk penalty (W.S. 30-5-109(g)). Closing must land before the election",
-        "- Mystical AFEs and dates: only gross / net AFE totals from the seller table (no WRC AFE, spud or frac dates). The 34/57/9 "
-        "split and Mar-27 drilling / Jul-27 first sales are assumptions; 3NH permit is still pending approval",
-        "- Landing zones: the seller lists 2NH as Niobrara C and 3NH as Niobrara B; Enverus permits show both as Niobrara A. "
+        "- Mystical elections: WRC proposal 10/29/2026, elect by 5:00 pm MST 12/3/2026, prepay AFE within 30 days of the spud notice; "
+        "non-consent is pooled with statutory risk penalties (W.S. 30-5-109(f)). No spud date given: Mar-27 drilling / Jul-27 first "
+        "sales assumed; 3NH permit still pending approval",
+        "- Landing zones: the seller table lists 2NH as Niobrara C and 3NH as Niobrara B; WRC's AFEs say only 'Niobrara' and Enverus permits show both as Niobrara A. "
         "No Niobrara C well with 12+ months within 20 mi, so 2NH is priced on blended Niobrara A + B offsets",
-        "- Title to the WIs / NRIs (Mystical 74.9-75.0% lease NRI, Overtime 81.84%); Overtime WI is subject to title "
-        "examination per the proposal; JOA status for the Mystical DSUs",
-        "- Gas marketing, NGL netback and LOE: Powder River basin defaults used, not checked against WRC / Anschutz JIBs or contracts",
+        "- Title to the WIs / NRIs (74.9-75.0% lease NRI); WRC proposes a participation agreement under pooling (no JOA): "
+        "$15,683 / well / month drilling overhead and $1,568 producing overhead",
+        "- Gas marketing, NGL netback and LOE: Powder River basin defaults used, not checked against WRC JIBs or contracts",
     ]
     for k in range(8):
         S[f"B{79 + k}"] = notes[k] if k < len(notes) else None
@@ -166,10 +147,9 @@ else:
     for row in C.iter_rows():
         for c in row:
             c.value = None
-    C["B2"] = ("Comp selection (5-mile radius standard): Citation PRB package. Mystical DSU centroid 43.4277, -105.8075 (Converse "
-               "Co); Overtime DSU centroid 43.8896, -105.9591 (Campbell Co)")
+    C["B2"] = "Comp selection (5-mile radius standard): Mystical Fed DSUs (WRC), centroid 43.4277, -105.8075, Converse Co WY"
     C["B2"].font = Font(bold=True, size=14)
-    C["B3"] = ("Distance = offset lateral midpoint to the centroid of the DSU the zone prices. Screen: horizontal, first production "
+    C["B3"] = ("Distance = offset lateral midpoint to the DSU centroid. Screen: horizontal, first production "
                "2017-01 or later, 12+ months by 2026-09, same Enverus interval. Radius rule per zone: 5 mi, widened to 10 / 15 / 20 mi "
                "until 6+ wells. Excluded: SPRUCE 21W33-2NH (bad header: SHL = BHL, TVD 10,283 ft) and RUSTY FEDERAL 4075-23-14-1UH "
                "(2018 legacy Sussex completion). 12-month volumes per 10,000 ft after the partial-first-month scaling.")
