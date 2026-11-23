@@ -1,5 +1,5 @@
 {
- "deal": "Mystical Fed x5 (WRC Energy; Sussex / Mowry / Niobrara, Converse Co WY)",
+ "deal": "Mystical Fed 4075-25-24-13 1SXH / 2SXH (WRC Energy; Sussex, Converse Co WY)",
  "model_file": "Mystical Fed Powder River Non-Op Model.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
@@ -15,7 +15,7 @@
    "first_sales_month_index": 8,
    "haircut": 0.0,
    "tc_factor": 1.0,
-   "zone": "Sussex"
+   "zone": null
   },
   {
    "name": "MYSTICAL FED 4075-25-24-13-2SXH",
@@ -27,113 +27,32 @@
    "first_sales_month_index": 8,
    "haircut": 0.0,
    "tc_factor": 1.0,
-   "zone": "Sussex"
-  },
-  {
-   "name": "MYSTICAL FED 4075-24-13-1MH",
-   "api": "4900938507",
-   "lat_ft": 10217.0,
-   "wi": 0.066787,
-   "lease_nri": 0.7501459864943777,
-   "mineral_nri": 0.0,
-   "first_sales_month_index": 8,
-   "haircut": 0.0,
-   "tc_factor": 1.0,
-   "zone": "Mowry (Mystical)"
-  },
-  {
-   "name": "MYSTICAL FED 4075-24-13-2NH",
-   "api": "4900949482",
-   "lat_ft": 10256.0,
-   "wi": 0.066787,
-   "lease_nri": 0.7501459864943777,
-   "mineral_nri": 0.0,
-   "first_sales_month_index": 8,
-   "haircut": 0.0,
-   "tc_factor": 1.0,
-   "zone": "Niobrara C"
-  },
-  {
-   "name": "MYSTICAL FED 4075-24-13-3NH",
-   "api": "4900950896",
-   "lat_ft": 10188.0,
-   "wi": 0.066787,
-   "lease_nri": 0.7501459864943777,
-   "mineral_nri": 0.0,
-   "first_sales_month_index": 8,
-   "haircut": 0.0,
-   "tc_factor": 1.0,
-   "zone": "Niobrara B"
+   "zone": null
   }
  ],
  "valuation_month": "2026-11-01",
- "net_capex": 3451240.38724,
+ "net_capex": 1009579.7972,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.12677900866838976,
- "moic": 1.3683256510101105,
- "npv10": 201534.28753362398,
- "payout_months": 49,
- "max_for_20pct_irr": 0.07701249174389668,
+ "irr": 0.7616479167688135,
+ "moic": 1.9219865307192807,
+ "npv10": 740125.466235524,
+ "payout_months": 11,
+ "max_for_20pct_irr": 0.7336905666064865,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
-  "fit_wells": 15,
+  "fit_wells": 6,
   "low_confidence": true,
   "tc_multiplier": 1,
-  "zones": [
-   {
-    "name": "Niobrara C",
-    "radius": "5 mi",
-    "fit_wells": 15,
-    "low_confidence": false,
-    "oil_eur_per_10k": 523027.54530999996,
-    "gas_eur_per_10k": 1620854.8476319998,
-    "oil_b": 1.3075524531933085,
-    "gas_b": 1.2271415457662318,
-    "wells": 1
-   },
-   {
-    "name": "Niobrara B",
-    "radius": "5 mi",
-    "fit_wells": 8,
-    "low_confidence": true,
-    "oil_eur_per_10k": 518323.27868200006,
-    "gas_eur_per_10k": 1607890.0974080001,
-    "oil_b": 1.4824982666337574,
-    "gas_b": 1.3877808411046364,
-    "wells": 1
-   },
-   {
-    "name": "Mowry (Mystical)",
-    "radius": "10 mi",
-    "fit_wells": 7,
-    "low_confidence": true,
-    "oil_eur_per_10k": 427548.581178,
-    "gas_eur_per_10k": 5700111.289794,
-    "oil_b": 1.7292496159649016,
-    "gas_b": 0.8954738939225362,
-    "wells": 1
-   },
-   {
-    "name": "Sussex",
-    "radius": "10 mi",
-    "fit_wells": 6,
-    "low_confidence": true,
-    "oil_eur_per_10k": 562621.085199,
-    "gas_eur_per_10k": 431909.5986440001,
-    "oil_b": 0.6384776414036567,
-    "gas_b": 0.3519385133058448,
-    "wells": 2
-   }
-  ],
-  "oil_eur_per_10k": 523027.54530999996,
-  "gas_eur_per_10k": 1620854.8476319998,
-  "oil_b": 1.3075524531933085,
-  "gas_b": 1.2271415457662318,
+  "zones": [],
+  "oil_eur_per_10k": 562621.085199,
+  "gas_eur_per_10k": 431909.5986440001,
+  "oil_b": 0.6384776414036567,
+  "gas_b": 0.3519385133058448,
   "ten_mile_wells": null
  },
  "decision": "Pending",
  "price_paid": null,
  "closed": null,
- "notes": "Seller: Citation 2002 Investment LP (CILP-VI). WRC proposal 10/29/2026, election by 5 pm MST 12/3/2026, WOGCC pooling 12/8/2026. WRC AFEs (10/22/2026) and AFE laterals used. No asking premium given (20% assumed). 4 zone curves: Niobrara C (blended Nio A+B, 15 wells, 5 mi), Niobrara B (8, 5 mi; 30-well 10 mi comparison), Mowry (7, 10 mi; oil b 1.73), Sussex (6, 10 mi). Fails the screen: 12.7% IRR at 20% (max premium 7.7%), 26.5% at 0%; 0% child haircut (fund standard from 11/23/2026; 15% case 4.4%). Strip = Nov 20, 2026 deck. Split from the combined Citation PRB run per Davis."
+ "notes": "Seller: Citation 2002 Investment LP (CILP-VI). Two Sussex wells only (1SXH / 2SXH, 4.4525% WI, net AFE $1,009,580); 1MH / 2NH / 3NH dropped per Davis 11/23/2026 (2.5-3.7% IRR each). WRC proposal 10/29/2026, election by 5 pm MST 12/3/2026 (well-by-well), WOGCC pooling 12/8/2026. WRC AFEs (10/22/2026) and AFE laterals (15,360-15,413 ft). No asking premium given (20% assumed). Sussex curve: 6 wells, 10 mi, low confidence; offsets are ~10k ft laterals. 76.2% IRR at 20%, max premium 73%. 0% child haircut. Strip = Nov 20, 2026 deck."
 }
