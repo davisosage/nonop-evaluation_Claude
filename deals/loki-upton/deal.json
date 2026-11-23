@@ -1,0 +1,143 @@
+{
+ "deal": "Loki A/B/C 10-well DSU (SM Energy; Spraberry / Jo Mill / Dean / Wolfcamp B / Wolfcamp C, Upton Co TX)",
+ "model_file": "Loki Permian Non-Op Model.xlsx",
+ "evaluated": "2026-11-22",
+ "type": "Working interest",
+ "basin": "Permian (TX)",
+ "wells": [
+  {
+   "name": "LOKI A 151JM",
+   "api": "4246143832",
+   "lat_ft": 19332.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 0.768
+  },
+  {
+   "name": "LOKI A 171DN",
+   "api": "4246143833",
+   "lat_ft": 19112.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 0.605
+  },
+  {
+   "name": "LOKI A 221WB",
+   "api": "4246143835",
+   "lat_ft": 19315.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 1.0
+  },
+  {
+   "name": "LOKI A 241WC",
+   "api": "4246143836",
+   "lat_ft": 19098.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 0.669
+  },
+  {
+   "name": "LOKI B 131US",
+   "api": "4246143837",
+   "lat_ft": 18994.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 0.771
+  },
+  {
+   "name": "LOKI B 152JM",
+   "api": "4246143838",
+   "lat_ft": 18942.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 0.768
+  },
+  {
+   "name": "LOKI B 222WB",
+   "api": "4246143839",
+   "lat_ft": 18938.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.15,
+   "tc_factor": 1.0
+  },
+  {
+   "name": "LOKI C 132US",
+   "api": "4246143840",
+   "lat_ft": 20045.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 10,
+   "haircut": 0.15,
+   "tc_factor": 0.771
+  },
+  {
+   "name": "LOKI C 172DN",
+   "api": "4246143841",
+   "lat_ft": 20033.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 10,
+   "haircut": 0.15,
+   "tc_factor": 0.605
+  },
+  {
+   "name": "LOKI C 242WC",
+   "api": "4246143842",
+   "lat_ft": 20021.0,
+   "wi": 0.00092482,
+   "lease_nri": 0.8416668444444446,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 10,
+   "haircut": 0.15,
+   "tc_factor": 0.669
+  }
+ ],
+ "valuation_month": "2026-11-01",
+ "net_capex": 99716.06504106,
+ "asking_price": null,
+ "base_case": "strip, 20% premium",
+ "irr": 0.32038563946818055,
+ "moic": 2.2078195851862983,
+ "npv10": 50584.9800013394,
+ "payout_months": 22,
+ "max_for_20pct_irr": 0.40330022135758975,
+ "max_for_20pct_irr_units": "premium, % of net capex",
+ "type_curve": {
+  "fit_wells": 12,
+  "low_confidence": true,
+  "tc_multiplier": 1,
+  "oil_eur_per_10k": 385931.96092399996,
+  "gas_eur_per_10k": 3053742.091426,
+  "oil_b": 1.1213231354202968,
+  "gas_b": 1.90658139832705,
+  "ten_mile_wells": 97
+ },
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": "Seller: Legacy Income Fund I, LLC. No asking premium given (20% assumed). One template curve (5-mi Wolfcamp B, 12 wells, low confidence); other zones scaled by value-based TC factors from 10-mi zone curves (Dean 20-mi), see zone_factors.py. Strip = Nov 3, 2026 deck."
+}
