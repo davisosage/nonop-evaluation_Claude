@@ -3,7 +3,7 @@
     python3 fill_model.py post <model.xlsx>                             # comps sheet, after write_model.py
 Run from toolkit/. Recalculate after each step.
 
-17 wells, template holds 10 rows: wells that share a bench and lateral direction are grouped into one row with the
+16 wells (permitted 8-5-1 excluded), template holds 10 rows: wells that share a bench and lateral direction are grouped into one row with the
 mineral NRI multiplied by the well count (minerals revenue is linear in NRI; laterals inside a group differ by <= 411 ft)."""
 import datetime as dt
 import os
@@ -22,8 +22,8 @@ D = dt.datetime
 UNIT_NRI = 0.03783899
 DECK = ("NYMEX WTI strip Nov 20, 2026 (Nov 3 curve rescaled through the Nov 20 settles; latest deck in the repo), "
         "HH Nov 3, 2026; flat after 2030")
-TITLE = "Friendly Skies / 747 3-65 pad: 17 Niobrara A/B/C wells (Bison IV Operating; Adams Co CO), minerals"
-TIMING = ("Timing per Davis: first production Jul-27 for every well (16 drilled / DUC, spud Apr-May 2026; 8-5-1 permitted only). "
+TITLE = "Friendly Skies / 747 3-65 pad: 16 Niobrara A/B/C wells (Bison IV Operating; Adams Co CO), minerals"
+TIMING = ("Timing per Davis: first production Jul-27 for every well (all drilled / DUC, spud Apr-May 2026). "
           "Closing assumed Dec-26.")
 # group: (row name, [(api, well, lateral)], zone, status)
 GROUPS = [
@@ -40,10 +40,8 @@ GROUPS = [
     ("747 3-65 Niobrara A west (4 wells)", [("05-001-10678", "8-10-12", 17775), ("05-001-10681", "8-10-15", 17811),
         ("05-001-10672", "8-3-5", 17790), ("05-001-10675", "8-10-8", 17726)], "Niobrara A", "DUC",
      "west-running ~3.4-mile laterals"),
-    ("747 3-65 Niobrara C north U-turns (2 wells)", [("05-001-10676", "8-5-7", 15344), ("05-001-10668", "8-5-1", 15755)],
-     "Niobrara C", "DUC / Permitted",
-     "U-turn laterals north of the pad; 8-5-1 is permitted only (Enverus lateral blank-ish at 1,537 ft): 15,755 ft ASSUMED from "
-     "its 24,038 ft planned MD less the 8-5-7's 8,283 ft MD-to-lateral offset"),
+    ("747 3-65 8-5-7 (Niobrara C, north U-turn)", [("05-001-10676", "8-5-7", 15344)], "Niobrara C", "DUC",
+     "U-turn lateral north of the pad"),
     ("747 3-65 8-8-11 (Niobrara C, south U-turn)", [("05-001-10680", "8-8-11", 18009)], "Niobrara C", "DUC",
      "U-turn lateral south of the pad"),
 ]
@@ -87,7 +85,7 @@ if mode == "pre":
     I["D21"] = "ASSUMPTION: closing Dec-26"
     I["B11"] = "Type curve multiplier (100% = 5-mile zone curves, modern completions)"
     I["B13"] = "Type curve (1 = 5-mile zone curves, 2 = Enverus fit-set P50 on our shape)"
-    I["D12"] = ("Default child haircut, 0% (fund standard). New 17-well pad; SM / Crestone wells 1.7-5 mi away. Override here "
+    I["D12"] = ("Default child haircut, 0% (fund standard). New pad (16 wells modeled); SM / Crestone wells 1.7-5 mi away. Override here "
                 "or per row (Wells column Q)")
     I["D13"] = ("Base = 1: Niobrara B (TypeCurve tab) and Niobrara A / C on 'Zone Curves', each from its own 5-mile modern-"
                 "completion offsets (9 / 12 / 12 wells, LOW CONFIDENCE). Enverus EUR fields are blank on this subscription, "
@@ -103,17 +101,17 @@ if mode == "pre":
 
     S = wb["Summary"]
     S["B2"] = TITLE + ": Buy or Not"
-    S["B3"] = ("Mineral / royalty interest, unit NRI 3.783899% in each of 17 Bison IV Niobrara wells on the 747 3-65 pad (10 B, "
-               "4 A, 3 C), grouped into 7 rows. Minerals: no capex or LOE; revenue at the mineral NRI less production taxes; "
+    S["B3"] = ("Mineral / royalty interest, unit NRI 3.783899% in each of 16 Bison IV Niobrara wells on the 747 3-65 pad (10 B, "
+               "4 A, 2 C), grouped into 7 rows. The permitted 8-5-1 is excluded (Davis). Minerals: no capex or LOE; revenue at the mineral NRI less production taxes; "
                "purchase price paid at closing (Dec-26). No asking price given: Inputs C20 is set to the most we could pay for "
                "a 20% IRR at the strip. Live case follows Inputs, the deck selector (C6) and the price (Inputs C20).")
     S["D6"] = '=IF(C6="Strip","' + DECK + '","Flat "&C6&" (oil / gas)")'
     S["B78"] = "Confirm with the seller and Bison IV Operating"
     notes = [
         "- Asking price: none given; Inputs C20 = the max purchase price for a 20% IRR at the strip",
-        "- Unit NRI 3.783899% applied to all 17 wells as given; confirm one unit covers the west laterals, the north / south "
+        "- Unit NRI 3.783899% applied to all 16 wells as given; confirm one unit covers the west laterals, the north / south "
         "U-turns and the east 8-9-9, or get NRI by well",
-        "- Timing: first production Jul-27 for all 17 wells (Davis); 8-5-1 is permitted, not spud; Bison frac schedule not seen",
+        "- Timing: first production Jul-27 for all 16 wells (Davis); Bison frac schedule not seen. The permitted 8-5-1 is excluded",
         "- Royalty deducts: modeled cost-free (gross proceeds less taxes); Colorado leases can bear post-production costs, "
         "check the lease / division order",
         "- Type curves: 5-mile modern-completion offsets are young (most first produced 2025); b for Niobrara A and B comes "

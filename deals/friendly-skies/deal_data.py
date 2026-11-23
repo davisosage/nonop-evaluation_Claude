@@ -1,6 +1,6 @@
 # Enverus monthly production (gross 8/8) and ProducingDays, pulled 2026-11-23 via the Enverus connector (production dataset).
-# Friendly Skies / 747 3-65 pad (Bison IV Operating, Adams Co CO; 17 Niobrara A/B/C DUCs, T3S R65W). DSU centroid (lateral
-# footprint of the 17 wells, west 3.5-mile laterals plus north/south U-turns and the east 8-9-9): 39.809, -104.715.
+# Friendly Skies / 747 3-65 pad (Bison IV Operating, Adams Co CO; 16 Niobrara A/B/C DUCs modeled, permitted 8-5-1 excluded;
+# T3S R65W). DSU centroid (lateral footprint of the pad's wells, west 3.5-mile laterals plus north/south U-turns and the east 8-9-9): 39.809, -104.715.
 # Offsets: horizontal Niobrara A / B / C, first production 2022-01 to 2025-08 (12+ months by 2026-08), modern completions
 # (~1,150 lb/ft); distance = offset lateral midpoint to the DSU centroid.
 # Excluded: 2018-2021 SM Energy legacy completions inside 5 mi (Schuh 21-20, King 28-29 3xH, Bear 22-23 3xH, Blue 32-33 1H,
