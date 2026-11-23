@@ -12,7 +12,7 @@ curve when its fit set has fewer than 15 wells. Writes tc_zones.json, tc_zone_cu
 Lateral length (lateral.py, Davis's rule Nov 2026):
   * each offset is normalized straight to the 10,000 ft basis. Within +/- 2,500 ft of 10,000: linear (an 8,000 ft
     offset x 1.25 every month). Further away: months 1-8 get the linear factor x f (f phased from 100% at 2,500 ft away
-    to 90% at 5,000 ft away and beyond) when the offset is shorter than 10,000 ft, and the linear factor / f when it is
+    to 92.5% at 5,000 ft away and 85% at 10,000 ft away and beyond) when the offset is shorter than 10,000 ft, and the linear factor / f when it is
     longer (mirror: a 5,000 ft offset x 2 x 0.9, a 20,000 ft offset x 0.5 / 0.9); from month 9 the offset's decline is
     re-shaped (time-stretched, same b) so its EUR still scales linearly. The stretch is solved on the fitted curve
     itself, so the fit is iterated a few times.
@@ -270,7 +270,8 @@ def build_set(apis):
         "wells": len(apis), "long_wells": len(long_wells), "months_in_mean": len(oil),
         "lateral": {"model_lateral": lref, "offsets_linear": len(apis) - len(shaped), "offsets_shaped": shaped,
                     "offset_laterals": [float(WELLS[a][1]) for a in apis],
-                    "rule": {"band_ft": LAT.BAND, "early_months": LAT.EARLY_MONTHS, "early_pct": LAT.EARLY_PCT, "full_ft": LAT.FULL_AT}},
+                    "rule": {"band_ft": LAT.BAND, "early_months": LAT.EARLY_MONTHS, "early_pct": LAT.EARLY_PCT, "full_ft": LAT.FULL_AT,
+                             "early_pct2": LAT.EARLY_PCT2, "full2_ft": LAT.FULL_AT2}},
         "wells_by_month": cnt,
         "fit_set": apis, "enverus_eurs_supplied": have_env,
         "oil": {**PO, "qi": PO["qi"] * guard_o, "b_fixed_sensitivity": OIL_B_FIXED,

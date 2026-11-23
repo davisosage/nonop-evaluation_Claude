@@ -8,7 +8,7 @@ Per-well overrides: run(m, oil, gas, wells=[...]) with dicts like the ones load_
 Multi-zone: m["zones"] = {zone: (oil, gas)} from the 'Zone Curves' tab; a well with w["zone"] set uses that curve,
 any other well uses the oil / gas curves passed to run (the TypeCurve tab = zone 1). run(..., zones={...}) overrides.
 Lateral length: curves are per 10,000 ft; each well's curve is moved to its lateral with lateral.scale_curve (linear
-within +/- the band, Inputs C24; otherwise months 1..C25 at a factor phased from 100% at C24 ft to C26 at C27 ft and the decline re-solved to the linear EUR),
+within +/- the band, Inputs C24; otherwise months 1..C25 at a factor phased from 100% at C24 ft to C26 at C27 ft and C28 at C29 ft and the decline re-solved to the linear EUR),
 the same arithmetic as the workbook's 'Lateral Curves' tab.
 """
 import datetime as dt
@@ -41,7 +41,8 @@ def load_model(path):
                 minerals=(g("C18") == "Minerals"), basin=g("C19"), price=float(g("C20") or 0), price_mult=1.0)
     num = lambda a, d: g(a) if isinstance(g(a), (int, float)) and not isinstance(g(a), bool) else d
     glob.update(lat_band=float(num("C24", LAT.BAND)), lat_months=int(num("C25", LAT.EARLY_MONTHS)), lat_pct=float(num("C26", LAT.EARLY_PCT)),
-                lat_full=float(num("C27", LAT.FULL_AT)))
+                lat_full=float(num("C27", LAT.FULL_AT)), lat_pct2=float(num("C28", LAT.EARLY_PCT2)),
+                lat_full2=float(num("C29", LAT.FULL_AT2)))
     close = g("C21") if isinstance(g("C21"), dt.datetime) else None
     glob["close_m"] = max(0, _mi(close, v0)) if close else 0
     zones, zone1 = {}, None
@@ -95,11 +96,12 @@ _SC = {}
 def scaled(c, lat, p):
     """Curve c (per 10,000 ft) moved to lateral lat on the lateral rule (cached)."""
     c = np.asarray(c, float)
-    key = (hashlib.md5(c.tobytes()).hexdigest(), float(lat), p.get("lat_band"), p.get("lat_months"), p.get("lat_pct"), p.get("lat_full"))
+    key = (hashlib.md5(c.tobytes()).hexdigest(), float(lat), p.get("lat_band"), p.get("lat_months"), p.get("lat_pct"), p.get("lat_full"), p.get("lat_pct2"), p.get("lat_full2"))
     if key not in _SC:
         if len(_SC) > 5000:
             _SC.clear()
-        _SC[key] = LAT.scale_curve(c, LAT.BASIS, lat, p.get("lat_band"), p.get("lat_months"), p.get("lat_pct"), p.get("lat_full"))
+        _SC[key] = LAT.scale_curve(c, LAT.BASIS, lat, p.get("lat_band"), p.get("lat_months"), p.get("lat_pct"), p.get("lat_full"),
+                                   p.get("lat_pct2"), p.get("lat_full2"))
     return _SC[key]
 
 

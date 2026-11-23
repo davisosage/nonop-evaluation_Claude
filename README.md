@@ -6,7 +6,7 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 |---|---|
 | `Non-Op Evaluation Template.xlsx` | The model. Up to 10 wells; Working interest or Minerals (Inputs C18); basin defaults (Inputs C19, Basins tab); up to 6 zone type curves ('Zone Curves' tab, Wells column X). Carries the Sun 5899 example. |
 | `Deal Log.xlsx` | One row per deal evaluated, plus lookbacks of actual production vs the type curve. Rebuilt by `toolkit/deal_log.py`. |
-| `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `lateral.py` (lateral length rule), `upgrade_template.py` / `upgrade_template_zones.py` / `upgrade_template_lateral.py` (one-time template upgrades, kept for the record). |
+| `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `lateral.py` (lateral length rule), `upgrade_template.py` / `upgrade_template_zones.py` / `upgrade_template_lateral.py` / `_phase.py` / `_steps.py` (one-time template upgrades, kept for the record). |
 | `deals/<deal>/` | Per deal: `deal_data.py` (Enverus production and fit sets), `tc_summary.json`, `tc_curves.csv`, `deal.json` (terms, results, decision), charts, the finished model, and later `actuals.py` / `lookback.json`. |
 
 ## Evaluate a deal
@@ -22,12 +22,12 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 
 ## Lateral length rule (`toolkit/lateral.py`)
 Type curves are kept per 10,000 ft, but a curve moved more than 2,500 ft (Inputs C24) is not scaled linearly: months 1-8
-(C25) get a factor of linear phased from 100% at 2,500 ft away to 90% (C26) at 5,000 ft away (C27) and beyond, going to a
-longer lateral (linear / factor going shorter), and from month 9 the hyperbolic decline
+(C25) get a factor of linear: 100% within 2,500 ft, straight lines to 92.5% (C26) at 5,000 ft away (C27, 3 miles vs 2) and
+85% (C28) at 10,000 ft away (C29, 4 miles vs 2), 85% beyond; going to a longer lateral (linear / factor going shorter), and from month 9 the hyperbolic decline
 is re-solved (same b, a time stretch s; 7% terminal kept) so the 360-month EUR is exactly linear. Within the band it is linear.
 - Offsets: each is normalized straight to 10,000 ft. Within 2,500 ft of 10,000 it is linear (8,000 ft x 1.25 every month);
-  further away months 1-8 get linear x 90% for a shorter offset (5,000 ft: x 2 x 0.9) and linear / 90% for a longer one
-  (20,000 ft: x 0.5 / 0.9), phased in between 2,500 and 5,000 ft, and its decline from month 9 is re-shaped so its EUR is
+  further away months 1-8 get linear x the factor for a shorter offset (5,000 ft: x 2 x 0.925) and linear / factor for a longer
+  one (20,000 ft: x 0.5 / 0.85), and its decline from month 9 is re-shaped so its EUR is
   still linear. The fit is made on that basis; the charts and Offset Production tab show the same normalized offsets.
 - Wells: the 'Lateral Curves' tab moves each well's curve from 10,000 ft to its lateral (s, Tsw, g solved by `write_model.py`);
   the CF tabs read it. Summary row 76 flags a well whose EUR no longer ties to linear: re-run `write_model.py`.

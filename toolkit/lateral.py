@@ -4,8 +4,9 @@ A type curve built for one lateral length is moved to another like this:
   * within +/- BAND ft (default 2,500) of the length it was built for: linear (volumes x L_to / L_from)
   * further away: the EUR still scales linearly, but the shape does not
       - months 1..EARLY_MONTHS (default 8, ramp included) get a factor f of the linear scaling when going to a longer
-        lateral, and linear / f when going to a shorter one (mirror image). f is phased in: 100% at BAND ft away,
-        falling in a straight line to EARLY_PCT (default 90%) at FULL_AT ft away (default 5,000), EARLY_PCT beyond.
+        lateral, and linear / f when going to a shorter one (mirror image). f by distance from the curve's length:
+        100% at BAND ft (2,500), straight line to EARLY_PCT (92.5%) at FULL_AT (5,000 ft: 2 -> 3 miles), straight
+        line to EARLY_PCT2 (85%) at FULL_AT2 (10,000 ft: 2 -> 4 miles), EARLY_PCT2 beyond.
       - from month EARLY_MONTHS + 1 the decline is re-solved so the 360-month EUR lands exactly on the linear EUR:
         the tail keeps its b and starts from the scaled month-9 rate (no jump), and the hyperbolic decline is
         made shallower (longer lateral) or steeper (shorter lateral). The 7% terminal decline is kept.
@@ -23,25 +24,32 @@ import numpy as np
 BASIS = 10000.0          # type curves are kept per 10,000 ft
 BAND = 2500.0            # +/- ft within which scaling is linear
 EARLY_MONTHS = 8         # months held to EARLY_PCT of linear
-EARLY_PCT = 0.90
-FULL_AT = 5000.0         # ft away at which the full EARLY_PCT applies (phased in from BAND)
+EARLY_PCT = 0.925        # early-month factor at FULL_AT ft away (3 miles vs 2)
+FULL_AT = 5000.0
+EARLY_PCT2 = 0.85        # at FULL_AT2 ft away (4 miles vs 2) and beyond
+FULL_AT2 = 10000.0
 N = 360
 F_TERM = 0.93 ** (1 / 12)      # 7% effective terminal decline, monthly ratio
 
 
-def params(band=None, months=None, pct=None, full=None):
-    return dict(band=BAND if band is None else float(band), months=EARLY_MONTHS if months is None else int(months),
-                pct=EARLY_PCT if pct is None else float(pct), full=FULL_AT if full is None else float(full))
+def params(band=None, months=None, pct=None, full=None, pct2=None, full2=None):
+    d = lambda v, x: x if v is None else float(v)
+    return dict(band=d(band, BAND), months=EARLY_MONTHS if months is None else int(months), pct=d(pct, EARLY_PCT),
+                full=d(full, FULL_AT), pct2=d(pct2, EARLY_PCT2), full2=d(full2, FULL_AT2))
 
 
-def early_pct(l_from, l_to, band=None, pct=None, full=None):
-    """Phased early-month factor f (<= 1) for a move of |l_to - l_from| ft: 1 inside the band, EARLY_PCT at FULL_AT."""
-    P = params(band, None, pct, full)
+def early_pct(l_from, l_to, band=None, pct=None, full=None, pct2=None, full2=None):
+    """Early-month factor f (<= 1) for a move of |l_to - l_from| ft: 1 inside the band, then straight lines through
+    (full, pct) and (full2, pct2), pct2 beyond."""
+    P = params(band, None, pct, full, pct2, full2)
     d = abs(l_to - l_from)
     if d <= P["band"]:
         return 1.0
-    frac = min(1.0, (d - P["band"]) / max(1.0, P["full"] - P["band"]))
-    return 1.0 - (1.0 - P["pct"]) * frac
+    if d <= P["full"]:
+        return 1.0 - (1.0 - P["pct"]) * (d - P["band"]) / max(1.0, P["full"] - P["band"])
+    if d <= P["full2"]:
+        return P["pct"] + (P["pct2"] - P["pct"]) * (d - P["full"]) / max(1.0, P["full2"] - P["full"])
+    return P["pct2"]
 
 
 def terminal(c):
@@ -77,16 +85,16 @@ def _tail(c, s, m1, tsw, g, n):
     return v
 
 
-def scale_curve(c, l_from, l_to, band=None, months=None, pct=None, full=None):
+def scale_curve(c, l_from, l_to, band=None, months=None, pct=None, full=None, pct2=None, full2=None):
     """Move a monthly curve from lateral l_from to l_to. Returns (curve, info) where info has
     mode ('linear' / 'shaped'), r, e (early factor relative to r), s (decline stretch), tsw, g."""
-    P = params(band, months, pct, full)
+    P = params(band, months, pct, full, pct2, full2)
     c = np.asarray(c, float)
     n = len(c)
     if not l_from or not l_to or l_from <= 0 or l_to <= 0:
         return np.zeros(n), dict(mode="linear", r=0.0, e=1.0, s=1.0, tsw=n, g=F_TERM)
     r = l_to / l_from
-    f = early_pct(l_from, l_to, P["band"], P["pct"], P["full"])
+    f = early_pct(l_from, l_to, P["band"], P["pct"], P["full"], P["pct2"], P["full2"])
     if f >= 1.0 - 1e-12 or c.sum() <= 0 or n <= P["months"] + 1:
         return c * r, dict(mode="linear", r=r, e=1.0, s=1.0, tsw=n, g=F_TERM)
     M, m1 = P["months"], P["months"] + 1
