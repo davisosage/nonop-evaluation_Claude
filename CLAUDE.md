@@ -14,3 +14,6 @@ workflow; this file covers the repository itself.
 - When asked for lookbacks, pull actual production for bought deals' wells from Enverus into `deals/<deal>/actuals.py`
   and run `toolkit/lookback.py`, then rebuild the log and summarize which deals run above or below their curves.
 - Run scripts from `toolkit/` without `python3 -I` (they import each other).
+- PDP (producing-property) deals use `PDP Evaluation Template.xlsx` and `pdp_fit.py` / `write_pdp.py` / `pdp_engine.py`
+  (README, "Evaluate a PDP package"). Change its layout in `toolkit/build_pdp_template.py`, rebuild the template, re-run
+  `examples/pdp-example`, recalculate and confirm "All checks OK" and that `pdp_engine.py` prints "engine ties".

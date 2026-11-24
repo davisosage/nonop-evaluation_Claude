@@ -30,7 +30,7 @@ def main(root, out):
     recs.sort(key=lambda d: d.get("evaluated", ""), reverse=True)
 
     wb = openpyxl.Workbook(); ws = wb.active; ws.title = "Deals"
-    ws["B2"] = "Deal log: every deal evaluated with the Non-Op Evaluation Template"; ws["B2"].font = Font(bold=True, size=14)
+    ws["B2"] = "Deal log: every deal evaluated with the Non-Op and PDP Evaluation Templates"; ws["B2"].font = Font(bold=True, size=14)
     ws["B3"] = ("Rebuilt by deal_log.py from deals/*/deal.json. Base case = strip with a 20% premium (WI) or the asking price (Minerals). "
                 "Edit decisions in each deal.json. Lookback columns fill in once the wells produce and lookback.py has run.")
     cols = ["Evaluated", "Deal", "Folder", "Type", "Basin", "Wells", "Net capex ($)", "Asking price ($)", "Base IRR", "MOIC", "NPV10 ($)",
@@ -42,13 +42,14 @@ def main(root, out):
         mx = d.get("max_for_20pct_irr")
         vals = [d.get("evaluated"), d.get("deal"), d["_dir"], d.get("type"), d.get("basin"), len(d.get("wells", [])), d.get("net_capex"),
                 d.get("asking_price"), d.get("irr"), d.get("moic"), d.get("npv10"), mx, tc.get("fit_wells"),
-                "Yes" if tc.get("low_confidence") else "No", (tc.get("oil_eur_per_10k") or 0) / 1000, (tc.get("gas_eur_per_10k") or 0) / 1e6,
+                ("Yes" if tc.get("low_confidence") else "No") if tc else None, (tc.get("oil_eur_per_10k") or 0) / 1000 if tc else None,
+                (tc.get("gas_eur_per_10k") or 0) / 1e6 if tc else None,
                 "; ".join(f"{z['name']} ({z.get('wells', '?')} wells, {z['oil_eur_per_10k'] / 1000:.0f} MBO / {z['gas_eur_per_10k'] / 1e6:.2f} Bcf"
-                          f"{', low conf.' if z.get('low_confidence') else ''})" for z in tc.get("zones", [])) or "Single curve",
+                          f"{', low conf.' if z.get('low_confidence') else ''})" for z in tc.get("zones", [])) or ("Single curve" if tc else "PDP: decline fits by well"),
                 d.get("decision"), d.get("price_paid"), d.get("closed"), lb and lb.get("as_of"),
                 lb and lb["package"].get("oil_vs_curve"), lb and lb["package"].get("gas_vs_curve"), d.get("notes")]
         fmts = [None, None, None, None, None, "0", "$#,##0", "$#,##0", "0.0%", "0.00x", "$#,##0",
-                "$#,##0" if d.get("type") == "Minerals" else "0.0%", "0", None, "0", "0.00", None, None, "$#,##0", None, None,
+                "$#,##0" if (d.get("type") == "Minerals" or str(d.get("type", "")).startswith("PDP")) else "0.0%", "0", None, "0", "0.00", None, None, "$#,##0", None, None,
                 "+0%;-0%", "+0%;-0%", None]
         for j, (v, f) in enumerate(zip(vals, fmts)):
             c = ws.cell(r, 2 + j, v)
