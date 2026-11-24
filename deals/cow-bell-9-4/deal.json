@@ -70,7 +70,7 @@
     "lat_ft": 10022.0,
     "mode": "shaped",
     "early_x_linear": 0.9989,
-    "oil_s": 0.9985578031677148
+    "oil_s": 0.9986286021477182
    },
    {
     "well": "COW BELL 9/4 FED COM 407H",
@@ -84,26 +84,26 @@
     "lat_ft": 10021.0,
     "mode": "shaped",
     "early_x_linear": 0.99895,
-    "oil_s": 0.9975351737460105
+    "oil_s": 0.9976896349756764
    },
    {
     "well": "COW BELL 9/4 FED COM 907H",
     "lat_ft": 10104.0,
     "mode": "shaped",
     "early_x_linear": 0.9948,
-    "oil_s": 0.9878281933477056
+    "oil_s": 0.9885837410484908
    }
   ]
  },
  "net_capex": 1174280.134092,
  "asking_price": null,
  "base_case": "strip, 20% premium",
- "irr": 0.2820801306424989,
- "moic": 2.2518146248860704,
- "npv10": 626451.0236075534,
+ "irr": 0.2753043248863323,
+ "moic": 2.1428603433533784,
+ "npv10": 586991.0661263706,
  "payout_months": 28,
- "max_for_20pct_irr": 0.37239199659642613,
- "summary_c7_solved_premium": 0.37239199659642613,
+ "max_for_20pct_irr": 0.356568640695013,
+ "summary_c7_solved_premium": 0.356568640695013,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 24,
@@ -123,24 +123,24 @@
    },
    {
     "name": "Avalon",
-    "radius": "15 mi",
-    "fit_wells": 14,
-    "low_confidence": true,
-    "oil_eur_per_10k": 398127.9246629999,
-    "gas_eur_per_10k": 1930625.920137,
-    "oil_b": 0.5171639016600788,
-    "gas_b": 0.05000000000000147,
+    "radius": "20 mi",
+    "fit_wells": 35,
+    "low_confidence": false,
+    "oil_eur_per_10k": 460558.21860599995,
+    "gas_eur_per_10k": 4023989.4361070003,
+    "oil_b": 0.48730996666833576,
+    "gas_b": 0.05000000000000001,
     "wells": 1
    },
    {
     "name": "Penn (Cisco-Canyon)",
-    "radius": "10 mi",
-    "fit_wells": 6,
+    "radius": "5 mi",
+    "fit_wells": 7,
     "low_confidence": true,
-    "oil_eur_per_10k": 685976.054605,
-    "gas_eur_per_10k": 2035178.953824,
-    "oil_b": 1.7229742542989768,
-    "gas_b": 1.9999999999999991,
+    "oil_eur_per_10k": 604529.580374,
+    "gas_eur_per_10k": 817688.0011090001,
+    "oil_b": 1.561253293948749,
+    "gas_b": 1.9999999999999978,
     "wells": 2
    }
   ],
