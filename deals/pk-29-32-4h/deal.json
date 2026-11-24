@@ -34,7 +34,7 @@
     "lat_ft": 9989.0,
     "mode": "shaped",
     "early_x_linear": 1.0005503026664666,
-    "oil_s": 1.0008530337569823
+    "oil_s": 1.0008529165184583
    }
   ]
  },
@@ -42,21 +42,21 @@
  "asking_price": null,
  "base_case": "strip, 20% premium",
  "irr": null,
- "moic": 0.9691535885907483,
- "npv10": -20729.618163055355,
+ "moic": 0.9643345062733552,
+ "npv10": -21353.58766128982,
  "payout_months": null,
- "max_for_20pct_irr": -0.06064415045504786,
- "summary_c7_solved_premium": -0.06064415045504786,
+ "max_for_20pct_irr": -0.06519924114037588,
+ "summary_c7_solved_premium": -0.06519924114037588,
  "max_for_20pct_irr_units": "premium, % of net capex",
  "type_curve": {
   "fit_wells": 45,
   "low_confidence": false,
   "tc_multiplier": 1,
   "zones": [],
-  "oil_eur_per_10k": 319169.581287,
-  "gas_eur_per_10k": 572917.8307350001,
-  "oil_b": 0.7626879078922485,
-  "gas_b": 0.33092513819235897,
+  "oil_eur_per_10k": 317692.799179,
+  "gas_eur_per_10k": 572710.991968,
+  "oil_b": 0.762844345542053,
+  "gas_b": 0.3312364735760418,
   "ten_mile_wells": null
  },
  "decision": "Pending",

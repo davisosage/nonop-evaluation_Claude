@@ -82,7 +82,9 @@ def curve(qi, De, b, n=N, dmin=DMIN):
     return np.array(out)
 
 
-MIN_DAYS = 7                     # a first month with fewer producing days than this is dropped
+MIN_DAYS = 11                    # a first month with fewer producing days than this is dropped (was 7; raised
+                                 # Nov 23, 2026: scaling 7-10 days of choked flowback 3-4x up to a full month
+                                 # inflated month 1 and hid the ramp, e.g. Kleist 3-35H / 4-35HSL on PK 29-32)
 
 
 def _cal_days(first, m):
