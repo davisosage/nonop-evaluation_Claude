@@ -1,0 +1,157 @@
+{
+ "deal": "Cow Bell 9/4 Fed Com 315H / 407H / 905H / 907H (Mewbourne; Avalon / 1st Bone Spring / Penn, Lea Co NM)",
+ "model_file": "Cow Bell 9-4 Permian Non-Op Model.xlsx",
+ "evaluated": "2026-11-24",
+ "type": "Working interest",
+ "basin": "Permian (TX)",
+ "wells": [
+  {
+   "name": "COW BELL 9/4 FED COM 315H",
+   "api": "3002557112",
+   "lat_ft": 10022.0,
+   "wi": 0.03082092,
+   "lease_nri": 0.8333,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Avalon"
+  },
+  {
+   "name": "COW BELL 9/4 FED COM 407H",
+   "api": "PENDING",
+   "lat_ft": 10000.0,
+   "wi": 0.03082092,
+   "lease_nri": 0.8333,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "1st Bone Spring"
+  },
+  {
+   "name": "COW BELL 9/4 FED COM 905H",
+   "api": "3002557116",
+   "lat_ft": 10021.0,
+   "wi": 0.03082092,
+   "lease_nri": 0.8333,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Penn (Cisco-Canyon)"
+  },
+  {
+   "name": "COW BELL 9/4 FED COM 907H",
+   "api": "3002557117",
+   "lat_ft": 10104.0,
+   "wi": 0.03082092,
+   "lease_nri": 0.8333,
+   "mineral_nri": 0.0,
+   "first_sales_month_index": 7,
+   "haircut": 0.0,
+   "tc_factor": 1.0,
+   "zone": "Penn (Cisco-Canyon)"
+  }
+ ],
+ "valuation_month": "2026-11-01",
+ "lateral_rule": {
+  "band_ft": 0.0,
+  "early_months": 3,
+  "early_pct": 0.75,
+  "full_ft": 5000.0,
+  "early_pct2": 0.675,
+  "full2_ft": 10000.0,
+  "model_lateral": 10000.0,
+  "offsets_shaped": 23,
+  "wells": [
+   {
+    "well": "COW BELL 9/4 FED COM 315H",
+    "lat_ft": 10022.0,
+    "mode": "shaped",
+    "early_x_linear": 0.9989,
+    "oil_s": 0.9985578031677148
+   },
+   {
+    "well": "COW BELL 9/4 FED COM 407H",
+    "lat_ft": 10000.0,
+    "mode": "linear",
+    "early_x_linear": 1.0,
+    "oil_s": 1.0
+   },
+   {
+    "well": "COW BELL 9/4 FED COM 905H",
+    "lat_ft": 10021.0,
+    "mode": "shaped",
+    "early_x_linear": 0.99895,
+    "oil_s": 0.9975351737460105
+   },
+   {
+    "well": "COW BELL 9/4 FED COM 907H",
+    "lat_ft": 10104.0,
+    "mode": "shaped",
+    "early_x_linear": 0.9948,
+    "oil_s": 0.9878281933477056
+   }
+  ]
+ },
+ "net_capex": 1174280.134092,
+ "asking_price": null,
+ "base_case": "strip, 20% premium",
+ "irr": 0.2820801306424989,
+ "moic": 2.2518146248860704,
+ "npv10": 626451.0236075534,
+ "payout_months": 28,
+ "max_for_20pct_irr": 0.37239199659642613,
+ "summary_c7_solved_premium": 0.37239199659642613,
+ "max_for_20pct_irr_units": "premium, % of net capex",
+ "type_curve": {
+  "fit_wells": 24,
+  "low_confidence": true,
+  "tc_multiplier": 1,
+  "zones": [
+   {
+    "name": "1st Bone Spring",
+    "radius": "5 mi",
+    "fit_wells": 24,
+    "low_confidence": false,
+    "oil_eur_per_10k": 552883.347076,
+    "gas_eur_per_10k": 1626252.1966269999,
+    "oil_b": 1.1532295962573227,
+    "gas_b": 1.9999999999999978,
+    "wells": 1
+   },
+   {
+    "name": "Avalon",
+    "radius": "15 mi",
+    "fit_wells": 14,
+    "low_confidence": true,
+    "oil_eur_per_10k": 398127.9246629999,
+    "gas_eur_per_10k": 1930625.920137,
+    "oil_b": 0.5171639016600788,
+    "gas_b": 0.05000000000000147,
+    "wells": 1
+   },
+   {
+    "name": "Penn (Cisco-Canyon)",
+    "radius": "10 mi",
+    "fit_wells": 6,
+    "low_confidence": true,
+    "oil_eur_per_10k": 685976.054605,
+    "gas_eur_per_10k": 2035178.953824,
+    "oil_b": 1.7229742542989768,
+    "gas_b": 1.9999999999999991,
+    "wells": 2
+   }
+  ],
+  "oil_eur_per_10k": 552883.347076,
+  "gas_eur_per_10k": 1626252.1966269999,
+  "oil_b": 1.1532295962573227,
+  "gas_b": 1.9999999999999978,
+  "ten_mile_wells": null
+ },
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": ""
+}
