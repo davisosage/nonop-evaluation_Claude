@@ -9,7 +9,7 @@ Layout (all live formulas; blue = input, grey = written by pdp_fit.py / write_pd
                  offset check for the package, checks, engine sensitivity grid, annual cash flow
   Inputs         deal setup, forecast settings, pricing / costs / taxes (basin defaults with overrides in column E)
   Basins         basin defaults (same table as the non-op template)
-  Wells          one row per well (up to 30): interests, the fitted decline at the last reported month (qa, Da, b) for oil
+  Wells          one row per well (up to 150): basin (blank = Inputs C9) and area / pad for the rollup, interests, the fitted decline at the last reported month (qa, Da, b) for oil
                  and gas, override columns, the decline used, and results by well
   Offset Check   forecast vs the offsets' anchored P50 over the forecast months (12 / 24 / 36 / 60 / full overlap)
   Well Review    pick a well: history, fit, forecast and offset P25 / P50 / P75 on log charts
@@ -25,6 +25,7 @@ Layout (all live formulas; blue = input, grey = written by pdp_fit.py / write_pd
   Offset Data    the offsets' anchored P25 / P50 / P75 by forecast month (from pdp_fit.py)
 """
 import os, sys, datetime as dt
+AREA0 = 95     # first Summary 'By area' row (names written by write_pdp.py)
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter as L
@@ -34,9 +35,10 @@ from openpyxl.formatting.rule import FormulaRule
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-NW, NM, NK, NH = 30, 480, 120, 360          # wells, cash-flow months, forecast months checked, history months
+NW, NM, NK, NH = 150, 480, 120, 360         # wells, cash-flow months, forecast months checked, history months
 W0 = 7                                       # first Wells row
-M0, M1 = 25, 25 + NM - 1                     # matrix / Package data rows
+M0, M1 = 39, 39 + NM - 1                     # matrix / Package data rows (helper rows 5-36 above, header M0 - 1)
+NA_ROWS = 40                                 # Summary 'By area' rows
 K0, K1 = 8, 8 + NK - 1                       # Fcst by Age / Offset Data rows
 H0, H1 = 7, 7 + NH - 1                       # History rows
 MC0, MC1 = 3, 3 + NW - 1                     # matrix well columns C..AF
@@ -71,6 +73,7 @@ def sub(ws, row, text, c0=2, c1=5):
 # ---------------------------------------------------------------- Wells columns
 WCOLS = [  # key, header, width, number format, kind (in = input, fit = written by write_pdp, f = formula)
     ("num", "#", 4, "0", "f"), ("name", "Well", 30, None, "in"), ("api", "API", 13, "@", "in"), ("zone", "Zone (Enverus interval)", 14, None, "in"),
+    ("basin", "Basin (blank = Inputs C9)", 14, None, "in"), ("area", "Area / pad (rollup)", 16, None, "in"),
     ("lat", "Lateral (ft)", 9, "#,##0", "in"), ("first", "First production", 10, "mmm-yy", "in"), ("last", "Last reported month", 10, "mmm-yy", "in"),
     ("age", "Months on at last report", 8, "0", "f"), ("wi", "WI", 8, "0.000%", "in"), ("nri", "NRI (ours)", 8, "0.000%", "in"),
     ("lnri", "Lease NRI (8/8 economic limit)", 9, "0.0%", "in"), ("loe_ovr", "Fixed LOE override ($/mo 8/8)", 10, "$#,##0", "in"),
@@ -89,15 +92,23 @@ for s, S in (("o", "Oil"), ("g", "Gas")):
         (f"{s}_tsw", f"{S}: years to terminal decline", 8, "0.0", "f"), (f"{s}_qsw", f"{S}: rate at terminal ({u})", 9, "#,##0", "f"),
     ]
 WCOLS += [("k0", "Months from last report to effective date", 9, "0", "f"), ("active", "Active", 6, "0", "f"),
-          ("wiu", "WI used (0 = Minerals)", 8, "0.000%", "f"), ("loe", "Fixed LOE used ($/mo 8/8)", 9, "$#,##0", "f"),
-          ("dfac", "Deduct factor", 7, "0.00", "f")]
+          ("wiu", "WI used (0 = Minerals)", 8, "0.000%", "f"), ("itype", "Interest type", 8, None, "f"), ("loe", "Fixed LOE used ($/mo 8/8)", 9, "$#,##0", "f"),
+          ("dfac", "Deduct factor", 7, "0.00", "f"), ("basin_u", "Basin used", 14, None, "f")]
+PARAMS = ["odiff", "ogath", "gdiff", "shrink", "ngly", "nglp", "gp", "tax1", "tax2", "loe_fix", "loe_mcf", "loe_bbl", "wor", "swd", "pa"]
+PFMT = dict(odiff='"$"0.00', ogath='"$"0.00', gdiff='"$"0.00', shrink="0.0%", ngly="0", nglp="0.0%", gp='"$"0.00', tax1="0.0%", tax2="0.0%",
+            loe_fix="$#,##0", loe_mcf='"$"0.00', loe_bbl='"$"0.00', wor="0.00", swd='"$"0.00', pa="$#,##0")
+PLAB = dict(odiff="Oil diff", ogath="Oil gathering", gdiff="Gas diff", shrink="Shrink", ngly="NGL yield", nglp="NGL % WTI", gp="G&P $/Mcf",
+            tax1="Taxes mo 1-36", tax2="Taxes after 36", loe_fix="Fixed LOE (basin)", loe_mcf="LOE $/Mcf", loe_bbl="LOE $/bbl", wor="WOR",
+            swd="SWD $/bbl", pa="P&A 8/8")
+WCOLS += [(f"p_{k}", f"{PLAB[k]} (well's basin)", 8, PFMT[k], "f") for k in PARAMS]
 for s, S in (("o", "Oil"), ("g", "Gas")):
     WCOLS += [(f"{s}_start", f"{S} fit: start month", 7, "0", "fit"), (f"{s}_q0", f"{S} fit: q0", 9, "#,##0", "fit"),
               (f"{s}_D", f"{S} fit: D", 7, "0.000", "fit"), (f"{s}_bf", f"{S} fit: b", 7, "0.00", "fit"),
               (f"{s}_sh_age", f"{S} fit: level shift from month", 7, "0", "fit"), (f"{s}_sh", f"{S} fit: level factor", 7, "0.00", "fit")]
 WCOLS += [("pv10", "Net PV10 ($)", 12, "$#,##0", "f"), ("pv_share", "Share of package PV10", 8, "0.0%", "f"),
           ("net_oil", "Net oil (bbl)", 10, "#,##0", "f"), ("net_gas", "Net gas (Mcf)", 11, "#,##0", "f"),
-          ("life", "Economic life (months from effective date)", 9, "0", "f")]
+          ("life", "Economic life (months from effective date)", 9, "0", "f"), ("maxp", "Value at the target IRR ($)", 12, "$#,##0", "f"),
+          ("ntm", "Next-12-month net cash flow ($)", 11, "$#,##0", "f"), ("boed", "Net BOE/d (month 0)", 8, "#,##0.0", "f")]
 WC = {k: 2 + i for i, (k, *_r) in enumerate(WCOLS)}       # key -> column number
 WL = {k: L(v) for k, v in WC.items()}                     # key -> column letter
 
@@ -163,7 +174,7 @@ def build(out):
         ("operator", "Operator", "", ""),
         ("dtype", "Deal type", "Working interest", "Working interest = we pay our WI share of LOE, deducts and P&A and receive our NRI. Minerals = royalty / ORRI: "
          "our NRI (Wells column K) of revenue less production taxes only. Either way a well stops when it is uneconomic to the operator (8/8 basis)."),
-        ("basin", "Basin (sets pricing, cost and tax defaults)", "DJ (CO)", "Defaults on the Basins tab; override any one in column E"),
+        ("basin", "Basin (sets pricing, cost and tax defaults)", "DJ (CO)", "Defaults on the Basins tab; override any one in column E (all basins) or by basin in columns M:Q. A well with its own basin on Wells uses that basin's column G:K."),
         ("eff", "Effective date (first cash-flow month, price paid)", dt.datetime(2026, 12, 1), "Month 0 of the Package. Production between the last reported month (Wells G) and this date is forecast and belongs to the seller."),
         ("price", "Asking / offered price ($, total)", 0, "Paid in month 0. Summary also solves the max price for the target IRR (C12)"),
         ("tirr", "Target IRR", 0.20, "Fund screen 20%"),
@@ -196,11 +207,22 @@ def build(out):
                   loe_bbl="Variable LOE ($/bbl oil)", wor="Water-oil ratio (bbl/bbl)", swd="Water disposal ($/bbl)", pa="Plugging and abandonment, 8/8 ($/well)")
     fmts = dict(odiff='"$"0.00', ogath='"$"0.00', gdiff='"$"0.00', shrink="0.0%", ngly="0", nglp="0.0%", gp='"$"0.00', tax1="0.0%", tax2="0.0%",
                 loe_fix="$#,##0", loe_mcf='"$"0.00', loe_bbl='"$"0.00', wor="0.00", swd='"$"0.00', pa="$#,##0")
+    # per-basin values used (G:K) and per-basin overrides (M:Q): a well uses the column of its basin (Wells 'Basin used')
+    ws["G21"] = "Values used by basin (wells in that basin use this column)"; ws["G21"].font = BOLD
+    ws["M21"] = "Per-basin override (blank = column E, then the basin default)"; ws["M21"].font = BOLD
+    for j in range(5):
+        bc = L(4 + j)
+        hdr(ws, 22, 7 + j, f"=Basins!{bc}$4", 13); hdr(ws, 22, 13 + j, f"=Basins!{bc}$4", 13)
+    ws.column_dimensions["F"].width = 3; ws.column_dimensions["L"].width = 3
     for k, br in BASIN_ROW.items():
         r = int(I[k][1:])
         ws.cell(r, 2, labels[k])
-        ws.cell(r, 3, f'=IF(ISNUMBER($E{r}),$E{r},INDEX(Basins!$D${br}:$H${br},MATCH({IA["basin"]},Basins!$D$4:$H$4,0)))').number_format = fmts[k]
-        ws.cell(r, 4, f'=IF(ISNUMBER($E{r}),"Override for this deal","Basin default ("&{IA["basin"]}&"); see the Basins tab")')
+        for j in range(5):
+            bc, oc_ = L(4 + j), L(13 + j)
+            ws.cell(r, 7 + j, f"=IF(ISNUMBER({oc_}{r}),{oc_}{r},IF(ISNUMBER($E{r}),$E{r},Basins!{bc}{br}))").number_format = fmts[k]
+            x = ws.cell(r, 13 + j); x.font = BLUE; x.fill = INP_FILL; x.number_format = fmts[k]
+        ws.cell(r, 3, f'=INDEX($G{r}:$K{r},MATCH({IA["basin"]},$G$22:$K$22,0))').number_format = fmts[k]
+        ws.cell(r, 4, f'=IF(ISNUMBER(INDEX($M{r}:$Q{r},MATCH({IA["basin"]},$M$22:$Q$22,0))),"Per-basin override",IF(ISNUMBER($E{r}),"Override for this deal (all basins)","Basin default ("&{IA["basin"]}&"); see the Basins tab"))')
         ws.cell(r, 5).font = BLUE; ws.cell(r, 5).fill = INP_FILL; ws.cell(r, 5).number_format = fmts[k]
     ws["B41"] = "Royalty owners bear deducts (1 = yes, 0 = no)"; ws["C41"] = 0; ws["C41"].font = BLUE
     ws["D41"] = "0 = the WI pays 100% of gathering / processing (conservative). Check the leases and check stubs."
@@ -236,13 +258,14 @@ def build(out):
     # ------------------------------------------------------------ Wells
     w = wb["Wells"]
     w["B2"] = "Wells: interests and the decline for each well"; w["B2"].font = TITLE
-    w["B3"] = ("One row per well (up to 30). Grey = fitted by pdp_fit.py from the well's own production (write_pdp.py fills it). Blue = inputs; "
+    w["B3"] = ("One row per well (up to 150); Basin blank = Inputs C9, Area groups wells for the Summary rollup. Grey = fitted by pdp_fit.py from the well's own production (write_pdp.py fills it). Blue = inputs; "
                "type in an override column to change a well's anchor rate, Da or b and everything downstream recalculates. The forecast is "
                "q = qa (1 + b Da t)^(-1/b), t in years after the last reported month, switching to the terminal decline (Inputs C16).")
     w["B3"].alignment = WRAP; w.merge_cells("B3:N3"); w.row_dimensions[3].height = 45
     groups = [("num", "lnri", "Well"), ("loe_ovr", "mult", "Inputs"), ("o_qfit", "o_note", "Oil: fitted"), ("o_q_ovr", "o_b_ovr", "Oil: overrides"),
               ("o_q", "o_qsw", "Oil: used"), ("g_qfit", "g_note", "Gas: fitted"), ("g_q_ovr", "g_b_ovr", "Gas: overrides"), ("g_q", "g_qsw", "Gas: used"),
-              ("k0", "dfac", "Timing and interests used"), ("o_start", "g_sh", "Fit parameters (Well Review chart)"), ("pv10", "life", "Results")]
+              ("k0", "basin_u", "Timing and interests used"), ("p_odiff", "p_pa", "Pricing and costs used (the well's basin, Inputs G:K)"),
+              ("o_start", "g_sh", "Fit parameters (Well Review chart)"), ("pv10", "boed", "Results")]
     for a, z, t in groups:
         w.merge_cells(start_row=5, end_row=5, start_column=WC[a], end_column=WC[z])
         c = w.cell(5, WC[a], t); c.font = BOLD; c.fill = SUB_FILL; c.alignment = Alignment(horizontal="center")
@@ -257,8 +280,13 @@ def build(out):
         f["k0"] = f'=IF({WL["name"]}{r}="",0,(YEAR({IA["eff"]})-YEAR({WL["last"]}{r}))*12+MONTH({IA["eff"]})-MONTH({WL["last"]}{r}))'
         f["active"] = f'=IF(AND({WL["name"]}{r}<>"",OR(N({WL["wi"]}{r})>0,N({WL["nri"]}{r})>0)),1,0)'
         f["wiu"] = f'=IF({IA["dtype"]}="Minerals",0,N({WL["wi"]}{r}))'
-        f["loe"] = f'=IF(ISNUMBER({WL["loe_ovr"]}{r}),{WL["loe_ovr"]}{r},{IA["loe_fix"]})'
+        f["loe"] = f'=IF(ISNUMBER({WL["loe_ovr"]}{r}),{WL["loe_ovr"]}{r},{WL["p_loe_fix"]}{r})'
         f["dfac"] = f'=IF({IA["roy"]}=1,N({WL["lnri"]}{r}),1)'
+        f["itype"] = f'=IF({WL["name"]}{r}="","",IF({WL["wiu"]}{r}>0,"WI","Royalty"))'
+        f["basin_u"] = f'=IF({WL["name"]}{r}="","",IF(LEN({WL["basin"]}{r})>0,{WL["basin"]}{r},{IA["basin"]}))'
+        for k in PARAMS:
+            ir = I[k][1:]
+            f[f"p_{k}"] = f'=IF({WL["name"]}{r}="",0,INDEX(Inputs!$G${ir}:$K${ir},MATCH({WL["basin_u"]}{r},Inputs!$G$22:$K$22,0)))'
         for s in ("o", "g"):
             q, da, bb = WL[f"{s}_q"], WL[f"{s}_dau"], WL[f"{s}_bu"]
             f[f"{s}_q"] = (f'=IF(ISNUMBER({WL[s + "_q_ovr"]}{r}),{WL[s + "_q_ovr"]}{r},IF({IA["anchor"]}="Actual",N({WL[s + "_qact"]}{r}),'
@@ -275,6 +303,11 @@ def build(out):
         f["net_oil"] = f"=SUMPRODUCT({col_net('M Oil')},{col_net('M On')})*N({WL['nri']}{r})"
         f["net_gas"] = f"=SUMPRODUCT({col_net('M Gas')},{col_net('M On')})*N({WL['nri']}{r})"
         f["life"] = f"=SUM({col_net('M On')})"
+        f["maxp"] = f"=SUMPRODUCT({col_net('M Net')},1/(1+{IA['tirr']})^(Package!$A${M0}:$A${M1}/12))"
+        cn = lambda m: f"'{m}'!${MCL0}${M0}:${MCL1}${M1}"
+        f["ntm"] = f"=SUM(INDEX({cn('M Net')},1,{WL['num']}{r}):INDEX({cn('M Net')},12,{WL['num']}{r}))"
+        f["boed"] = (f"=(INDEX({cn('M Oil')},1,{WL['num']}{r})+INDEX({cn('M Gas')},1,{WL['num']}{r})/6)*INDEX({cn('M On')},1,{WL['num']}{r})"
+                     f"*N({WL['nri']}{r})/30.4")
         for k, h, wd, fmt, kind in WCOLS:
             c = w.cell(r, WC[k])
             if k in f:
@@ -290,7 +323,7 @@ def build(out):
     w.freeze_panes = w.cell(W0, WC["wi"])
     tr = W0 + NW
     w.cell(tr, WC["name"], "Package").font = BOLD
-    for k in ("pv10", "net_oil", "net_gas"):
+    for k in ("pv10", "net_oil", "net_gas", "maxp", "ntm", "boed"):
         c = w.cell(tr, WC[k], f"=SUM({WL[k]}{W0}:{WL[k]}{tr - 1})"); c.font = BOLD; c.number_format = {x[0]: x[3] for x in WCOLS}[k]
     w.cell(tr, WC["life"], f"=MAX({WL['life']}{W0}:{WL['life']}{tr - 1})").font = BOLD
     w.conditional_formatting.add(f"{WL['o_note']}{W0}:{WL['o_note']}{tr - 1}",
@@ -302,6 +335,9 @@ def build(out):
     HELP = [(5, "Well #"), (6, "Active"), (7, "qa"), (8, "Da"), (9, "b"), (10, "Years to terminal"), (11, "Rate at terminal"),
             (12, "Months last report -> effective"), (13, "Well multiplier"), (14, "Months on at last report"), (15, "NRI"), (16, "WI used"),
             (17, "WI x deduct factor"), (18, "WI x fixed LOE"), (19, "Lease NRI"), (20, "Deduct factor"), (21, "Fixed LOE 8/8")]
+    PR = {k: 22 + j for j, k in enumerate([p for p in PARAMS if p != "loe_fix"])}   # the well's basin values, rows 22-35
+    PR["voil"] = 36                                                                   # variable LOE per bbl oil incl. water
+    HELP += [(PR[k], PLAB[k]) for k in PARAMS if k != "loe_fix"] + [(36, "LOE $/bbl oil incl. water")]
     notes = {"M Oil": "Gross oil (bbl/month) by well from the effective date, before the economic limit (M On). Month k after the last report: "
                       "q = qa (1 + b Da k/12)^(-1/b), exponential at the terminal decline after 'Years to terminal'; actual history if the effective date is earlier.",
              "M Gas": "Gross gas (Mcf/month) by well from the effective date, before the economic limit (M On); same formula as M Oil on the gas decline.",
@@ -312,7 +348,7 @@ def build(out):
         m = wb[mname]
         m["A1"] = mname; m["A1"].font = TITLE
         m["A2"] = notes[mname]
-        m["A24"] = "Month"; m["B24"] = "Date"; m["A24"].font = BOLD; m["B24"].font = BOLD
+        m.cell(M0 - 1, 1, "Month").font = BOLD; m.cell(M0 - 1, 2, "Date").font = BOLD
         m.column_dimensions["A"].width = 7; m.column_dimensions["B"].width = 9
         s = "g" if mname == "M Gas" else "o"
         for rr, lab in HELP:
@@ -324,9 +360,13 @@ def build(out):
                     10: f"={wref(s + '_tsw', wr)}", 11: f"={wref(s + '_qsw', wr)}", 12: f"={wref('k0', wr)}", 13: f"=N({wref('mult', wr)})",
                     14: f"={wref('age', wr)}", 15: f"=N({wref('nri', wr)})", 16: f"={wref('wiu', wr)}", 17: f"={wref('wiu', wr)}*{wref('dfac', wr)}",
                     18: f"={wref('wiu', wr)}*{wref('loe', wr)}", 19: f"=N({wref('lnri', wr)})", 20: f"={wref('dfac', wr)}", 21: f"={wref('loe', wr)}"}
+            for k in PARAMS:
+                if k != "loe_fix":
+                    vals[PR[k]] = f"={wref('p_' + k, wr)}"
+            vals[36] = f"={wref('p_loe_bbl', wr)}+{wref('p_wor', wr)}*{wref('p_swd', wr)}"
             for rr, v in vals.items():
                 m.cell(rr, c, v).font = Font(color="808080")
-            m.cell(24, c, f"={wref('name', wr)}").font = BOLD
+            m.cell(M0 - 1, c, f"={wref('name', wr)}").font = BOLD
             m.column_dimensions[X].width = 11
         for j in range(NM):
             r = M0 + j
@@ -344,18 +384,19 @@ def build(out):
                                f"=IF(OR({X}$6=0,$A{r}>={IA['life_m']}),0,{IA['mult']}*{X}$13*IF({K}<1,IFERROR(INDEX({hist},MAX(1,{X}$14+{K}),{hc}),0),"
                                f"IF({K}/12<={X}$10,{X}$7*(1+{X}$9*{X}$8*{K}/12)^(-1/{X}$9),{X}$11*EXP(-{IA['dm']}*({K}/12-{X}$10)))))")
             o, g = f"'M Oil'!{X}{r}", f"'M Gas'!{X}{r}"
+            P_ = {k: f"{X}${v}" for k, v in PR.items()}
             wb["M RevAT"].cell(r, MC0 + i - 1,
-                               f"=IF({X}$6=0,0,({o}*(Package!$C{r}+{IA['odiff']})+{g}*(1-{IA['shrink']})*(Package!$D{r}+{IA['gdiff']})"
-                               f"+{g}/1000*{IA['ngly']}*Package!$C{r}*{IA['nglp']})*(1-IF({X}$14+{X}$12+$A{r}>36,{IA['tax2']},{IA['tax1']})))")
-            ded = f"({g}*{IA['gp']}+{o}*{IA['ogath']})"
-            loe_var = f"({g}*{IA['loe_mcf']}+{o}*({IA['loe_bbl']}+{IA['wor']}*{IA['swd']}))"
+                               f"=IF({X}$6=0,0,({o}*(Package!$C{r}+{P_['odiff']})+{g}*(1-{P_['shrink']})*(Package!$D{r}+{P_['gdiff']})"
+                               f"+{g}/1000*{P_['ngly']}*Package!$C{r}*{P_['nglp']})*(1-IF({X}$14+{X}$12+$A{r}>36,{P_['tax2']},{P_['tax1']})))")
+            ded = f"({g}*{P_['gp']}+{o}*{P_['ogath']})"
+            loe_var = f"({g}*{P_['loe_mcf']}+{o}*{P_['voil']})"
             op8 = f"({X}$19*'M RevAT'!{X}{r}-{X}$20*{ded}-({X}$21+{loe_var}))"
             prev = "1" if j == 0 else f"{X}{r - 1}"
             wb["M On"].cell(r, MC0 + i - 1,
                             f"=IF({X}$6=0,0,IF({IA['econ']}=0,IF({o}+{g}>0,1,0),IF(AND({prev}=1,{op8}>0),1,0)))")
             ev = f"({X}$6-'M On'!{X}{r})" if j == 0 else f"('M On'!{X}{r - 1}-'M On'!{X}{r})"
             wb["M Net"].cell(r, MC0 + i - 1,
-                             f"='M On'!{X}{r}*({X}$15*'M RevAT'!{X}{r}-{X}$17*{ded}-{X}$16*({X}$21+{loe_var}))-{X}$16*{IA['pa']}*{ev}")
+                             f"='M On'!{X}{r}*({X}$15*'M RevAT'!{X}{r}-{X}$17*{ded}-{X}$16*({X}$21+{loe_var}))-{X}$16*{P_['pa']}*{ev}")
 
     # ------------------------------------------------------------ Package
     p = wb["Package"]
@@ -366,8 +407,8 @@ def build(out):
              "Oil revenue", "Residue gas revenue", "NGL revenue", "Total revenue", "Production taxes", "Deducts (G&P, oil gathering)", "LOE", "P&A",
              "Operating cash flow", "Purchase price", "Net cash flow", "Tie to M Net", "Discount factor (PV rate)", "Cumulative net cash flow", "Year"]
     for j, h in enumerate(heads):
-        hdr(p, 24, 1 + j, h, 12 if j > 1 else 8)
-    p.row_dimensions[24].height = 45
+        hdr(p, M0 - 1, 1 + j, h, 12 if j > 1 else 8)
+    p.row_dimensions[M0 - 1].height = 45
     rng = lambda m, r: f"'{m}'!${MCL0}{r}:${MCL1}{r}"
     hrow = lambda m, rr: f"'{m}'!${MCL0}${rr}:${MCL1}${rr}"
     for j in range(NM):
@@ -378,14 +419,18 @@ def build(out):
             4: f"=IFERROR(INDEX(Prices!$F$6:$F$605,MATCH($B{r},Prices!$B$6:$B$605,1)),Prices!$F$6)",
             5: f"=SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)})", 6: f"=SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)})",
             7: f"=SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)},{hrow('M On', 15)})", 8: f"=SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 15)})",
-            9: f"=H{r}/1000*{IA['ngly']}", 10: f"=G{r}*(C{r}+{IA['odiff']})", 11: f"=H{r}*(1-{IA['shrink']})*(D{r}+{IA['gdiff']})",
-            12: f"=I{r}*C{r}*{IA['nglp']}", 13: f"=J{r}+K{r}+L{r}",
+            9: f"=SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 15)},{hrow('M On', PR['ngly'])})/1000",
+            10: f"=SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)},{hrow('M On', 15)},C{r}+{hrow('M On', PR['odiff'])})",
+            11: f"=SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 15)},(1-{hrow('M On', PR['shrink'])})*(D{r}+{hrow('M On', PR['gdiff'])}))",
+            12: f"=C{r}*SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 15)},{hrow('M On', PR['ngly'])},{hrow('M On', PR['nglp'])})/1000",
+            13: f"=J{r}+K{r}+L{r}",
             14: f"=M{r}-SUMPRODUCT({rng('M RevAT', r)},{rng('M On', r)},{hrow('M On', 15)})",
-            15: f"={IA['gp']}*SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 17)})+{IA['ogath']}*SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)},{hrow('M On', 17)})",
-            16: (f"=SUMPRODUCT({rng('M On', r)},{hrow('M On', 18)})+{IA['loe_mcf']}*SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 16)})"
-                 f"+({IA['loe_bbl']}+{IA['wor']}*{IA['swd']})*SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)},{hrow('M On', 16)})"),
-            17: (f"={IA['pa']}*SUMPRODUCT({hrow('M On', 6)}-{rng('M On', r)},{hrow('M On', 16)})" if j == 0 else
-                 f"={IA['pa']}*SUMPRODUCT({rng('M On', r - 1)}-{rng('M On', r)},{hrow('M On', 16)})"),
+            15: (f"=SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 17)},{hrow('M On', PR['gp'])})"
+                 f"+SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)},{hrow('M On', 17)},{hrow('M On', PR['ogath'])})"),
+            16: (f"=SUMPRODUCT({rng('M On', r)},{hrow('M On', 18)})+SUMPRODUCT({rng('M Gas', r)},{rng('M On', r)},{hrow('M On', 16)},{hrow('M On', PR['loe_mcf'])})"
+                 f"+SUMPRODUCT({rng('M Oil', r)},{rng('M On', r)},{hrow('M On', 16)},{hrow('M On', PR['voil'])})"),
+            17: (f"=SUMPRODUCT({hrow('M On', 6)}-{rng('M On', r)},{hrow('M On', 16)},{hrow('M On', PR['pa'])})" if j == 0 else
+                 f"=SUMPRODUCT({rng('M On', r - 1)}-{rng('M On', r)},{hrow('M On', 16)},{hrow('M On', PR['pa'])})"),
             18: f"=M{r}-N{r}-O{r}-P{r}-Q{r}", 19: f"=IF(A{r}=0,-{IA['price']},0)", 20: f"=R{r}+S{r}",
             21: f"=SUM({rng('M Net', r)})-R{r}", 22: f"=1/(1+{IA['disc']})^((A{r}+0.5)/12)",
             23: f"=T{r}" if j == 0 else f"=W{r - 1}+T{r}", 24: f"=INT(A{r}/12)+1"}
@@ -393,7 +438,7 @@ def build(out):
             x = p.cell(r, c, v)
             x.number_format = {2: "mmm-yy", 3: '"$"0.00', 4: '"$"0.000', 22: "0.0000", 24: "0", 1: "0"}.get(c, "#,##0")
     p.freeze_panes = f"C{M0}"
-    tot = 22
+    tot = M0 - 3
     p.cell(tot, 2, "Total").font = BOLD
     for c in list(range(5, 22)) + [23]:
         if c in (22, 23):
@@ -591,7 +636,8 @@ def build(out):
     for col in "EFGHIJKL":
         S.column_dimensions[col].width = 14
     S["B2"] = f'={IA["name"]}&" - PDP evaluation"'; S["B2"].font = TITLE
-    S["B3"] = (f'={IA["operator"]}&" | "&{IA["basin"]}&" | "&{IA["dtype"]}&" | effective "&TEXT({IA["eff"]},"mmm yyyy")&" | "&'
+    nb = f'SUMPRODUCT((Wells!${WL["basin_u"]}${W0}:${WL["basin_u"]}${W0 + NW - 1}<>{IA["basin"]})*Wells!${WL["active"]}${W0}:${WL["active"]}${W0 + NW - 1})'
+    S["B3"] = (f'={IA["operator"]}&" | "&IF({nb}>0,"Multiple basins (see By basin)",{IA["basin"]})&" | "&{IA["dtype"]}&" | effective "&TEXT({IA["eff"]},"mmm yyyy")&" | "&'
                f'COUNTIF(Wells!${WL["active"]}${W0}:${WL["active"]}${W0 + NW - 1},1)&" wells"')
     S["B5"] = "Price deck"; S["C5"] = "Strip"; S["C5"].font = Font(bold=True, color="0000FF"); S["C5"].fill = INP_FILL
     dv = DataValidation(type="list", formula1='"' + ",".join(DECKS) + '"'); S.add_data_validation(dv); dv.add("C5")
@@ -644,7 +690,7 @@ def build(out):
     notes_rng = lambda s: f"Wells!${WL[s + '_note']}${W0}:${WL[s + '_note']}${W0 + NW - 1}"
     res += [
         (41, "Formula errors", f'=IF(SUMPRODUCT(--ISERROR(Package!$A${M0}:$X${M1}))+SUMPRODUCT(--ISERROR(\'M Net\'!${MCL0}${M0}:${MCL1}${M1}))'
-                                f'+SUMPRODUCT(--ISERROR(Wells!$B${W0}:${WL["life"]}${W0 + NW - 1}))=0,"OK","ERRORS")', None, ""),
+                                f'+SUMPRODUCT(--ISERROR(Wells!$B${W0}:${WL["boed"]}${W0 + NW - 1}))=0,"OK","ERRORS")', None, ""),
         (42, "Package ties to the well cash flows", f'=IF(SUMPRODUCT(ABS({PK("U")}))<1,"OK","CHECK")', None, "Package column U"),
         (43, "Engine ties to the workbook (PV10)", '=IF(NOT(ISNUMBER(E43)),"not run",IF(ABS(E43-C12)<=MAX(1,0.001*ABS(C12)),"OK","RE-RUN"))', None,
          "E43 = PV10 from pdp_engine.py when write_pdp.py ran, at the Strip deck. RE-RUN after any override or input change if you want the grid below refreshed; the live numbers above are always current."),
@@ -700,6 +746,39 @@ def build(out):
     S.cell(r, 2, "Total").font = BOLD
     for c in (3, 4, 5, 6, 7, 8, 9, 11):
         S.cell(r, c, f"=SUM({L(c)}59:{L(c)}73)").number_format = "#,##0"; S.cell(r, c).font = BOLD
+    # rollup by basin, interest type and area (Wells columns; area names written by write_pdp.py)
+    WR = lambda k: f"Wells!${WL[k]}${W0}:${WL[k]}${W0 + NW - 1}"
+    rh = ["", "Wells", "Value at the target IRR", "PV10", "Net oil (MBO)", "Net gas (MMcf)", "NTM net cash flow", "Net BOE/d (month 0)", "Share of PV10",
+          "Max price / NTM", "Max price per flowing BOE/d"]
+
+    def roll(r0, title, items, key, extra_rows=0):
+        sub(S, r0, title, 2, 12)
+        for j, t in enumerate(rh):
+            hdr(S, r0 + 1, 2 + j, t if j else title.split(" ")[-1].title())
+        for n, it in enumerate(items):
+            r = r0 + 2 + n
+            if it is not None:
+                S.cell(r, 2, it)
+            c = f"{WR(key)},$B{r}"
+            S.cell(r, 3, f'=IF($B{r}="","",COUNTIFS({c},{WR("active")},1))')
+            for j, k in enumerate(["maxp", "pv10", "net_oil", "net_gas", "ntm", "boed"]):
+                dv_ = "/1000" if k in ("net_oil", "net_gas") else ""
+                S.cell(r, 4 + j, f'=IF($B{r}="","",SUMIFS({WR(k)},{c}){dv_})').number_format = "#,##0.0" if dv_ or k == "boed" else "$#,##0"
+            S.cell(r, 10, f'=IF(OR($B{r}="",N($C$12)=0),"",E{r}/$C$12)').number_format = "0.0%"
+            S.cell(r, 11, f'=IF(OR($B{r}="",N(H{r})<=0),"",D{r}/H{r})').number_format = "0.0x"
+            S.cell(r, 12, f'=IF(OR($B{r}="",N(I{r})<=0),"",D{r}/I{r})').number_format = "$#,##0"
+        rt = r0 + 2 + len(items)
+        S.cell(rt, 2, "Total").font = BOLD
+        for c_ in range(3, 10):
+            x = S.cell(rt, c_, f"=SUM({L(c_)}{r0 + 2}:{L(c_)}{rt - 1})"); x.font = BOLD
+            x.number_format = S.cell(r0 + 2, c_).number_format
+        return rt
+    basins = [f"=Basins!{L(4 + j)}$4" for j in range(5)]
+    rt = roll(77, "By basin", basins, "basin_u")
+    rt = roll(rt + 2, "By interest type", ["WI", "Royalty"], "itype")
+    assert rt == 90, rt
+    S.cell(rt + 2, 2, "Total ties to C11 / C12 when every well is in a row above; area names are written by write_pdp.py (Wells 'Area / pad').").font = Font(italic=True, color="808080")
+    roll(AREA0 - 2, "By area", [None] * NA_ROWS, "area")
     wb.calculation.fullCalcOnLoad = True
     wb.save(out)
     print("wrote", out)

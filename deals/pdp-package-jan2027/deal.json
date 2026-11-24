@@ -1,0 +1,659 @@
+{
+ "evaluated": "2026-11-24",
+ "deal": "PDP Package (128 wells, Jan 2027)",
+ "type": "PDP (Working interest)",
+ "basin": "Multiple: DJ (CO), Permian (TX), Powder River (WY), Williston (ND)",
+ "operator": "Multiple (SM, Oxy, Bison, Chevron, Anschutz, Devon, XTO, Petro-Hunt)",
+ "effective": "2027-01",
+ "model": "PDP Package Jan 2027 Multi-Basin PDP Model.xlsx",
+ "wells": [
+  {
+   "api": "0512340939",
+   "name": "SULLIVAN 4K-26H-P268",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512340943",
+   "name": "SULLIVAN 4J-26H-P268",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512340941",
+   "name": "SULLIVAN 4I-26H-P268",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340940",
+   "name": "SULLIVAN 4H-26H-P268",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512340938",
+   "name": "SULLIVAN 4A-26H-P268",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512340936",
+   "name": "SULLIVAN 4D-26H-P268",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340934",
+   "name": "SULLIVAN 4E-26H-P268",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512340942",
+   "name": "SULLIVAN 4L-26H-P268",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340933",
+   "name": "SULLIVAN 4F-26H-P268",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512340935",
+   "name": "SULLIVAN 4G-26H-P268",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "4900563971",
+   "name": "GRACIE FEE 4271-3-10-14W MH",
+   "zone": "MOWRY"
+  },
+  {
+   "api": "4900933547",
+   "name": "CU DOWNS FED 15-223769-2XTPH",
+   "zone": "TEAPOT"
+  },
+  {
+   "api": "0512352822",
+   "name": "BENELLI 7-60 12-24-1",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "4900947501",
+   "name": "CU DOWNS FED 15-233769-4XTPH",
+   "zone": "TEAPOT"
+  },
+  {
+   "api": "0512352823",
+   "name": "BENELLI 7-60 12-24-6",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352824",
+   "name": "BENELLI 7-60 12-24-5",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352825",
+   "name": "BENELLI 7-60 12-24-4",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352826",
+   "name": "BENELLI 7-60 12-24-7",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352827",
+   "name": "BENELLI 7-60 12-24-2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352828",
+   "name": "BENELLI 7-60 12-24-3",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352632",
+   "name": "ACACIA 17-14HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "4900947500",
+   "name": "CU DOWNS FED 15-043769-4XTPH",
+   "zone": "TEAPOT"
+  },
+  {
+   "api": "4231743218",
+   "name": "MADISON-HAMILL 36D 4H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "4231743217",
+   "name": "MADISON-HAMILL 36C 3H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "4231743216",
+   "name": "MADISON-HAMILL 36B 2H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "4231743215",
+   "name": "MADISON-HAMILL 36A 1H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "0512351249",
+   "name": "NELSON 35-5HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512351243",
+   "name": "NELSON 35-8HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512351251",
+   "name": "NELSON 35-2HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512351254",
+   "name": "NELSON 35-3HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512351250",
+   "name": "NELSON 35-17HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512351252",
+   "name": "NELSON 35-15HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512351242",
+   "name": "NELSON 35-19HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512351246",
+   "name": "NELSON 35-16HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512351244",
+   "name": "NELSON 35-13HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512351253",
+   "name": "NELSON 35-11HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512348121",
+   "name": "CARSON 1-2HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512348110",
+   "name": "CARSON 1-4HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352426",
+   "name": "DITTMER 01H",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512352427",
+   "name": "DITTMER 02H",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352429",
+   "name": "DITTMER 04H",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352428",
+   "name": "DITTMER 03H",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352433",
+   "name": "DITTMER 08H",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352431",
+   "name": "DITTMER 06H",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352432",
+   "name": "DITTMER 07H",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352430",
+   "name": "DITTMER 05H",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512352435",
+   "name": "DITTMER 10H",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352437",
+   "name": "DITTMER 12H",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352438",
+   "name": "DITTMER 13H",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352434",
+   "name": "DITTMER 09H",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512352439",
+   "name": "DITTMER 14H",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512352441",
+   "name": "DITTMER 16H",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352663",
+   "name": "WHITETAIL FED 7-62 33-9-4",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352661",
+   "name": "WHITETAIL FED 7-62 33-9-2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352662",
+   "name": "WHITETAIL FED 7-62 33-9-3",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352658",
+   "name": "WHITETAIL FED 7-62 33-9-5",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352660",
+   "name": "WHITETAIL FED 7-62 33-9-6",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352659",
+   "name": "WHITETAIL FED 7-62 33-9-1",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352657",
+   "name": "WHITETAIL FED 7-62 33-9-7",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512335000",
+   "name": "DUTCH LAKE 08-10H",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512339995",
+   "name": "WILL 6-62-15-0164B2B",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512339994",
+   "name": "WILL 6-62-15-0164C2B",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512339993",
+   "name": "WILL 6-62-15-0263BH2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340124",
+   "name": "WILL 6-62-15-0461BH2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512339996",
+   "name": "WILL 6-62-15-0263CH2",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512340123",
+   "name": "WILL 6-62-15-0362AH2",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512339998",
+   "name": "WILL 6-62-15-0362BH2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512344018",
+   "name": "WILL TRUST 6-62-10-1719BN2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340122",
+   "name": "WILL 6-62-15-0560BH2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512344023",
+   "name": "WILL TRUST 6-62-10-1719BS2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512344025",
+   "name": "WILL TRUST 6-62-10-3230B2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340120",
+   "name": "WILL 6-62-15-0560CH2",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512344024",
+   "name": "WILL TRUST 6-62-10-3335B2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512344019",
+   "name": "WILL TRUST 6-62-10-1614B2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512340119",
+   "name": "WILL 6-62-15-0461CH2",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512344014",
+   "name": "WILL TRUST 6-62-10-4846BN2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512344017",
+   "name": "WILL TRUST 6-62-10-4951B2",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512344133",
+   "name": "WILL TRUST 6-62-10-6462BSB",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512342097",
+   "name": "THERMO 38N-33HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512342076",
+   "name": "THERMO 38C-33HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512342077",
+   "name": "THERMO 16N-33HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512342058",
+   "name": "THERMO 15C-33HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512342059",
+   "name": "THERMO 36N-33HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512342057",
+   "name": "THERMO 15N-33HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512342056",
+   "name": "THERMO 37N-33HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512341555",
+   "name": "CARTER 36N-33HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512341551",
+   "name": "CARTER 14C-33HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512342055",
+   "name": "THERMO 37C-33HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512341793",
+   "name": "TEDFORD 28N-28HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512342273",
+   "name": "FL GREENS FEDERAL 4N-5HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512342278",
+   "name": "FL GREENS FEDERAL 30C-5HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512342281",
+   "name": "FL GREENS FEDERAL 30N-5HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512343898",
+   "name": "BURGE FED 34C-5HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512343897",
+   "name": "BURGE FED 30N-8HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512343896",
+   "name": "BURGE FED 13C-5HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512343899",
+   "name": "BURGE FED 13N-5HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512345464",
+   "name": "SPEAK FED 12C-5HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512345462",
+   "name": "SPEAK FED 33N2-5HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512345463",
+   "name": "SPEAK FED 33N-5HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512345461",
+   "name": "SPEAK FED 32N2-5HZ",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512345460",
+   "name": "SPEAK FED 32C-5HZ",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512345459",
+   "name": "SPEAK FED 32N-5HZ",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512340398",
+   "name": "BERNHARDT 6G-323",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512346404",
+   "name": "SCHNEIDER HD 11-019HN",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512340397",
+   "name": "BERNHARDT 6G-403",
+   "zone": "CODELL"
+  },
+  {
+   "api": "0512346413",
+   "name": "SCHNEIDER HD 11-019HNX",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "4900579243",
+   "name": "GRACIE FEE 4271-3-10-16 NBH",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "4900579242",
+   "name": "GRACIE FEE 4271-3-10-15 NBH",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "4900579241",
+   "name": "GRACIE FEE 4271-3-10-14 NBH",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "4900579240",
+   "name": "GRACIE FEE 4271-3-10-13 NBH",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352800",
+   "name": "BARRACUDA 7-62 33-31-1",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352801",
+   "name": "BARRACUDA 7-62 33-31-2",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352803",
+   "name": "BARRACUDA 7-62 33-31-3",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352802",
+   "name": "BARRACUDA 7-62 33-31-4",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352807",
+   "name": "BARRACUDA 7-62 33-31-5",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352805",
+   "name": "BARRACUDA 7-62 33-31-6",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352806",
+   "name": "BARRACUDA 7-62 33-31-7",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352804",
+   "name": "BARRACUDA 7-62 33-31-8",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "3306105494",
+   "name": "LEE 158-94-15A-27-1HS",
+   "zone": "MIDDLE BAKKEN"
+  },
+  {
+   "api": "0512352768",
+   "name": "TRIGGERFISH 7-63 29-25-1",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352765",
+   "name": "TRIGGERFISH 7-63 29-25-2",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352764",
+   "name": "TRIGGERFISH 7-63 29-25-3",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352766",
+   "name": "TRIGGERFISH 7-63 29-25-4",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352763",
+   "name": "TRIGGERFISH 7-63 29-25-5",
+   "zone": "NIOBRARA A"
+  },
+  {
+   "api": "0512352761",
+   "name": "TRIGGERFISH 7-63 29-25-6",
+   "zone": "NIOBRARA C"
+  },
+  {
+   "api": "0512352767",
+   "name": "TRIGGERFISH 7-63 29-25-7",
+   "zone": "NIOBRARA B"
+  },
+  {
+   "api": "0512352762",
+   "name": "TRIGGERFISH 7-63 29-25-8",
+   "zone": "NIOBRARA C"
+  }
+ ],
+ "asking_price": 0.0,
+ "irr": null,
+ "moic": null,
+ "pv10": 584072.1332350811,
+ "npv10": 584072.1332350811,
+ "max_for_20pct_irr": 421496.23444218043,
+ "max_price_target_irr": 421496.23444218043,
+ "net_oil_bbl": 8204.385027155195,
+ "net_gas_mcf": 164607.4579209629,
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": "Strip, eff Jan 2027, no asking price. Max for 20% IRR $421,496; downside (above-offset streams matched to offsets' P50) $355,535. Nelson (Oxy, 10 royalty wells) = 59% of value. Lee 1HS oil overridden to offsets' P50 (12 mo, loose fit). Sullivan 4A/4I/4K/4L and Will Trust 3230B2 inactive (multiplier 0). Riley Fed 4776-15-22-15W MH not producing (left out). Royalties modeled free of post-production deducts (-$53K at 20% if they bear G&P)."
+}

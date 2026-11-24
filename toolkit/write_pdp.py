@@ -12,6 +12,9 @@ Optional in pdp_data.py:
     INPUTS = {"odiff": -3.0, "loe_fix": 9000, "anchor": "Actual", "tol": 0.2, ...}   keys as build_pdp_template.I; pricing / cost
              keys go to the override column E, setup keys to column C
     OVERRIDES = {api: {"o_b": 1.2, "g_da": 0.3, "o_q": 2500, "mult": 0.9}}           Wells override columns
+    WELL_BASIN = {api: "Powder River (WY)"}     a well's basin when it differs from DEAL basin (multi-basin packages)
+    WELL_AREA = {api: "Sullivan pad"}           area / pad label for the Summary rollup (default: the well's basin)
+    INPUTS_BY_BASIN = {"Permian (TX)": {"loe_fix": 9000}}   per-basin overrides (Inputs M:Q)
 """
 import datetime as dt, json, os, sys, shutil
 import numpy as np
@@ -51,6 +54,7 @@ def main(deal_dir, out):
     dd = F.load(deal_dir)
     fit = json.load(open(os.path.join(deal_dir, "pdp_fit.json")))
     DEAL = getattr(dd, "DEAL", {}); INP = getattr(dd, "INPUTS", {}); OVR = getattr(dd, "OVERRIDES", {}); LOE = getattr(dd, "LOE", {})
+    WB = getattr(dd, "WELL_BASIN", {}); WA = getattr(dd, "WELL_AREA", {}); IBB = getattr(dd, "INPUTS_BY_BASIN", {})
     if len(fit["wells"]) > T.NW:
         raise SystemExit(f"{len(fit['wells'])} wells: the template holds {T.NW}")
     wb = openpyxl.load_workbook(TEMPLATE)
@@ -64,6 +68,10 @@ def main(deal_dir, out):
             ws[T.I[k]] = v
         else:
             ws["E" + T.I[k][1:]] = v
+    bnames = [wb["Basins"].cell(4, c).value for c in range(4, 9)]
+    for bn, ov in IBB.items():
+        for k, v in ov.items():
+            ws.cell(int(T.I[k][1:]), 13 + bnames.index(bn), v)
 
     # --- Wells, History, Offset Data
     W, H, OD = wb["Wells"], wb["History"], wb["Offset Data"]
@@ -76,6 +84,9 @@ def main(deal_dir, out):
         put("first", d(f["first"])); put("last", d(f["last_month"])); put("wi", wi); put("nri", nri); put("lnri", lnri)
         if f["api"] in LOE:
             put("loe_ovr", LOE[f["api"]])
+        if f["api"] in WB:
+            put("basin", WB[f["api"]])
+        put("area", WA.get(f["api"], WB.get(f["api"], setup["basin"])))
         for s, key in (("o", "oil"), ("g", "gas")):
             x = f[key]; an = x["anchor"]
             put(f"{s}_qfit", an["q_fit"]); put(f"{s}_qact", an["q_actual"]); put(f"{s}_da", an["Da"]); put(f"{s}_b", x["b"])
@@ -96,6 +107,11 @@ def main(deal_dir, out):
         for k, val in OVR.get(f["api"], {}).items():
             col = {"o_b": "o_b_ovr", "o_da": "o_da_ovr", "o_q": "o_q_ovr", "g_b": "g_b_ovr", "g_da": "g_da_ovr", "g_q": "g_q_ovr"}.get(k, k)
             put(col, val)
+    areas = list(dict.fromkeys(WA.get(f["api"], WB.get(f["api"], setup["basin"])) for f in fit["wells"]))
+    if len(areas) > T.NA_ROWS:
+        raise SystemExit(f"{len(areas)} areas: the Summary holds {T.NA_ROWS}")
+    for j, a in enumerate(areas):
+        wb["Summary"].cell(T.AREA0 + j, 2, a)
     wb["Well Review"]["C3"] = fit["wells"][0]["name"]
     T.add_review_charts(wb["Well Review"])
 
@@ -108,7 +124,7 @@ def main(deal_dir, out):
             wc.add_image(im, f"B{5 + i * 25}")
 
     # --- engine (resolved inputs from the template's basin table and the deal)
-    inp, wells, prices = engine_inputs(wb, dd, fit, setup, INP, OVR, LOE)
+    inp, wells, prices = engine_inputs(wb, dd, fit, setup, INP, OVR, LOE, WB, IBB)
     base = E.run(inp, wells, prices, "Strip")
     S = wb["Summary"]
     S["E43"] = base["pv10"]
@@ -124,7 +140,9 @@ def main(deal_dir, out):
     # --- deal.json
     dj = os.path.join(deal_dir, "deal.json")
     old = json.load(open(dj)) if os.path.exists(dj) else {}
-    rec = dict(evaluated=dt.date.today().isoformat(), deal=setup["name"], type=f"PDP ({setup['dtype']})", basin=setup["basin"],
+    used = sorted(set(WB.get(f["api"], setup["basin"]) for f in fit["wells"]))
+    rec = dict(evaluated=dt.date.today().isoformat(), deal=setup["name"], type=f"PDP ({setup['dtype']})",
+               basin=setup["basin"] if len(used) == 1 else "Multiple: " + ", ".join(used),
                operator=setup["operator"], effective=DEAL["effective"], model=os.path.basename(out),
                wells=[dict(api=f["api"], name=f["name"], zone=f["zone"]) for f in fit["wells"]],
                asking_price=setup["price"], irr=base["irr"], moic=base["moic"], pv10=base["pv10"], npv10=base["pv10"] - setup["price"],
@@ -148,13 +166,15 @@ def anchor_wells(wells, fit, OVR, anc):
     return out
 
 
-def engine_inputs(wb, dd, fit, setup, INP, OVR, LOE):
+def engine_inputs(wb, dd, fit, setup, INP, OVR, LOE, WB=None, IBB=None):
     ws, B = wb["Inputs"], wb["Basins"]
+    WB, IBB = WB or {}, IBB or {}
     basins = [B.cell(4, c).value for c in range(4, 9)]
-    col = 4 + basins.index(setup["basin"])
-    inp = {}
-    for k, br in T.BASIN_ROW.items():
-        inp[k] = float(INP[k]) if k in INP else float(B.cell(br, col).value)
+
+    def bvals(bn):
+        col = 4 + basins.index(bn); ov = IBB.get(bn, {})
+        return {k: float(ov[k]) if k in ov else float(INP[k]) if k in INP else float(B.cell(br, col).value) for k, br in T.BASIN_ROW.items()}
+    inp = bvals(setup["basin"])
     for k in ("tirr", "anchor", "mult", "life_yr", "dmin", "econ", "tol", "roy", "disc"):
         inp[k] = INP.get(k, ws[T.I[k]].value)
     inp["price"] = setup["price"]; inp["eff"] = f"{setup['eff'].year:04d}-{setup['eff'].month:02d}"
@@ -168,7 +188,8 @@ def engine_inputs(wb, dd, fit, setup, INP, OVR, LOE):
         wi, nri, lnri = v[6], v[7], v[8] if len(v) > 8 else 0.8
         w = dict(active=1 if (wi or nri) else 0, age=f["months"], k0=E.ym_diff(f["last_month"], inp["eff"]), mult=float(o.get("mult", 1.0)),
                  nri=nri, wiu=0.0 if setup["dtype"] == "Minerals" else wi, dfac=lnri if inp["roy"] == 1 else 1.0,
-                 loe=float(LOE.get(f["api"], inp["loe_fix"])), lnri=lnri, hist_oil=f["oil"]["history"], hist_gas=f["gas"]["history"])
+                 lnri=lnri, hist_oil=f["oil"]["history"], hist_gas=f["gas"]["history"], p=bvals(WB.get(f["api"], setup["basin"])))
+        w["loe"] = float(LOE.get(f["api"], w["p"]["loe_fix"]))
         for s, key in (("o", "oil"), ("g", "gas")):
             an = f[key]["anchor"]
             w[s + "_q"] = float(o.get(f"{s}_q", an["q_actual"] if inp["anchor"] == "Actual" else an["q_fit"]))

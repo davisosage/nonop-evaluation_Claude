@@ -13,6 +13,9 @@ pdp_data.py (gross 8/8 Enverus monthly production; see deals/pdp-example):
     ZONE_GROUPS = {"NIOBRARA A": "Niobrara", ...}            # optional: Enverus intervals that compare with each other
     FIT_FROM = {api: "YYYY-MM"}                              # optional: start a well's fit later (after a regime change)
     LOE = {api: fixed LOE $/month 8/8}                       # optional per-well fixed LOE override
+    WELL_AREA = {api: "Sullivan"}                            # optional (multi-area packages): the subject's area / pad
+    OFFSET_AREAS = {offset_api: ["Sullivan", ...]}           # with WELL_AREA: the areas whose 5-mile radius holds the offset;
+                                                             # a subject is checked only against offsets of its own area
 
 Decline fit (each well, oil and gas separately on their own production, no GOR):
   * month 1 = first producing month (age). Months left out of the fit: zero months, months with producing days under
@@ -261,16 +264,19 @@ def group(z, zg):
 def main(deal_dir):
     d = load(deal_dir)
     DAYS, ZG, FF = getattr(d, "DAYS", {}), {k.upper(): v for k, v in getattr(d, "ZONE_GROUPS", {}).items()}, getattr(d, "FIT_FROM", {})
+    WA, OA = getattr(d, "WELL_AREA", {}), getattr(d, "OFFSET_AREAS", {})
+    area_on = bool(WA and OA)
     offs_by_group = {}
     for a, v in d.OFFSETS.items():
         if a in d.SUBJECT:
             continue
         o, g = np.array(v[3], float), np.array(v[4], float)
-        offs_by_group.setdefault(group(v[5], ZG), []).append(
-            dict(api=a, lat=float(v[1]), oil=o, gas=g, ok_o=good_months(o, DAYS.get(a), v[2]), ok_g=good_months(g, DAYS.get(a), v[2])))
+        x = dict(api=a, lat=float(v[1]), oil=o, gas=g, ok_o=good_months(o, DAYS.get(a), v[2]), ok_g=good_months(g, DAYS.get(a), v[2]))
+        for ar in (OA.get(a, []) if area_on else [""]):
+            offs_by_group.setdefault((ar, group(v[5], ZG)), []).append(x)
     # offsets: also drop single-month shut-ins without days (under 40% of the neighbouring median)
-    for lst in offs_by_group.values():
-        for x in lst:
+    for x in {id(x): x for lst in offs_by_group.values() for x in lst}.values():
+        if True:
             for vk, okk in (("oil", "ok_o"), ("gas", "ok_g")):
                 v, ok = x[vk], x[okk]
                 for i in range(len(v)):
@@ -281,8 +287,8 @@ def main(deal_dir):
     wells = []
     for a, v in d.SUBJECT.items():
         name, lat, first, oil, gas, zone = v[:6]
-        g = group(zone, ZG); offs = offs_by_group.get(g, [])
-        rec = dict(api=a, name=name, lateral=float(lat), first=first, zone=zone, zone_group=g, months=len(oil),
+        g = (WA.get(a, "") if area_on else "", group(zone, ZG)); offs = offs_by_group.get(g, [])
+        rec = dict(api=a, name=name, lateral=float(lat), first=first, zone=zone, zone_group=g[1], area=g[0], months=len(oil),
                    last_month=ym_add(first, len(oil) - 1), offsets_in_group=len(offs))
         for key, vol, ok_key in (("oil", np.array(oil, float), "ok_o"), ("gas", np.array(gas, float), "ok_g")):
             ok = good_months(vol, DAYS.get(a), first)

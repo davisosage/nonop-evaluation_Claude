@@ -1,0 +1,1026 @@
+[
+{
+"api": "05123409390000",
+"lease": "SULLIVAN",
+"no": "4K-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.143686
+},
+{
+"api": "05123409430000",
+"lease": "SULLIVAN",
+"no": "4J-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.143686
+},
+{
+"api": "05123409410000",
+"lease": "SULLIVAN",
+"no": "4I-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.293444
+},
+{
+"api": "05123409400000",
+"lease": "SULLIVAN",
+"no": "4H-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.293444
+},
+{
+"api": "05123409380000",
+"lease": "SULLIVAN",
+"no": "4A-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.396114
+},
+{
+"api": "05123409360000",
+"lease": "SULLIVAN",
+"no": "4D-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.293444
+},
+{
+"api": "05123409340000",
+"lease": "SULLIVAN",
+"no": "4E-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.293444
+},
+{
+"api": "05123409420000",
+"lease": "SULLIVAN",
+"no": "4L-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.143686
+},
+{
+"api": "05123409330000",
+"lease": "SULLIVAN",
+"no": "4F-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.293444
+},
+{
+"api": "05123409350000",
+"lease": "SULLIVAN",
+"no": "4G-26H-P268",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.293444
+},
+{
+"api": "49005639710000",
+"lease": "GRACIE FEE",
+"no": "4271-3-10-14W MH",
+"op": "ANSCHUTZ",
+"wi": 0,
+"nri": 0.011713
+},
+{
+"api": "49009335470000",
+"lease": "CU DOWNS FED",
+"no": "15-223769-2XTPH",
+"op": "DEVON ENERGY",
+"wi": 0,
+"nri": 0.0018
+},
+{
+"api": "05123528220000",
+"lease": "BENELLI 7-60",
+"no": "12-24-1",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "49009475010000",
+"lease": "CU DOWNS FED",
+"no": "15-233769-4XTPH",
+"op": "DEVON ENERGY",
+"wi": 0,
+"nri": 0.001702
+},
+{
+"api": "05123528230000",
+"lease": "BENELLI 7-60",
+"no": "12-24-6",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "05123528240000",
+"lease": "BENELLI 7-60",
+"no": "12-24-5",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "05123528250000",
+"lease": "BENELLI 7-60",
+"no": "12-24-4",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "05123528260000",
+"lease": "BENELLI 7-60",
+"no": "12-24-7",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "05123528270000",
+"lease": "BENELLI 7-60",
+"no": "12-24-2",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "05123528280000",
+"lease": "BENELLI 7-60",
+"no": "12-24-3",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.016927
+},
+{
+"api": "05123526320000",
+"lease": "ACACIA",
+"no": "17-14HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.002226
+},
+{
+"api": "49009475000000",
+"lease": "CU DOWNS FED",
+"no": "15-043769-4XTPH",
+"op": "DEVON ENERGY",
+"wi": 0,
+"nri": 0.001702
+},
+{
+"api": "42317432180000",
+"lease": "MADISON-HAMILL 36D",
+"no": "4H",
+"op": "EXXONMOBIL",
+"wi": 0.14455,
+"nri": 0.140033
+},
+{
+"api": "42317432170000",
+"lease": "MADISON-HAMILL 36C",
+"no": "3H",
+"op": "EXXONMOBIL",
+"wi": 0.144724,
+"nri": 0.140202
+},
+{
+"api": "42317432160000",
+"lease": "MADISON-HAMILL 36B",
+"no": "2H",
+"op": "EXXONMOBIL",
+"wi": 0.144434,
+"nri": 0.13992
+},
+{
+"api": "42317432150000",
+"lease": "MADISON-HAMILL 36A",
+"no": "1H",
+"op": "EXXONMOBIL",
+"wi": 0.144782,
+"nri": 0.140258
+},
+{
+"api": "05123512490000",
+"lease": "NELSON",
+"no": "35-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.2272455
+},
+{
+"api": "05123512430000",
+"lease": "NELSON",
+"no": "35-8HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.38496
+},
+{
+"api": "05123512510000",
+"lease": "NELSON",
+"no": "35-2HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.24792
+},
+{
+"api": "05123512540000",
+"lease": "NELSON",
+"no": "35-3HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.2479215
+},
+{
+"api": "05123512500000",
+"lease": "NELSON",
+"no": "35-17HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 1.1733375
+},
+{
+"api": "05123512520000",
+"lease": "NELSON",
+"no": "35-15HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.9624
+},
+{
+"api": "05123512420000",
+"lease": "NELSON",
+"no": "35-19HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 1.384278
+},
+{
+"api": "05123512460000",
+"lease": "NELSON",
+"no": "35-16HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 1.1733375
+},
+{
+"api": "05123512440000",
+"lease": "NELSON",
+"no": "35-13HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.5046375
+},
+{
+"api": "05123512530000",
+"lease": "NELSON",
+"no": "35-11HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.39375
+},
+{
+"api": "05123481210000",
+"lease": "CARSON",
+"no": "1-2HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.140694
+},
+{
+"api": "05123481100000",
+"lease": "CARSON",
+"no": "1-4HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.140694
+},
+{
+"api": "05123524260000",
+"lease": "DITTMER",
+"no": "01H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524270000",
+"lease": "DITTMER",
+"no": "02H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524290000",
+"lease": "DITTMER",
+"no": "04H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524280000",
+"lease": "DITTMER",
+"no": "03H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524330000",
+"lease": "DITTMER",
+"no": "08H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524310000",
+"lease": "DITTMER",
+"no": "06H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524320000",
+"lease": "DITTMER",
+"no": "07H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524300000",
+"lease": "DITTMER",
+"no": "05H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524350000",
+"lease": "DITTMER",
+"no": "10H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524370000",
+"lease": "DITTMER",
+"no": "12H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524380000",
+"lease": "DITTMER",
+"no": "13H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524340000",
+"lease": "DITTMER",
+"no": "09H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524390000",
+"lease": "DITTMER",
+"no": "14H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123524410000",
+"lease": "DITTMER",
+"no": "16H",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.000889
+},
+{
+"api": "05123526630000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-4",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123526610000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-2",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123526620000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-3",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123526580000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-5",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123526600000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-6",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123526590000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-1",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123526570000",
+"lease": "WHITETAIL FED 7-62",
+"no": "33-9-7",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.024509
+},
+{
+"api": "05123350000000",
+"lease": "DUTCH LAKE",
+"no": "08-10H",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.0195234375
+},
+{
+"api": "05123399950000",
+"lease": "WILL",
+"no": "6-62-15-0164B2B",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.0234375
+},
+{
+"api": "05123399940000",
+"lease": "WILL",
+"no": "6-62-15-0164C2B",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.0234375
+},
+{
+"api": "05123399930000",
+"lease": "WILL",
+"no": "6-62-15-0263BH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123401240000",
+"lease": "WILL",
+"no": "6-62-15-0461BH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123399960000",
+"lease": "WILL",
+"no": "6-62-15-0263CH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123401230100",
+"lease": "WILL",
+"no": "6-62-15-0362AH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123399980000",
+"lease": "WILL",
+"no": "6-62-15-0362BH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123440180000",
+"lease": "WILL TRUST",
+"no": "6-62-10-1719BN2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123401220000",
+"lease": "WILL",
+"no": "6-62-15-0560BH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123440230000",
+"lease": "WILL TRUST",
+"no": "6-62-10-1719BS2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123440250000",
+"lease": "WILL TRUST",
+"no": "6-62-10-3230B2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123401200000",
+"lease": "WILL",
+"no": "6-62-15-0560CH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123440240000",
+"lease": "WILL TRUST",
+"no": "6-62-10-3335B2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123440190000",
+"lease": "WILL TRUST",
+"no": "6-62-10-1614B2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123401190000",
+"lease": "WILL",
+"no": "6-62-15-0461CH2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.01171875
+},
+{
+"api": "05123440140000",
+"lease": "WILL TRUST",
+"no": "6-62-10-4846BN2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123440170000",
+"lease": "WILL TRUST",
+"no": "6-62-10-4951B2",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.006507812500000001
+},
+{
+"api": "05123441330000",
+"lease": "WILL TRUST",
+"no": "6-62-10-6462BSB",
+"op": "SM ENERGY",
+"wi": 0,
+"nri": 0.0195234375
+},
+{
+"api": "05123420970100",
+"lease": "THERMO",
+"no": "38N-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.194975
+},
+{
+"api": "05123420760000",
+"lease": "THERMO",
+"no": "38C-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.194975
+},
+{
+"api": "05123420770000",
+"lease": "THERMO",
+"no": "16N-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.487931
+},
+{
+"api": "05123420580000",
+"lease": "THERMO",
+"no": "15C-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.380243
+},
+{
+"api": "05123420590000",
+"lease": "THERMO",
+"no": "36N-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.466625
+},
+{
+"api": "05123420570000",
+"lease": "THERMO",
+"no": "15N-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.748227
+},
+{
+"api": "05123420560000",
+"lease": "THERMO",
+"no": "37N-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.571015
+},
+{
+"api": "05123415550000",
+"lease": "CARTER",
+"no": "36N-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.380111
+},
+{
+"api": "05123415510000",
+"lease": "CARTER",
+"no": "14C-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.380111
+},
+{
+"api": "05123420550000",
+"lease": "THERMO",
+"no": "37C-33HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.571015
+},
+{
+"api": "05123417930000",
+"lease": "TEDFORD",
+"no": "28N-28HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.191252
+},
+{
+"api": "05123422730000",
+"lease": "FL GREENS FEDERAL",
+"no": "4N-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.20577
+},
+{
+"api": "05123422780000",
+"lease": "FL GREENS FEDERAL",
+"no": "30C-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.20577
+},
+{
+"api": "05123422810000",
+"lease": "FL GREENS FEDERAL",
+"no": "30N-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.20577
+},
+{
+"api": "05123438980000",
+"lease": "BURGE FED",
+"no": "34C-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.101909
+},
+{
+"api": "05123438970000",
+"lease": "BURGE FED",
+"no": "30N-8HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.101909
+},
+{
+"api": "05123438960000",
+"lease": "BURGE FED",
+"no": "13C-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.10875900000000001
+},
+{
+"api": "05123438990000",
+"lease": "BURGE FED",
+"no": "13N-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.197778
+},
+{
+"api": "05123454640000",
+"lease": "SPEAK FED",
+"no": "12C-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.019740999999999998
+},
+{
+"api": "05123454620000",
+"lease": "SPEAK FED",
+"no": "33N2-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.10875900000000001
+},
+{
+"api": "05123454630000",
+"lease": "SPEAK FED",
+"no": "33N-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.10875900000000001
+},
+{
+"api": "05123454610000",
+"lease": "SPEAK FED",
+"no": "32N2-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.009877
+},
+{
+"api": "05123454600000",
+"lease": "SPEAK FED",
+"no": "32C-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.009877
+},
+{
+"api": "05123454590000",
+"lease": "SPEAK FED",
+"no": "32N-5HZ",
+"op": "OXY",
+"wi": 0,
+"nri": 0.009877
+},
+{
+"api": "05123403980000",
+"lease": "BERNHARDT",
+"no": "6G-323",
+"op": "CHEVRON",
+"wi": 0,
+"nri": 0.024388
+},
+{
+"api": "05123464040000",
+"lease": "SCHNEIDER HD",
+"no": "11-019HN",
+"op": "CHEVRON",
+"wi": 0,
+"nri": 0.011296
+},
+{
+"api": "05123403970000",
+"lease": "BERNHARDT",
+"no": "6G-403",
+"op": "CHEVRON",
+"wi": 0,
+"nri": 0.024388
+},
+{
+"api": "05123464130000",
+"lease": "SCHNEIDER HD",
+"no": "11-019HNX",
+"op": "CHEVRON",
+"wi": 0,
+"nri": 0.011296
+},
+{
+"api": "",
+"lease": "RILEY FED",
+"no": "4776-15-22-15 MH",
+"op": "ANSCHUTZ",
+"wi": 0,
+"nri": 0.004058
+},
+{
+"api": "49005792430000",
+"lease": "GRACIE FEE",
+"no": "4271-3-10-16 NBH",
+"op": "ANSCHUTZ",
+"wi": 0,
+"nri": 0.012492
+},
+{
+"api": "49005792420000",
+"lease": "GRACIE FEE",
+"no": "4271-3-10-15 NBH",
+"op": "ANSCHUTZ",
+"wi": 0,
+"nri": 0.012492
+},
+{
+"api": "49005792410000",
+"lease": "GRACIE FEE",
+"no": "4271-3-10-14 NBH",
+"op": "ANSCHUTZ",
+"wi": 0,
+"nri": 0.012492
+},
+{
+"api": "49005792400000",
+"lease": "GRACIE FEE",
+"no": "4271-3-10-13 NBH",
+"op": "ANSCHUTZ",
+"wi": 0,
+"nri": 0.012492
+},
+{
+"api": "05123528000000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-1",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528010000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-2",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528030000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-3",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528020000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-4",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528070000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-5",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528050000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-6",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528060000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-7",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "05123528040000",
+"lease": "BARRACUDA 7-62",
+"no": "33-31-8",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.002614
+},
+{
+"api": "33061054940000",
+"lease": "LEE",
+"no": "158-94-15A-27-1HS",
+"op": "PETROHUNT",
+"wi": 0.173611,
+"nri": 0.133681
+},
+{
+"api": "05123527680000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-1",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527650000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-2",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527640000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-3",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527660000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-4",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527630000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-5",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527610000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-6",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527670000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-7",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+},
+{
+"api": "05123527620000",
+"lease": "TRIGGERFISH 7-63",
+"no": "29-25-8",
+"op": "BISON IV OPERATING LLC",
+"wi": 0,
+"nri": 0.02461
+}
+]

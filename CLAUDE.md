@@ -16,4 +16,6 @@ workflow; this file covers the repository itself.
 - Run scripts from `toolkit/` without `python3 -I` (they import each other).
 - PDP (producing-property) deals use `PDP Evaluation Template.xlsx` and `pdp_fit.py` / `write_pdp.py` / `pdp_engine.py`
   (README, "Evaluate a PDP package"). Change its layout in `toolkit/build_pdp_template.py`, rebuild the template, re-run
-  `examples/pdp-example`, recalculate and confirm "All checks OK" and that `pdp_engine.py` prints "engine ties".
+  `examples/pdp-example`, recalculate and confirm "All checks OK" and that `pdp_engine.py` prints "engine ties". The PDP template holds
+  150 wells and mixed basins / royalty + WI in one model (README; `deals/pdp-package-jan2027` is the multi-basin pattern). A 150-well
+  workbook takes about a minute to recalculate in LibreOffice (`recalc.py <model> 1200`).

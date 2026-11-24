@@ -5,7 +5,7 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 | Path | What it is |
 |---|---|
 | `Non-Op Evaluation Template.xlsx` | The model. Up to 10 wells; Working interest or Minerals (Inputs C18); basin defaults (Inputs C19, Basins tab: Williston, DJ, Permian, Powder River, Anadarko / Midcon); up to 6 zone type curves ('Zone Curves' tab, Wells column X). Carries the Sun 5899 example. |
-| `PDP Evaluation Template.xlsx` | Producing-property model: up to 30 wells, hyperbolic decline per well from its own history, offset check over the forecast months, max price for the target IRR. Built by `toolkit/build_pdp_template.py`, filled by `toolkit/write_pdp.py`. See "Evaluate a PDP package". |
+| `PDP Evaluation Template.xlsx` | Producing-property model: up to 150 wells across basins (each well can carry its own basin and area / pad), hyperbolic decline per well from its own history, offset check over the forecast months, max price for the target IRR, rollup by basin, interest type and area. Built by `toolkit/build_pdp_template.py`, filled by `toolkit/write_pdp.py`. See "Evaluate a PDP package". |
 | `examples/pdp-example/` | Worked PDP example (King 3-65 28-29 pad, DJ; hypothetical interests). |
 | `Deal Log.xlsx` | One row per deal evaluated, plus lookbacks of actual production vs the type curve. Rebuilt by `toolkit/deal_log.py`. |
 | `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `lateral.py` (lateral length rule), `upgrade_template.py` / `upgrade_template_zones.py` / `upgrade_template_lateral.py` / `_phase.py` / `_steps.py` / `upgrade_template_anadarko.py` (one-time template upgrades, kept for the record). |
@@ -30,8 +30,13 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 
 ## Evaluate a PDP package (`PDP Evaluation Template.xlsx`)
 For producing wells: each well's own history is fitted with a hyperbolic decline and forecast month by month, and the
-forecast is checked against what offset wells actually did over the same months of life. Up to 30 wells; Working interest
-or Minerals; same Basins table, strip and price-deck dropdown as the non-op template. Worked example: `examples/pdp-example`
+forecast is checked against what offset wells actually did over the same months of life. Up to 150 wells; Working interest
+or Minerals; same Basins table, strip and price-deck dropdown as the non-op template. Mixed packages (royalty and WI wells, several
+basins) run in one model: leave the deal type at Working interest (a well with WI 0 is a royalty / ORRI), give each well its basin in
+`WELL_BASIN` (pricing, costs and taxes come from that basin's column on Inputs G:K; per-basin overrides in Inputs M:Q or
+`INPUTS_BY_BASIN`), its area / pad in `WELL_AREA` (Summary rollup by basin, interest type and area, rows 77+), and map each offset to
+the areas whose radius it sits in with `OFFSET_AREAS` so a well is only checked against its own area's offsets. Worked multi-basin
+example: `deals/pdp-package-jan2027` (127 wells; `make_pdp_data.py`, `downside.py`). Worked example: `examples/pdp-example`
 (the King 3-65 28-29 pad priced as if offered as PDP; hypothetical interests).
 1. New folder `deals/<deal-slug>/` with `pdp_data.py` (format in the `toolkit/pdp_fit.py` docstring and the example):
    `DEAL` (name, basin, deal type, effective month, asking price), `LAST_MONTH`, `SUBJECT` (Enverus monthly oil / gas, lateral,

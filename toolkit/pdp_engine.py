@@ -4,7 +4,9 @@
     r = run(inp, wells, prices, deck="Strip", mult=1.0)   # r: pv10, max_price, irr, moic, net_oil, ...
 
 inp    dict of resolved Inputs values (keys as build_pdp_template.I: odiff, shrink, tax1, loe_fix, dm, life_m, ...)
-wells  list of dicts: active, age, k0, mult, nri, wiu, dfac, loe, lnri, hist_oil, hist_gas, and for s in (o, g): s_q, s_da, s_b
+wells  list of dicts: active, age, k0, mult, nri, wiu, dfac, loe, lnri, hist_oil, hist_gas, and for s in (o, g): s_q, s_da, s_b;
+       optional p = the well's basin values (odiff, ogath, gdiff, shrink, ngly, nglp, gp, tax1, tax2, loe_mcf, loe_bbl, wor, swd, pa);
+       without p the deal-level inp values are used
 prices dict(start="YYYY-MM", wti=[...], hh=[...]) strip by month (flat after the end)
 
 Check a recalculated workbook against the engine:  python pdp_engine.py <model.xlsx>
@@ -70,10 +72,11 @@ def well_cf(w, inp, wti, hh, mult=1.0, econ=None):
             v[j >= inp["life_m"]] = 0.0
         vols[s] = v
     o, g = vols["o"], vols["g"]
-    rate = np.where(w["age"] + k > 36, inp["tax2"], inp["tax1"])
-    rev_at = (o * (wti + inp["odiff"]) + g * (1 - inp["shrink"]) * (hh + inp["gdiff"]) + g / 1000 * inp["ngly"] * wti * inp["nglp"]) * (1 - rate)
-    ded = g * inp["gp"] + o * inp["ogath"]
-    loe = w["loe"] + g * inp["loe_mcf"] + o * (inp["loe_bbl"] + inp["wor"] * inp["swd"])
+    P = w.get("p") or inp
+    rate = np.where(w["age"] + k > 36, P["tax2"], P["tax1"])
+    rev_at = (o * (wti + P["odiff"]) + g * (1 - P["shrink"]) * (hh + P["gdiff"]) + g / 1000 * P["ngly"] * wti * P["nglp"]) * (1 - rate)
+    ded = g * P["gp"] + o * P["ogath"]
+    loe = w["loe"] + g * P["loe_mcf"] + o * (P["loe_bbl"] + P["wor"] * P["swd"])
     op8 = w["lnri"] * rev_at - w["dfac"] * ded - loe
     econ = inp["econ"] if econ is None else econ
     on = np.zeros(NM)
@@ -86,7 +89,7 @@ def well_cf(w, inp, wti, hh, mult=1.0, econ=None):
                 on[jj] = 1.0 if (prev == 1.0 and op8[jj] > 0) else 0.0
                 prev = on[jj]
     ev = np.r_[w["active"] - on[0], on[:-1] - on[1:]]
-    net = on * (w["nri"] * rev_at - w["wiu"] * w["dfac"] * ded - w["wiu"] * loe) - w["wiu"] * inp["pa"] * ev
+    net = on * (w["nri"] * rev_at - w["wiu"] * w["dfac"] * ded - w["wiu"] * loe) - w["wiu"] * P["pa"] * ev
     return net, on, o, g
 
 
@@ -126,6 +129,7 @@ def from_workbook(path):
                  hist_gas=[H.cell(T.H0 + a, 2 * (i + 1) + 2).value or 0 for a in range(T.NH)])
         for s in ("o", "g"):
             w[s + "_q"], w[s + "_da"], w[s + "_b"] = float(g(s + "_q") or 0), float(g(s + "_dau") or 0), float(g(s + "_bu") or 0.001)
+        w["p"] = {k: float(g("p_" + k) or 0) for k in T.PARAMS}
         wells.append(w)
     d0 = P["B6"].value
     prices = dict(start=f"{d0.year:04d}-{d0.month:02d}", wti=[P.cell(r, 5).value for r in range(6, 606)], hh=[P.cell(r, 6).value for r in range(6, 606)])
@@ -138,8 +142,8 @@ if __name__ == "__main__":
     r = run(inp, wells, prices, deck="Strip" if inp["deck"] == 1 else deck)
     S = wb["Summary"]
     ok = True
-    for lab, cell, key in (("PV10", "C12", "pv10"), ("Max price", "C11", "max_price"), ("Net oil MBO", "C19", "net_oil")):
-        wbv = S[cell].value; ev = r[key] / (1000 if key == "net_oil" else 1)
+    for lab, cell, key in (("PV10", "C12", "pv10"), ("Max price", "C11", "max_price"), ("Net oil MBO", "C19", "net_oil"), ("Net gas MMcf", "C20", "net_gas")):
+        wbv = S[cell].value; ev = r[key] / (1000 if key in ("net_oil", "net_gas") else 1)
         d = abs(ev - wbv) / max(abs(wbv), 1)
         ok &= d < 1e-4
         print(f"{lab:<12} workbook {wbv:>16,.2f}  engine {ev:>16,.2f}  diff {d:.2e}")
