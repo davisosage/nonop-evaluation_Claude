@@ -3,7 +3,7 @@
  "model_file": "Lomas 7-18 DM 2H Anadarko Non-Op Model.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
- "basin": "Anadarko (OK)",
+ "basin": "Anadarko / Midcon (OK)",
  "wells": [
   {
    "name": "LOMAS 7/18 DM #2H",

@@ -3,7 +3,7 @@
  "model_file": "Merlin 1-11-2XH Anadarko Non-Op Model.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
- "basin": "Anadarko (OK)",
+ "basin": "Anadarko / Midcon (OK)",
  "wells": [
   {
    "name": "MERLIN 1-11-2XH",

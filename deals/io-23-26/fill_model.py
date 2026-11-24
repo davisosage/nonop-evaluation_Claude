@@ -65,7 +65,8 @@ FIT_N = len(dd.FIT_SET)
 RADIUS = {"io-23-26": "20 mi", "bogges-29-20": "15 mi", "merlin-1-11-2xh": "10 mi"}.get(SLUG, "5 mi")
 TITLE = f"{d['name']} ({d['op']}, {d['zone']}, {d['county']})"
 
-# Oklahoma (Anadarko) inputs: no Anadarko column on the Basins tab, so every line is overridden in Inputs column E.
+# Oklahoma (Anadarko) inputs: the template's Anadarko / Midcon (OK) basin column (Basins tab, added Nov 23, 2026). Kept here
+# for the record only; no column E overrides are written.
 OK_IN = {  # Inputs row: (value, note)
     41: (-1.50, "ASSUMPTION, Oklahoma: Oklahoma sweet at the lease vs NYMEX WTI before gathering; confirm on Mewbourne / N&G check stubs"),
     42: (1.50, "ASSUMPTION, Oklahoma: trucking / gathering to Cushing-area purchasers"),
@@ -115,9 +116,7 @@ if mode == "pre":
     I["B11"] = f"Type curve multiplier (100% = {RADIUS} {d['zone']} offsets base)"
     I["B13"] = f"Type curve (1 = {RADIUS} {d['zone']} offsets base, 2 = Enverus fit-set P50 on our shape)"
     I["C18"] = "Working interest"
-    I["C19"] = "Permian (TX)"
-    I["D19"] = ("No Anadarko / Oklahoma column on the Basins tab: every price, cost and tax line below is overridden in column E "
-                "with Oklahoma values, so the Permian defaults are not used")
+    I["C19"] = "Anadarko / Midcon (OK)"
     I["C20"] = 0
     I["C21"] = None
     I["D12"] = ("Default child haircut, 0% (fund standard). Override here or per well (Wells column Q)"
@@ -125,9 +124,6 @@ if mode == "pre":
     I["D13"] = (f"Base = 1: {d['zone']} offsets inside {RADIUS} ({FIT_N} wells"
                 + (", LOW CONFIDENCE" if FIT_N < 15 else "") + "). Enverus EUR fields are blank on this subscription, so 2 = base")
     I["D38"] = DECK
-    for r, (v, n) in OK_IN.items():
-        I[f"E{r}"] = v
-        I[f"D{r}"] = f'=IF(ISNUMBER($E{r}),"{n}","Basin default ("&$C$19&"); see the Basins tab")'
 
     src = openpyxl.load_workbook(os.path.join(HERE, "..", "friendly-skies", "Friendly Skies DJ Non-Op Model.xlsx"))
     P, SP = wb["Prices"], src["Prices"]
@@ -149,7 +145,7 @@ if mode == "pre":
         f"- Lateral: {d['lat']:,} ft; " + ("permitted in Enverus" if d["api"] else "ASSUMPTION, no permit in Enverus yet"),
         "- Timing: closing Jan-27, spud Mar-27, first sales Oct-27 (Davis); completion Sep-27 assumed. Drilling capex is booked "
         "at closing, two months before spud (slightly conservative)",
-        "- Oklahoma pricing, costs and taxes are Osage Manka assumptions (Inputs column E); no operator JIBs or check stubs seen",
+        "- Oklahoma pricing, costs and taxes: Anadarko / Midcon (OK) basin defaults (Basins tab), Osage Manka assumptions; no operator JIBs or check stubs seen",
         "- Type curve: young offsets (most first produced 2025); see the TypeCurve notes for the radius, b source and the gas b "
         "at the 0.05 floor",
     ]

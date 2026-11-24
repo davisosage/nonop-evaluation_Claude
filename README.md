@@ -4,9 +4,9 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 
 | Path | What it is |
 |---|---|
-| `Non-Op Evaluation Template.xlsx` | The model. Up to 10 wells; Working interest or Minerals (Inputs C18); basin defaults (Inputs C19, Basins tab); up to 6 zone type curves ('Zone Curves' tab, Wells column X). Carries the Sun 5899 example. |
+| `Non-Op Evaluation Template.xlsx` | The model. Up to 10 wells; Working interest or Minerals (Inputs C18); basin defaults (Inputs C19, Basins tab: Williston, DJ, Permian, Powder River, Anadarko / Midcon); up to 6 zone type curves ('Zone Curves' tab, Wells column X). Carries the Sun 5899 example. |
 | `Deal Log.xlsx` | One row per deal evaluated, plus lookbacks of actual production vs the type curve. Rebuilt by `toolkit/deal_log.py`. |
-| `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `lateral.py` (lateral length rule), `upgrade_template.py` / `upgrade_template_zones.py` / `upgrade_template_lateral.py` / `_phase.py` / `_steps.py` (one-time template upgrades, kept for the record). |
+| `toolkit/` | `build_tc.py` (type curves), `engine.py` (cash flows, ties to the workbook), `write_model.py` (fills a model), `plot_tc.py` (TypeCurve charts and table), `lookback.py`, `deal_log.py`, `lateral.py` (lateral length rule), `upgrade_template.py` / `upgrade_template_zones.py` / `upgrade_template_lateral.py` / `_phase.py` / `_steps.py` / `upgrade_template_anadarko.py` (one-time template upgrades, kept for the record). |
 | `deals/<deal>/` | Per deal: `deal_data.py` (Enverus production and fit sets), `tc_summary.json`, `tc_curves.csv`, `deal.json` (terms, results, decision), charts, the finished model, and later `actuals.py` / `lookback.json`. |
 
 ## Evaluate a deal

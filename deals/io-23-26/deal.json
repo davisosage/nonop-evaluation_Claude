@@ -3,7 +3,7 @@
  "model_file": "IO 23-26 Anadarko Non-Op Model.xlsx",
  "evaluated": "2026-11-23",
  "type": "Working interest",
- "basin": "Anadarko (OK)",
+ "basin": "Anadarko / Midcon (OK)",
  "wells": [
   {
    "name": "IO 23/26",
