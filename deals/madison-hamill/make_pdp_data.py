@@ -4,7 +4,9 @@ centroid), selection.json (screen), prod_*.json (production dataset: liquids, ga
 Interests from Davis (2026-11-24). Lease NRI for the 8/8 economic limit: 75% (assumption; Texas fee leases)."""
 import csv, glob, io, json, os
 H = os.path.dirname(os.path.abspath(__file__))
-SUBJ = {"4231743215": (0.144782, 0.140258), "4231743216": (0.144434, 0.13992), "4231743217": (0.144724, 0.140202), "4231743218": (0.14455, 0.140033)}
+# Davis's figures are in percent (0.144782 = 0.144782%), stored here as decimals
+SUBJ = {a: (wi / 100, nri / 100) for a, (wi, nri) in {"4231743215": (0.144782, 0.140258), "4231743216": (0.144434, 0.13992),
+        "4231743217": (0.144724, 0.140202), "4231743218": (0.14455, 0.140033)}.items()}
 LEASE_NRI = 0.75
 off = {r["API_UWI"].replace("-", ""): r for r in json.load(open(os.path.join(H, "raw", "offsets_5mi.json")))}
 sel = json.load(open(os.path.join(H, "raw", "selection.json")))
