@@ -43,12 +43,13 @@ import lateral as LAT
 WELLS, FIT_SET, ENV_EUR, DEAL_DIR, OIL_B_FIXED, GAS_B_FIXED = {}, [], {}, ".", None, None
 ZONES = {}                       # optional: multi-zone fit sets (see above)
 DAYS, FIT_SET_10MI = {}, []      # optional: producing days by month {api: [days]}; 10-mile fit set [apis]
+B_SET = []                       # optional: b donor wells [apis] (same formation, 24+ months) for young plays; see main()
 SERIES, ORIG_LEN = {}, {}        # offsets normalized to the 10,000 ft basis for the set being built; cleaned months reported
 MIN_FIT_WELLS = 15               # below this the 5-mile curve is low confidence and the 10-mile curve is built too
 
 
 def load_deal(deal_dir):
-    global WELLS, FIT_SET, ENV_EUR, DEAL_DIR, DAYS, FIT_SET_10MI, ZONES
+    global WELLS, FIT_SET, ENV_EUR, DEAL_DIR, DAYS, FIT_SET_10MI, ZONES, B_SET
     spec = importlib.util.spec_from_file_location("deal_data", os.path.join(deal_dir, "deal_data.py"))
     dd = importlib.util.module_from_spec(spec); spec.loader.exec_module(dd)
     ZONES = dict(getattr(dd, "ZONES", {}) or {})
@@ -57,6 +58,7 @@ def load_deal(deal_dir):
     FIT_SET = list(getattr(dd, "FIT_SET", None) or z1.get("fit", []))
     DAYS = getattr(dd, "DAYS", {})
     FIT_SET_10MI = list(getattr(dd, "FIT_SET_10MI", None) or z1.get("fit_10mi", []))
+    B_SET = list(getattr(dd, "B_SET", None) or [])
     if len(ZONES) > 6:
         raise SystemExit("ZONES: the template holds 6 zone curves at most")
 
@@ -171,7 +173,10 @@ RAMP_MIN_RISE = 0.10   # a ramp needs the peak at least 10% above month 1
 
 def find_peak(vol):
     """0-based peak month; 0 = no ramp."""
-    p = int(np.argmax(vol[:min(RAMP_SEARCH, len(vol) - 12)]))
+    w = min(RAMP_SEARCH, len(vol) - 12)
+    if w < 2:                        # short mean (young play, 13 months or less): search the peak with 6+ months after it
+        w = min(RAMP_SEARCH, max(len(vol) - 6, 1))
+    p = int(np.argmax(vol[:w]))
     return p if p > 0 and vol[p] >= vol[0] * (1 + RAMP_MIN_RISE) else 0
 
 
@@ -351,7 +356,14 @@ def main():
     if ZONES:
         build_zones()
     borrow = None
-    if long_count(FIT_SET) < MIN_LONG_WELLS and FIT_SET_10MI:
+    if long_count(FIT_SET) < MIN_LONG_WELLS and long_count(B_SET) >= MIN_LONG_WELLS:
+        # young play: b fitted on a named donor set of same-formation 24+ month wells (deal_data.B_SET), applied to the
+        # fit set's mean. Checked before the 10-mile set, which in a young play has no more long wells than the 5-mile set.
+        _, _, _, _, t0 = build_set(B_SET)
+        borrow = (t0["oil"]["b"], t0["gas"]["b"], f"b fitted on the {t0['long_wells']} 24+ month wells of the B_SET donor "
+                  f"wells ({long_count(FIT_SET)} in the {len(FIT_SET)}-well fit set)")
+        OFFSETS_BASIS.clear()
+    elif long_count(FIT_SET) < MIN_LONG_WELLS and FIT_SET_10MI:
         _, _, _, _, t0 = build_set(FIT_SET_10MI)
         borrow = (t0["oil"]["b"], t0["gas"]["b"], f"b fitted on the {t0['long_wells']} 24+ month wells of the 10-mile set "
                   f"({long_count(FIT_SET)} in the {len(FIT_SET)}-well fit set)")

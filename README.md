@@ -18,6 +18,10 @@ The deal model, the scripts that fill it, and a record of every deal evaluated.
 2. `cd toolkit && python3 build_tc.py ../deals/<deal-slug>`
    - If a fit set has fewer than 3 wells with 24+ months (young offsets), `build_tc.py` fits b on the 24+ month wells of the same
      zone's 10-mile set (`fit_10mi` / `FIT_SET_10MI`) and applies it to the 5-mile mean; the summary records `b_borrowed` and `b_source`. (multi-zone: also writes `tc_zones.json` and `tc_zone_curves*.csv`)
+   - Young plays where even the 10-mile set lacks 3 wells with 24+ months (e.g. the 2025-26 Anadarko Cherokee): list same-formation
+     24+ month wells from the wider area in `B_SET` in `deal_data.py`; `build_tc.py` fits b on them first (before the 10-mile
+     fallback) and applies it to the fit set's mean (single-zone deals; see `deals/lomas-7-18-1h`). A fit-set mean of 13 months or
+     less searches its ramp peak with 6+ months after it.
 3. Copy the template, fill Wells (multi-zone: the zone name in column X, exactly as in `ZONES`; leave the TC factor at 1), Inputs (deal type, basin, overrides in column E) and the Prices strip; recalculate (LibreOffice headless or Excel).
 4. `python3 write_model.py <filled.xlsx> ../deals/<deal-slug> "../deals/<deal-slug>/<Deal> <Basin> Non-Op Model.xlsx"`, then recalculate the output and confirm Summary shows "All checks OK". `write_model.py` solves Summary C7 (premium, % of net capex) so the live-case IRR (C12) is 20%; the solve is kept in E7, and you can type over C7 to test a bid.
 5. `python3 deal_log.py ../deals "../Deal Log.xlsx"`, commit.

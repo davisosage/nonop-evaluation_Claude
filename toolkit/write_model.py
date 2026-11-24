@@ -172,9 +172,13 @@ import re as _re
 _note = _re.sub(r" ?Multi-phase: .*?\)\.", "", tc["B3"].value or "")
 def _bdesc(lab, d):
     w = list(d["b_windows"].values()); bp = d["b_boot_p10_p90"]
-    return (f"{lab} b {d['b']:.2f} ({'at the 2.0 cap, ' if d.get('b_pinned') else ''}{min(w):.2f}-{max(w):.2f} across windows; "
-            f"bootstrap P10-P90 {bp[0]:.2f}-{bp[1]:.2f})")
-_fit = (f"{_bdesc('Oil', o)}; {_bdesc('gas', g)}; both fitted on the {S['long_wells']} wells with 24+ months. "
+    pin = ("at the 2.0 cap, " if d["b"] >= 1.999 else "at the 0.05 floor, ") if d.get("b_pinned") else ""
+    win = f"{min(w):.2f}-{max(w):.2f} across windows" if w else "no 24+ month well in the fit set"
+    boot = f"; bootstrap P10-P90 {bp[0]:.2f}-{bp[1]:.2f}" if not any(math.isnan(x) for x in bp) else ""
+    return f"{lab} b {d['b']:.2f} ({pin}{win}{boot})"
+_bsrc = (o.get("b_source") + "; the windows above are the fit set's own 24+ month wells" if S.get("b_borrowed") and o.get("b_source")
+         else f"both fitted on the {S['long_wells']} wells with 24+ months")
+_fit = (f"{_bdesc('Oil', o)}; {_bdesc('gas', g)}; {_bsrc}. "
         f"Guardrail {'binding' if min(S['guardrail'].values()) < 1 else 'not binding'}: base is "
         f"{S['fit_vs_median']['oil']:.0%} (oil) / {S['fit_vs_median']['gas']:.0%} (gas) of the Enverus fit-set median. "
         f"Partial first months scaled to a full month from Enverus producing days for {len(S.get('days_used', []))} of the "
@@ -187,12 +191,12 @@ _note = _note.replace("Map at N2, plots at N40.", "Comp map and DSU detail pictu
 tc["B3"] = (_note + f" Multi-phase: oil and gas each fitted on their own production (no GOR): straight-line ramp to the peak"
              f" month (oil {pk + 1}, gas {pg + 1}; 1 = no ramp), then hyperbolic decline from the peak. Ramp start, qi, De fitted"
              f" together on all months; b from the 24+ month wells (oil {o['b']:.2f}, gas {g['b']:.2f}"
-             f"{', gas b at the 2.0 cap' if g.get('b_pinned') else ''}).").strip()
+             f"{(', gas b at the 2.0 cap' if g['b'] >= 1.999 else ', gas b at the 0.05 floor') if g.get('b_pinned') else ''}).").strip()
 c5 = wb["Comps 5mi"] if "Comps 5mi" in wb.sheetnames else None
 if c5 is not None and str(c5["B9"].value or "").startswith("b used"):
     c5["C9"] = f"{o['b']:.2f} / {g['b']:.2f}"
     c5["E9"] = (f"Both streams multi-phase, b fitted on the {S['long_wells']} wells with 24+ months"
-                f"{'; gas b at the 2.0 cap (data wants flatter)' if g.get('b_pinned') else ''}.")
+                f"{('; gas b at the 2.0 cap (data wants flatter)' if g['b'] >= 1.999 else '; gas b at the 0.05 floor (data wants steeper)') if g.get('b_pinned') else ''}.")
 # the old static type-curve picture (1400 x 500, oil + gas on the GOR method) is superseded by the plot_tc charts
 tc._images = [im for im in tc._images if not (im.width == 1400 and im.height == 500)]
 tc["H8"] = "qi at peak (per day)"
@@ -225,7 +229,7 @@ if "Zone Curves" in wb.sheetnames:
             zc.cell(6 + i, 3 + 2 * k).value, zc.cell(6 + i, 4 + 2 * k).value = float(zo[i]), float(zg[i])
             zc.cell(6 + i, 3 + 2 * k).number_format = zc.cell(6 + i, 4 + 2 * k).number_format = "#,##0"
         t = z.get("ten_mile")
-        flags = [f"{s_} b at the 2.0 cap" for s_ in ("oil", "gas") if z[s_].get("b_pinned")]
+        flags = [f"{s_} b at the {'2.0 cap' if z[s_]['b'] >= 1.999 else '0.05 floor'}" for s_ in ("oil", "gas") if z[s_].get("b_pinned")]
         vals = [z.get("radius", "5 mi"), z["wells"], z["long_wells"], "Yes" if z.get("low_confidence") else "No",
                 round(z["oil"]["b"], 2), round(z["gas"]["b"], 2), round(float(zo.sum()) / 1000), round(float(zg.sum()) / 1e6, 2),
                 t["wells"] if t else None, round(t["oil"]["eur"] / 1000) if t else None, round(t["gas"]["eur"] / 1e6, 2) if t else None,
