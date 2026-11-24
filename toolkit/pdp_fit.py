@@ -302,7 +302,8 @@ def main(deal_dir):
             if P is None:
                 raise SystemExit(f"{name}: not enough good {key} months to fit")
             an = anchor(vol, ok, P)
-            view = offset_view((vol, ok, float(lat), len(vol)), [(x[key], x[ok_key], x["lat"]) for x in offs])
+            # the well's own level uses the months its fit kept (outliers and shut-ins out), so one spike does not move the bands
+            view = offset_view((vol, P["used"], float(lat), len(vol)), [(x[key], x[ok_key], x["lat"]) for x in offs])
             rec[key] = dict(start_age=P["start"] + 1, q0=P["q0"], D=P["D"], b=P["b"], b_source=b_src, b_at_cap=bool(P["b"] >= B_HI - 1e-3),
                             level_shift=(None if P["step"] is None else dict(from_age=P["step"] + 1, change=math.exp(P["c"]) - 1)),
                             r2=P["r2"], months_used=P["n_used"], months_excluded=[i + 1 for i in range(len(vol)) if not P["used"][i] and i >= P["start"]],

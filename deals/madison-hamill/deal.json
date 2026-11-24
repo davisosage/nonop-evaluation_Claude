@@ -1,0 +1,44 @@
+{
+ "evaluated": "2026-11-24",
+ "deal": "Madison-Hamill 36A-36D PDP",
+ "type": "PDP (Working interest)",
+ "basin": "Permian (TX)",
+ "operator": "XTO ENERGY (EXXON)",
+ "effective": "2026-12",
+ "model": "Madison-Hamill 36A-36D Permian PDP Model.xlsx",
+ "wells": [
+  {
+   "api": "4231743215",
+   "name": "MADISON-HAMILL 36A 1H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "4231743216",
+   "name": "MADISON-HAMILL 36B 2H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "4231743217",
+   "name": "MADISON-HAMILL 36C 3H",
+   "zone": "WOLFCAMP A"
+  },
+  {
+   "api": "4231743218",
+   "name": "MADISON-HAMILL 36D 4H",
+   "zone": "WOLFCAMP A"
+  }
+ ],
+ "asking_price": 0.0,
+ "irr": null,
+ "moic": null,
+ "pv10": 3127062.204495525,
+ "npv10": 3127062.204495525,
+ "max_for_20pct_irr": 2268724.4645561283,
+ "max_price_target_irr": 2268724.4645561283,
+ "net_oil_bbl": 116220.47980882024,
+ "net_gas_mcf": 415238.8318220732,
+ "decision": "Pending",
+ "price_paid": null,
+ "closed": null,
+ "notes": ""
+}
